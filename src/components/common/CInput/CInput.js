@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '../CText/CText';
 
 import { colors } from '@/core/theme/colors';
 
-const CInput = ({ label, value, onChangeText, placeholder, secureTextEntry, style, inputStyle, ...props }) => {
+const CInput = forwardRef(({ label, value, onChangeText, placeholder, secureTextEntry, style, inputStyle, ...props }, ref) => {
     return (
         <View style={[styles.container, style]}>
             {label && <CText style={styles.label}>{label}</CText>}
             <TextInput
+                ref={ref}
                 value={value}
                 onChangeText={onChangeText}
                 placeholder={placeholder}
@@ -21,7 +22,7 @@ const CInput = ({ label, value, onChangeText, placeholder, secureTextEntry, styl
             />
         </View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {

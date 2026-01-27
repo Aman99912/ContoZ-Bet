@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
     View,
     StyleSheet,
@@ -20,6 +20,7 @@ const LoginScreen = ({ navigation }) => {
     const [mobile, setMobile] = useState('');
     const [otp, setOtp] = useState(['', '', '', '']);
     const [showOtpModal, setShowOtpModal] = useState(false);
+    const otpRefs = useRef([]);
 
     const handleSendOtp = () => {
         if (mobile.length === 10) {
@@ -30,14 +31,24 @@ const LoginScreen = ({ navigation }) => {
     const handleVerifyOtp = () => {
         // Navigate to Home or complete login
         console.log('Verifying OTP:', otp.join(''));
-        // navigation.replace('Home'); // Example navigation
+        navigation.replace('MainApp');
     };
 
     const handleOtpChange = (value, index) => {
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
-        // Logic to focus next input could be added here
+
+        // Auto focus next input
+        if (value && index < 3) {
+            otpRefs.current[index + 1]?.focus();
+        }
+    };
+
+    const handleOtpKeyPress = (e, index) => {
+        if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+            otpRefs.current[index - 1]?.focus();
+        }
     };
 
     return (
@@ -95,12 +106,14 @@ const LoginScreen = ({ navigation }) => {
                                             {otp.map((digit, index) => (
                                                 <CInput
                                                     key={index}
+                                                    ref={(ref) => otpRefs.current[index] = ref}
                                                     style={styles.otpInputWrapper}
                                                     inputStyle={styles.otpInput}
                                                     keyboardType="number-pad"
                                                     maxLength={1}
                                                     value={digit}
                                                     onChangeText={(text) => handleOtpChange(text, index)}
+                                                    onKeyPress={(e) => handleOtpKeyPress(e, index)}
                                                     textAlign="center"
                                                 />
                                             ))}
