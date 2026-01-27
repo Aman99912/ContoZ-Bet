@@ -4,6 +4,8 @@ import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '../CText/CText';
 import BackButton from '../BackButton/BackButton';
 
+import { colors } from '@/core/theme/colors';
+
 const Header = ({ title, showBack, onBackPress, rightComponent }) => {
     return (
         <View style={styles.container}>
@@ -27,7 +29,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: moderateScale(16),
-        backgroundColor: '#0f172a',
+        backgroundColor: colors.background,
     },
     left: {
         flex: 1,
@@ -44,7 +46,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: moderateScale(18),
         fontWeight: '700',
-        color: '#f8fafc',
+        color: colors.textPrimary,
     },
 });
 

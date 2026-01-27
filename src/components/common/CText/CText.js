@@ -2,6 +2,8 @@ import React from 'react';
 import { Text as RNText, StyleSheet } from 'react-native';
 import { moderateScale } from '@/core/utils/responsive';
 
+import { colors } from '@/core/theme/colors';
+
 const CText = ({ style, children, ...props }) => {
     // Flatten style to extract fontSize for lineHeight calculation
     const flattenedStyle = StyleSheet.flatten(style || {});
@@ -26,7 +28,7 @@ const CText = ({ style, children, ...props }) => {
 const styles = StyleSheet.create({
     text: {
         fontSize: moderateScale(14),
-        color: '#000',
+        color: colors.textPrimary,
         textAlign: 'left', // Ensure default left alignment
         writingDirection: 'ltr', // Force LTR for consistency
         includeFontPadding: false, // Prevent script-based vertical shifting on Android

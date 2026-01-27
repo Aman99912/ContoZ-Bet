@@ -3,6 +3,8 @@ import { TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import { moderateScale } from '@/core/utils/responsive';
 import { MaterialIcons } from '@expo/vector-icons';
 
+import { colors } from '@/core/theme/colors';
+
 const BackButton = ({ onPress, style }) => {
     useEffect(() => {
         const backAction = () => {
@@ -27,7 +29,7 @@ const BackButton = ({ onPress, style }) => {
             onPress={onPress}
             activeOpacity={0.7}
         >
-            <MaterialIcons name="chevron-left" size={moderateScale(32)} color="#38bdf8" />
+            <MaterialIcons name="chevron-left" size={moderateScale(32)} color={colors.textPrimary} />
         </TouchableOpacity>
     );
 };
