@@ -10,7 +10,7 @@ const Navbar = () => {
 
     return (
         <View style={styles.navbar}>
-            <CText style={styles.brand}>Perception</CText>
+            <CText style={styles.brand}>Conto-Z</CText>
             <View style={styles.navLinks}>
                 <TouchableOpacity style={styles.navButton}>
                     <CText numberOfLines={1} adjustsFontSizeToFit style={styles.navText}>{t('home')}</CText>
