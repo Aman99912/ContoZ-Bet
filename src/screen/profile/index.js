@@ -14,6 +14,26 @@ export default function UserScreen() {
         navigation.navigate('EditProfile');
     };
 
+    const handleReferEarn = () => {
+        navigation.navigate('ReferAndEarn');
+    };
+
+    const handleMyGames = () => {
+        navigation.navigate('MyGames');
+    };
+
+    const handleNotifications = () => {
+        navigation.navigate('Notifications');
+    };
+
+    const handleTerms = () => {
+        navigation.navigate('TermsAndConditions');
+    };
+
+    const handlePrivacy = () => {
+        navigation.navigate('PrivacyPolicy');
+    };
+
     const handleHelpSupport = () => {
         navigation.navigate('HelpAndSupport');
     };
@@ -27,7 +47,15 @@ export default function UserScreen() {
         <SafeAreaView style={styles.container}>
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <ProfileHeader name="General User" onEditPress={handleEditProfile} />
-                <MenuBar onHelpPress={handleHelpSupport} onLogoutPress={handleLogout} />
+                <MenuBar
+                    onReferPress={handleReferEarn}
+                    onMyGamesPress={handleMyGames}
+                    onNotificationsPress={handleNotifications}
+                    onTermsPress={handleTerms}
+                    onPrivacyPress={handlePrivacy}
+                    onHelpPress={handleHelpSupport}
+                    onLogoutPress={handleLogout}
+                />
             </ScrollView>
         </SafeAreaView>
     );
@@ -36,7 +64,7 @@ export default function UserScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        
+
         backgroundColor: colors.background,
     },
     scroll: {

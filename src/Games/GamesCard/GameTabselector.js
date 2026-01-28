@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingVertical: verticalScale(4),
         gap: moderateScale(8),
+        
     },
     tab: {
         paddingHorizontal: moderateScale(16),
@@ -40,6 +41,11 @@ const styles = StyleSheet.create({
         backgroundColor: colors.surface,
         borderWidth: 1,
         borderColor: colors.border,
+          shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 4,
     },
     activeTab: {
         backgroundColor: colors.primary,

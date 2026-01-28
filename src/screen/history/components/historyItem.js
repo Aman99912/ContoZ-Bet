@@ -40,6 +40,11 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(8),
         borderWidth: 1,
         borderColor: colors.border,
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 2,
     },
     iconBox: {
         width: moderateScale(50),
@@ -49,6 +54,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: moderateScale(12),
+          shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 2,
     },
     content: {
         flex: 1,

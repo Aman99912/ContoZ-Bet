@@ -47,7 +47,12 @@ const Transactions = ({
                 ) : null
             }
             onEndReachedThreshold={0.2}
-            onEndReached={onLoadMore}
+            onEndReached={() => {
+                // Only load more if not already loading and there's more data
+                if (!isLoadingMore && hasMore && onLoadMore) {
+                    onLoadMore();
+                }
+            }}
             refreshing={refreshing}
             onRefresh={onRefresh}
             contentContainerStyle={{ paddingBottom: verticalScale(20) }}

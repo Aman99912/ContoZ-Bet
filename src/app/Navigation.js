@@ -14,6 +14,11 @@ import WalletScreen from '@/screen/wallet';
 import UserScreen from '@/screen/profile';
 import EditProfile from '@/screen/profile/Profile-screens/EditProfile';
 import HelpAndSupport from '@/screen/profile/Profile-screens/helpandSupport';
+import ReferAndEarn from '@/screen/profile/Profile-screens/ReferandEarn';
+import MyGames from '@/screen/profile/Profile-screens/MyGames';
+import Notifications from '@/screen/profile/Profile-screens/Notifications';
+import TermsAndConditions from '@/screen/profile/Profile-screens/TermsAndConditions';
+import PrivacyPolicy from '@/screen/profile/Profile-screens/PrivacyPolicy';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -24,7 +29,7 @@ const TabNavigator = () => {
     const insets = useSafeAreaInsets();
 
     // Set to true when user is logged in
-    const isLoggedIn = false; // Change this based on your auth state
+    const isLoggedIn = true; // Change this based on your auth state
 
     return (
         <Tab.Navigator
@@ -116,6 +121,11 @@ const Navigation = () => {
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="EditProfile" component={EditProfile} />
                 <Stack.Screen name="HelpAndSupport" component={HelpAndSupport} />
+                <Stack.Screen name="ReferAndEarn" component={ReferAndEarn} />
+                <Stack.Screen name="MyGames" component={MyGames} />
+                <Stack.Screen name="Notifications" component={Notifications} />
+                <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
+                <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
             </Stack.Navigator>
         </NavigationContainer>
     );

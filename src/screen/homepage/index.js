@@ -53,7 +53,7 @@ export default function HomeScreen() {
                     </View>
 
                     <TouchableOpacity style={styles.button}>
-                        <CText style={styles.buttonText}>View All Games</CText>
+                        <CText style={styles.buttonText} numberOfLines={1}>View All Games</CText>
                     </TouchableOpacity>
                 </View>
             </ScrollView>

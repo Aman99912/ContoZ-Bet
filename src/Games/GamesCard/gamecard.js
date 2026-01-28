@@ -34,6 +34,11 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(16),
         borderWidth: 1,
         borderColor: colors.border,
+          shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 6,
     },
     image: {
         width: '100%',

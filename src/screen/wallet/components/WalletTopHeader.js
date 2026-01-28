@@ -57,77 +57,83 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
 
     return (
         <>
-        <SafeAreaView>
-            <View style={styles.headerContainer}>
-                <View style={styles.balanceRow}>
-                    <View>
-                        <CText style={styles.totalBalanceLabel}>Total balance</CText>
-                        <CText style={styles.totalBalanceAmount}>₹{balance}</CText>
-                    </View>
-                    <TouchableOpacity style={styles.addMoneyPill} onPress={onAddMoney}>
-                        <MaterialCommunityIcons name="plus" size={moderateScale(16)} color={colors.black} />
-                        <CText style={styles.addMoneyPillText} numberOfLines={1}>Add Money</CText>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.divider} />
-
-                <View style={styles.walletCardsRow}>
-                    <View style={[styles.walletCard, { marginRight: 8 }]}>
-                        <CText style={styles.walletCardLabel}>Cash Wallet</CText>
-                        <CText style={styles.walletCardAmount}>₹{cashBalance}</CText>
-                        <CText style={styles.walletCardFooter}>Used for games</CText>
-                    </View>
-
-                    <View style={styles.transferContainer}>
-                        <View style={styles.animationWrapper}>
-                            <Animated.View
-                                style={[
-                                    styles.gradientRotation,
-                                    { transform: [{ rotate: rotateInterpolation }] }
-                                ]}
-                            >
-                                <LinearGradient
-                                    colors={['transparent', colors.background, colors.primary, colors.background, 'transparent']}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 1 }}
-                                    style={styles.fullSize}
-                                />
-                            </Animated.View>
-
-                            <TouchableOpacity
-                                ref={buttonRef}
-                                style={styles.arrowButtonInside}
-                                onPress={onTransfer}
-                                activeOpacity={0.8}
-                            >
-                                <Animated.View style={{ transform: [{ translateX: arrowTranslate }] }}>
-                                    <MaterialCommunityIcons name="arrow-left" size={moderateScale(22)} color={colors.primary} />
-                                </Animated.View>
-                            </TouchableOpacity>
+            <SafeAreaView>
+                <View style={styles.headerContainer}>
+                    <View style={styles.balanceRow}>
+                        <View>
+                            <CText style={styles.totalBalanceLabel}>Total balance</CText>
+                            <CText style={styles.totalBalanceAmount}>₹{balance}</CText>
                         </View>
+                        <TouchableOpacity style={styles.addMoneyPill} onPress={onAddMoney}>
+                            <MaterialCommunityIcons name="plus" size={moderateScale(16)} color={colors.black} />
+                            <CText style={styles.addMoneyPillText} numberOfLines={1}>Add Money</CText>
+                        </TouchableOpacity>
                     </View>
 
-                    <View style={[styles.walletCard, { marginLeft: 8 }]}>
-                        <CText style={styles.walletCardLabel}>Earnings Wallet</CText>
-                        <CText style={styles.walletCardAmount}>₹{earningsBalance}</CText>
-                        <CText style={styles.walletCardFooter}>Withdraw / Transfer</CText>
-                    </View>
-                </View>
-            </View>
+                    <View style={styles.divider} />
 
-            <Modal visible={showTooltip} transparent animationType="fade" onRequestClose={() => setShowTooltip(false)}>
-                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowTooltip(false)}>
-                    <View style={[styles.tooltipModalContainer, { top: tooltipPos.y + tooltipPos.height }]}>
-                        <View style={styles.tooltipContentWrapper}>
-                            <View style={styles.tooltipArrow} />
-                            <View style={styles.tooltipBubble}>
-                                <CText style={styles.tooltipText}>Transfer Earnings to cash wallet</CText>
+                    <View style={styles.walletCardsRow}>
+                        <View style={[styles.walletCard, { marginRight: 8 }]}>
+                            <CText style={styles.walletCardLabel}>Cash Wallet</CText>
+                            <CText style={styles.walletCardAmount}>₹{cashBalance}</CText>
+                            <CText style={styles.walletCardFooter}>Used for games</CText>
+                        </View>
+
+                        <View style={styles.transferContainer}>
+                            <View style={styles.animationWrapper}>
+                                <Animated.View
+                                    style={[
+                                        styles.gradientRotation,
+                                        { transform: [{ rotate: rotateInterpolation }] }
+                                    ]}
+                                >
+                                    <LinearGradient
+                                        colors={['transparent', colors.background, colors.primary, colors.background, 'transparent']}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 1 }}
+                                        style={styles.fullSize}
+                                    />
+                                </Animated.View>
+
+                                <TouchableOpacity
+                                    ref={buttonRef}
+                                    style={styles.arrowButtonInside}
+                                    onPress={onTransfer}
+                                    activeOpacity={0.8}
+                                >
+                                    <Animated.View style={{ transform: [{ translateX: arrowTranslate }] }}>
+                                        <MaterialCommunityIcons name="arrow-left" size={moderateScale(22)} color={colors.primary} />
+                                    </Animated.View>
+                                </TouchableOpacity>
                             </View>
                         </View>
+
+                        <View style={[styles.walletCard, { marginLeft: 8 }]}>
+                            <CText style={styles.walletCardLabel}>Earnings Wallet</CText>
+                            <CText style={styles.walletCardAmount}>₹{earningsBalance}</CText>
+                            <CText style={styles.walletCardFooter}>Withdraw / Transfer</CText>
+                        </View>
                     </View>
-                </TouchableOpacity>
-            </Modal>
+                </View>
+
+                <Modal visible={showTooltip} transparent animationType="fade" onRequestClose={() => setShowTooltip(false)}>
+                    <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowTooltip(false)}>
+                        <View style={[
+                            styles.tooltipModalContainer,
+                            {
+                                top: tooltipPos.y + tooltipPos.height + verticalScale(28),
+                                left: tooltipPos.x + (tooltipPos.width / 2)
+                            }
+                        ]}>
+                            <View style={styles.tooltipContentWrapper}>
+                                <View style={styles.tooltipArrow} />
+                                <View style={styles.tooltipBubble}>
+                                    <CText style={styles.tooltipText}>Transfer Earnings to cash wallet</CText>
+                                </View>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                </Modal>
             </SafeAreaView>
         </>
     );
@@ -241,9 +247,7 @@ const styles = StyleSheet.create({
     },
     tooltipModalContainer: {
         position: 'absolute',
-        left: 0,
-        right: 0,
-        alignItems: 'center',
+        transform: [{ translateX: -moderateScale(100) }],
     },
     tooltipContentWrapper: {
         alignItems: 'center',
