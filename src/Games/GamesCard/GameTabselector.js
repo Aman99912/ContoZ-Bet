@@ -30,12 +30,12 @@ const GameTabSelector = ({ tabs, activeTab, onTabChange }) => {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        paddingVertical: verticalScale(8),
+        paddingVertical: verticalScale(4),
         gap: moderateScale(8),
     },
     tab: {
-        paddingHorizontal: moderateScale(20),
-        paddingVertical: moderateScale(10),
+        paddingHorizontal: moderateScale(16),
+        paddingVertical: moderateScale(8),
         borderRadius: moderateScale(8),
         backgroundColor: colors.surface,
         borderWidth: 1,
