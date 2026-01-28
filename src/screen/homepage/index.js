@@ -9,6 +9,9 @@ import HomeHeader from './components/header';
 export default function HomeScreen() {
     const [activeTab, setActiveTab] = useState('All');
 
+    // Set to true when user is logged in, false otherwise
+    const isLoggedIn = false; // Change this based on your auth state
+
     const tabs = ['All', 'Popular', 'New', '2 Player'];
 
     const games = [
@@ -22,7 +25,7 @@ export default function HomeScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <HomeHeader balance={1212} />
+            <HomeHeader balance={1212} isLoggedIn={isLoggedIn} />
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
                     <BannerCard

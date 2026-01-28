@@ -5,21 +5,26 @@ import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import LoginWarn from './LoginWarn';
 
-const HomeHeader = ({ balance = 1212 }) => {
+const HomeHeader = ({ balance = 1212, isLoggedIn = false }) => {
     const navigation = useNavigation();
 
     return (
         <SafeAreaView style={styles.headerContainer}>
             <CText style={styles.appName}>Conto-Z</CText>
 
-            <TouchableOpacity
-                style={styles.balanceCard}
-                onPress={() => navigation.navigate('Wallet')}
-                activeOpacity={0.8}
-            >
-                <CText style={styles.balanceAmount}>₹{balance}</CText>
-            </TouchableOpacity>
+            {isLoggedIn ? (
+                <TouchableOpacity
+                    style={styles.balanceCard}
+                    onPress={() => navigation.navigate('Wallet')}
+                    activeOpacity={0.8}
+                >
+                    <CText style={styles.balanceAmount}>₹{balance}</CText>
+                </TouchableOpacity>
+            ) : (
+                <LoginWarn />
+            )}
         </SafeAreaView>
     );
 };
