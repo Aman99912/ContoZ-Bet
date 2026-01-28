@@ -4,6 +4,7 @@ import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { GameCard, BannerCard, GameTabSelector } from '@/Games';
+import HomeHeader from './components/header';
 
 export default function HomeScreen() {
     const [activeTab, setActiveTab] = useState('All');
@@ -21,6 +22,7 @@ export default function HomeScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <HomeHeader balance={1212} />
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
                     <BannerCard

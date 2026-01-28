@@ -4,6 +4,7 @@ import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import { GameTabSelector } from '@/Games';
 import HistoryItem from './components/historyItem';
+import HistoryHeader from './components/historyHeader';
 
 export default function HistoryScreen() {
     const [activeTab, setActiveTab] = useState('All');
@@ -22,6 +23,7 @@ export default function HistoryScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <HistoryHeader balance={1212} />
             <View style={styles.tabWrapper}>
                 <GameTabSelector
                     tabs={tabs}
