@@ -1,4 +1,5 @@
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG } from './config';
 
 /**
@@ -17,12 +18,15 @@ const api = axios.create({
  * Add auth token or modify request before sending
  */
 api.interceptors.request.use(
-    (config) => {
-        // Add auth token if available
-        // const token = getAuthToken(); // Implement your token retrieval logic
-        // if (token) {
-        //     config.headers.Authorization = `Bearer ${token}`;
-        // }
+    async (config) => {
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+        } catch (error) {
+            console.error('Error fetching token from storage:', error);
+        }
 
         console.log('API Request:', config.method?.toUpperCase(), config.url);
         return config;

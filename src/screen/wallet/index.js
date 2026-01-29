@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import { colors } from '@/core/theme/colors';
 import { moderateScale } from '@/core/utils/responsive';
 import WalletTopHeader from './components/WalletTopHeader';
 import WalletTabSelector from './components/WalletTabSelector';
 import Transactions from './components/Transactions';
 import AddMoneyModal from './components/AddMoneyModal';
+import api from '@/api';
 
 export default function WalletScreen() {
     const [activeTab, setActiveTab] = useState('All');
@@ -16,17 +17,44 @@ export default function WalletScreen() {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [buttonLoading, setButtonLoading] = useState(false);
 
-    // Example data
-    const balance = 1032720;
-    const cashBalance = 500000;
-    const earningsBalance = 532720;
+    // Dynamic wallet data
+    const [balances, setBalances] = useState({
+        total: 0,
+        cash: 0,
+        earnings: 0
+    });
 
-    const transactions = [
+    const [transactions, setTransactions] = useState([
         { id: 1, type: 'topup', title: 'Wallet Top Up', description: 'Added to Cash Wallet', amount: 500, transaction_Id: 'TXN-001', createdAt: new Date().toISOString(), paymentStatus: 'success' },
         { id: 2, type: 'debit', title: '8 Ball Pool', description: 'Entry Fee', amount: 50, transaction_Id: 'TXN-002', createdAt: new Date().toISOString(), paymentStatus: 'success' },
         { id: 3, type: 'credit', title: 'Ludo Win', description: 'Prize Money', amount: 87.5, transaction_Id: 'TXN-003', createdAt: new Date().toISOString(), paymentStatus: 'success' },
         { id: 4, type: 'debit', title: 'Carrom', description: 'Entry Fee', amount: 50, transaction_Id: 'TXN-004', createdAt: new Date().toISOString(), paymentStatus: 'success' },
-    ];
+    ]);
+
+    const fetchWallets = useCallback(async () => {
+        try {
+            const res = await api.get('/user/get_wallets');
+            if (res && res.wallets) {
+                const wallets = res.wallets;
+                const mainWallet = wallets.find(w => w.slug === 'main_wallet')?.value || 0;
+                const fundWallet = wallets.find(w => w.slug === 'fund_wallet')?.value || 0;
+                const incomeWallet = wallets.find(w => w.slug === 'level_income')?.value || 0;
+
+                setBalances({
+                    total: res.totalIncome || (mainWallet + fundWallet + incomeWallet),
+                    cash: mainWallet + fundWallet,
+                    earnings: incomeWallet
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching wallets:', error);
+            // Alert.alert('Error', 'Failed to fetch wallet balances');
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchWallets();
+    }, [fetchWallets]);
 
     const calculateGST = (baseAmount) => {
         const base = Number(baseAmount);
@@ -43,6 +71,7 @@ export default function WalletScreen() {
             setAmount('');
             setSelectedPreset(null);
             console.log('Money added successfully');
+            fetchWallets(); // Refresh balances after add
         }, 2000);
     };
 
@@ -50,9 +79,10 @@ export default function WalletScreen() {
         console.log('Transfer initiated');
     };
 
-    const handleRefresh = () => {
+    const handleRefresh = async () => {
         setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1500);
+        await fetchWallets();
+        setRefreshing(false);
     };
 
     const handleLoadMore = () => {
@@ -71,11 +101,12 @@ export default function WalletScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <WalletTopHeader
-                balance={balance}
-                cashBalance={cashBalance}
-                earningsBalance={earningsBalance}
+                balance={balances.total}
+                cashBalance={balances.cash}
+                earningsBalance={balances.earnings}
                 onAddMoney={() => setShowAddMoneyModal(true)}
                 onTransfer={handleTransfer}
+                onRefresh={handleRefresh}
             />
 
             <WalletTabSelector

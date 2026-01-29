@@ -22,7 +22,6 @@ const ProfileHeader = ({ name = 'User', username = '', onEditPress }) => {
                 <CText style={styles.name}>{name}</CText>
                 {username && <CText style={styles.username}>@{username}</CText>}
                 <TouchableOpacity style={styles.editButton} onPress={onEditPress} activeOpacity={0.8}>
-                    <MaterialCommunityIcons name="eye-outline" size={moderateScale(16)} color={colors.primary} />
                     <CText style={styles.editButtonText}>Edit Profile</CText>
                 </TouchableOpacity>
             </View>
