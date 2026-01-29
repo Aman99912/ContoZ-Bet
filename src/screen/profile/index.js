@@ -5,6 +5,7 @@ import { colors } from '@/core/theme/colors';
 import { moderateScale } from '@/core/utils/responsive';
 import ProfileHeader from './components/ProfileHeader';
 import MenuBar from './components/menuBar';
+import VerificationWarning from './components/VerificationWarning';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '@/context/AppContext';
 
@@ -63,11 +64,17 @@ export default function UserScreen() {
 
     // Get user name from user data, default to "User"
     const userName = user?.name || 'User';
+    // Check if user is verified (0 = not verified, 1 = verified)
+    const isVerified = user?.isverified === 1;
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <ProfileHeader name={userName} onEditPress={handleEditProfile} />
+
+                {/* Show verification warning if not verified */}
+                {!isVerified && <VerificationWarning />}
+
                 <MenuBar
                     onReferPress={handleReferEarn}
                     onMyGamesPress={handleMyGames}

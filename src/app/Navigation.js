@@ -19,6 +19,7 @@ import MyGames from '@/screen/profile/Profile-screens/MyGames';
 import Notifications from '@/screen/profile/Profile-screens/Notifications';
 import TermsAndConditions from '@/screen/profile/Profile-screens/TermsAndConditions';
 import PrivacyPolicy from '@/screen/profile/Profile-screens/PrivacyPolicy';
+import EmailVerify from '@/screen/profile/components/emailVerfiy';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -121,6 +122,7 @@ const Navigation = () => {
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Register" component={RegisterScreen} />
                 <Stack.Screen name="EditProfile" component={EditProfile} />
+                <Stack.Screen name="EmailVerify" component={EmailVerify} />
                 <Stack.Screen name="HelpAndSupport" component={HelpAndSupport} />
                 <Stack.Screen name="ReferAndEarn" component={ReferAndEarn} />
                 <Stack.Screen name="MyGames" component={MyGames} />

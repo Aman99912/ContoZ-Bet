@@ -6,12 +6,14 @@ import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale, scale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import EarnToCashModal from './EarnToCashModal';
 
-const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, onTransfer }) => {
+const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, onTransfer, onRefresh }) => {
     const rotation = useRef(new Animated.Value(0)).current;
     const arrowTranslate = useRef(new Animated.Value(20)).current;
     const [showTooltip, setShowTooltip] = useState(false);
     const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0, width: 0, height: 0 });
+    const [showTransferModal, setShowTransferModal] = useState(false);
     const buttonRef = useRef(null);
     const hasAnimated = useRef(false);
 
@@ -54,6 +56,16 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
         inputRange: [0, 1],
         outputRange: ['0deg', '360deg'],
     });
+
+    const handleTransferPress = () => {
+        setShowTransferModal(true);
+    };
+
+    const handleTransferComplete = (data) => {
+        console.log('[WalletTopHeader] Transfer completed:', data);
+        // Refresh wallet data
+        onRefresh?.();
+    };
 
     return (
         <>
@@ -98,7 +110,7 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
                                 <TouchableOpacity
                                     ref={buttonRef}
                                     style={styles.arrowButtonInside}
-                                    onPress={onTransfer}
+                                    onPress={handleTransferPress}
                                     activeOpacity={0.8}
                                 >
                                     <Animated.View style={{ transform: [{ translateX: arrowTranslate }] }}>
@@ -135,6 +147,15 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
                     </TouchableOpacity>
                 </Modal>
             </SafeAreaView>
+
+            <EarnToCashModal
+                visible={showTransferModal}
+                onClose={() => setShowTransferModal(false)}
+                cashBalance={cashBalance}
+                earningsBalance={earningsBalance}
+                availableToConvert={earningsBalance}
+                onTransfer={handleTransferComplete}
+            />
         </>
     );
 };

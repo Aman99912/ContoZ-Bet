@@ -17,7 +17,7 @@ export const AppProvider = ({ children }) => {
         try {
             const storedToken = await AsyncStorage.getItem('authToken');
             const storedUser = await AsyncStorage.getItem('userData');
-            
+
             if (storedToken && storedUser) {
                 setToken(storedToken);
                 setUser(JSON.parse(storedUser));
@@ -61,6 +61,16 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    const updateVerificationStatus = async (isVerified) => {
+        try {
+            const updatedUser = { ...user, isverified: isVerified ? 1 : 0 };
+            await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
+            setUser(updatedUser);
+        } catch (error) {
+            console.error('Error updating verification status:', error);
+        }
+    };
+
     const value = {
         user,
         token,
@@ -69,6 +79,7 @@ export const AppProvider = ({ children }) => {
         login,
         logout,
         updateUser,
+        updateVerificationStatus,
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
