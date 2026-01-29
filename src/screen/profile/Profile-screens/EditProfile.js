@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     View,
     TextInput,
     StyleSheet,
     TouchableOpacity,
-    Image,
     ScrollView,
-
     KeyboardAvoidingView,
     Platform,
+    Alert,
+    ActivityIndicator,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
-import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '@/context/AppContext';
+import api from '@/api';
 
 export default function EditProfile() {
     const navigation = useNavigation();
@@ -26,54 +26,83 @@ export default function EditProfile() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [mobile, setMobile] = useState('');
-    const [age, setAge] = useState('');
-    const [profileImage, setProfileImage] = useState(null);
+    const [otpSent, setOtpSent] = useState(false);
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [isLoading, setIsLoading] = useState(false);
+    const otpRefs = useRef([...Array(6)].map(() => React.createRef()));
 
-    // Load user data when component mounts
     useEffect(() => {
         if (user) {
             setName(user.name || '');
             setEmail(user.email || '');
             setMobile(user.mobile || '');
-            setAge(user.age?.toString() || '');
         }
     }, [user]);
 
-    const pickImage = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-        });
-
-        if (!result.canceled) {
-            setProfileImage(result.assets[0].uri);
+    const handleSendOTP = async () => {
+        setIsLoading(true);
+        try {
+            const res = await api.post('/send-otp', {
+                username: user?.username,
+                action: 'profile_update',
+            });
+            if (res.data.status === 200) {
+                Alert.alert('Success', 'OTP sent successfully!');
+                setOtpSent(true);
+            }
+        } catch (error) {
+            Alert.alert('Error', error?.response?.data?.message || 'Failed to send OTP');
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const handleSave = async () => {
-        // Update user data in context
-        await updateUser({
-            name,
-            email,
-            age: age ? parseInt(age) : undefined,
-            profileImage,
-        });
-
-        console.log('Profile saved:', { name, email, age, profileImage });
-        navigation.goBack();
+    const handleOtpChange = (value, index) => {
+        if (value && !/^\d$/.test(value)) return;
+        const newOtp = [...otp];
+        newOtp[index] = value;
+        setOtp(newOtp);
+        if (value && index < 5) otpRefs.current[index + 1]?.current?.focus();
     };
 
-    // Get first letter of name for avatar
-    const getInitial = () => {
-        return name ? name.charAt(0).toUpperCase() : 'U';
+    const handleKeyPress = (e, index) => {
+        if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+            otpRefs.current[index - 1]?.current?.focus();
+        }
+    };
+
+    const handleUpdateProfile = async () => {
+        const otpCode = otp.join('');
+        if (otpCode.length !== 6) {
+            Alert.alert('Invalid OTP', 'Please enter the 6-digit OTP');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const payload = { otp: otpCode, action: 'profile_update' };
+            if (name !== user?.name) payload.name = name;
+            if (email !== user?.email) payload.email = email;
+            if (mobile !== user?.mobile) payload.mobile = mobile;
+
+            const res = await api.post('/update-profile', payload);
+            if (res.data.status === 200) {
+                await updateUser({ name, email, mobile });
+                Alert.alert('Success', 'Profile updated successfully!', [
+                    { text: 'OK', onPress: () => navigation.goBack() }
+                ]);
+            }
+        } catch (error) {
+            Alert.alert('Error', error?.response?.data?.message || 'Failed to update profile');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <KeyboardAvoidingView
-                style={styles.keyboardView}
+                style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
                 <View style={styles.header}>
@@ -81,33 +110,15 @@ export default function EditProfile() {
                         <MaterialCommunityIcons name="close" size={moderateScale(28)} color={colors.textPrimary} />
                     </TouchableOpacity>
                     <CText style={styles.headerTitle}>Edit Profile</CText>
-                    <TouchableOpacity onPress={handleSave} style={styles.headerButton}>
-                        <MaterialCommunityIcons name="check" size={moderateScale(28)} color={colors.primary} />
-                    </TouchableOpacity>
+                    <View style={styles.headerButton} />
                 </View>
 
                 <ScrollView
-                    style={styles.scroll}
-                    contentContainerStyle={styles.scrollContent}
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{ paddingBottom: verticalScale(40) }}
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                 >
-                    <View style={styles.avatarContainer}>
-                        <TouchableOpacity style={styles.avatar} onPress={pickImage} activeOpacity={0.8}>
-                            {profileImage ? (
-                                <Image source={{ uri: profileImage }} style={styles.avatarImage} />
-                            ) : (
-                                <View style={styles.avatarLetter}>
-                                    <CText style={styles.avatarLetterText}>{getInitial()}</CText>
-                                </View>
-                            )}
-                            <View style={styles.cameraIcon}>
-                                <MaterialCommunityIcons name="camera" size={moderateScale(20)} color={colors.black} />
-                            </View>
-                        </TouchableOpacity>
-                        <CText style={styles.note}>Tap to change profile picture</CText>
-                    </View>
-
                     <View style={styles.inputContainer}>
                         <View style={styles.inputWrapper}>
                             <CText style={styles.label}>Full Name</CText>
@@ -117,6 +128,7 @@ export default function EditProfile() {
                                 placeholderTextColor={colors.textSecondary}
                                 value={name}
                                 onChangeText={setName}
+                                editable={!otpSent}
                             />
                         </View>
 
@@ -130,17 +142,77 @@ export default function EditProfile() {
                                 onChangeText={setEmail}
                                 keyboardType="email-address"
                                 autoCapitalize="none"
+                                editable={!otpSent}
                             />
                         </View>
 
                         <View style={styles.inputWrapper}>
                             <CText style={styles.label}>Mobile</CText>
-                            <View style={styles.disabledInput}>
-                                <CText style={styles.disabledText}>{mobile}</CText>
-                            </View>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter your mobile"
+                                placeholderTextColor={colors.textSecondary}
+                                value={mobile}
+                                onChangeText={setMobile}
+                                keyboardType="phone-pad"
+                                editable={!otpSent}
+                            />
                         </View>
 
-                     
+                        {!otpSent ? (
+                            <TouchableOpacity
+                                style={[styles.button, isLoading && { opacity: 0.6 }]}
+                                onPress={handleSendOTP}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <ActivityIndicator color={colors.black} size="small" />
+                                ) : (
+                                    <>
+                                        <MaterialCommunityIcons name="send" size={moderateScale(20)} color={colors.black} />
+                                        <CText style={styles.buttonText}>Send OTP to Update</CText>
+                                    </>
+                                )}
+                            </TouchableOpacity>
+                        ) : (
+                            <>
+                                <View style={styles.otpSection}>
+                                    <CText style={styles.otpTitle}>Enter OTP</CText>
+                                    <CText style={styles.otpSubtitle}>6-digit code sent to verify changes</CText>
+                                    <View style={styles.otpContainer}>
+                                        {otp.map((digit, index) => (
+                                            <TextInput
+                                                key={index}
+                                                ref={otpRefs.current[index]}
+                                                style={styles.otpBox}
+                                                value={digit}
+                                                onChangeText={(value) => handleOtpChange(value, index)}
+                                                onKeyPress={(e) => handleKeyPress(e, index)}
+                                                keyboardType="number-pad"
+                                                maxLength={1}
+                                                selectTextOnFocus
+                                            />
+                                        ))}
+                                    </View>
+                                </View>
+
+                                <TouchableOpacity
+                                    style={[styles.button, isLoading && { opacity: 0.6 }]}
+                                    onPress={handleUpdateProfile}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? (
+                                        <ActivityIndicator color={colors.black} size="small" />
+                                    ) : (
+                                        <CText style={styles.buttonText}>Update Profile</CText>
+                                    )}
+                                </TouchableOpacity>
+
+                                <TouchableOpacity onPress={handleSendOTP} style={styles.resendButton}>
+                                    <CText style={styles.resendText}>Resend OTP</CText>
+                                </TouchableOpacity>
+                            </>
+                        )}
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -153,9 +225,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.background,
     },
-    keyboardView: {
-        flex: 1,
-    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -167,68 +236,16 @@ const styles = StyleSheet.create({
     },
     headerButton: {
         padding: moderateScale(8),
+        width: moderateScale(44),
     },
     headerTitle: {
         fontSize: moderateScale(20),
         fontWeight: 'bold',
         color: colors.textPrimary,
     },
-    scroll: {
-        flex: 1,
-    },
-    scrollContent: {
-        paddingBottom: verticalScale(40),
-    },
-    avatarContainer: {
-        alignItems: 'center',
-        paddingVertical: verticalScale(24),
-    },
-    avatar: {
-        width: moderateScale(100),
-        height: moderateScale(100),
-        borderRadius: moderateScale(50),
-        backgroundColor: colors.inputBackground,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        borderWidth: 2,
-        borderColor: colors.border,
-    },
-    avatarImage: {
-        width: '100%',
-        height: '100%',
-        borderRadius: moderateScale(50),
-    },
-    avatarLetter: {
-        width: '100%',
-        height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: colors.primary,
-        borderRadius: moderateScale(50),
-    },
-    avatarLetterText: {
-        fontSize: moderateScale(40),
-        fontWeight: 'bold',
-        color: colors.black,
-    },
-    cameraIcon: {
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-        backgroundColor: colors.primary,
-        borderRadius: moderateScale(20),
-        padding: moderateScale(6),
-        borderWidth: 2,
-        borderColor: colors.background,
-    },
-    note: {
-        marginTop: verticalScale(12),
-        fontSize: moderateScale(12),
-        color: colors.textSecondary,
-    },
     inputContainer: {
         paddingHorizontal: moderateScale(20),
+        paddingTop: verticalScale(24),
     },
     inputWrapper: {
         marginBottom: verticalScale(20),
@@ -248,15 +265,63 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: colors.border,
     },
-    disabledInput: {
-        backgroundColor: colors.inputBackground,
-        borderRadius: moderateScale(12),
-        padding: moderateScale(14),
-        borderWidth: 1,
-        borderColor: colors.border,
+    otpSection: {
+        marginTop: verticalScale(24),
+        marginBottom: verticalScale(24),
     },
-    disabledText: {
-        fontSize: moderateScale(16),
+    otpTitle: {
+        fontSize: moderateScale(18),
+        fontWeight: 'bold',
+        color: colors.textPrimary,
+        textAlign: 'center',
+        marginBottom: verticalScale(8),
+    },
+    otpSubtitle: {
+        fontSize: moderateScale(13),
         color: colors.textSecondary,
+        textAlign: 'center',
+        marginBottom: verticalScale(20),
+    },
+    otpContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: moderateScale(8),
+    },
+    otpBox: {
+        width: moderateScale(45),
+        height: moderateScale(50),
+        borderWidth: 2,
+        borderColor: colors.border,
+        borderRadius: moderateScale(10),
+        fontSize: moderateScale(20),
+        fontWeight: 'bold',
+        textAlign: 'center',
+        color: colors.textPrimary,
+        backgroundColor: colors.surface,
+    },
+    button: {
+        flexDirection: 'row',
+        backgroundColor: colors.primary,
+        paddingVertical: moderateScale(14),
+        borderRadius: moderateScale(12),
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: moderateScale(8),
+        marginTop: verticalScale(8),
+    },
+    buttonText: {
+        fontSize: moderateScale(16),
+        fontWeight: '600',
+        color: colors.black,
+    },
+    resendButton: {
+        paddingVertical: moderateScale(12),
+        alignItems: 'center',
+        marginTop: verticalScale(12),
+    },
+    resendText: {
+        fontSize: moderateScale(14),
+        color: colors.primary,
+        fontWeight: '500',
     },
 });

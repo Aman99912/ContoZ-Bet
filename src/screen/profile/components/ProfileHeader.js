@@ -6,7 +6,7 @@ import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const ProfileHeader = ({ name = 'User', onEditPress }) => {
+const ProfileHeader = ({ name = 'User', username = '', onEditPress }) => {
     // Get first letter of name for avatar
     const getInitial = () => {
         return name ? name.charAt(0).toUpperCase() : 'U';
@@ -20,8 +20,9 @@ const ProfileHeader = ({ name = 'User', onEditPress }) => {
 
             <View style={styles.infoContainer}>
                 <CText style={styles.name}>{name}</CText>
+                {username && <CText style={styles.username}>@{username}</CText>}
                 <TouchableOpacity style={styles.editButton} onPress={onEditPress} activeOpacity={0.8}>
-                    <MaterialCommunityIcons name="pencil" size={moderateScale(16)} color={colors.primary} />
+                    <MaterialCommunityIcons name="eye-outline" size={moderateScale(16)} color={colors.primary} />
                     <CText style={styles.editButtonText}>Edit Profile</CText>
                 </TouchableOpacity>
             </View>
@@ -74,6 +75,11 @@ const styles = StyleSheet.create({
         fontSize: moderateScale(20),
         fontWeight: 'bold',
         color: colors.textPrimary,
+        marginBottom: verticalScale(2),
+    },
+    username: {
+        fontSize: moderateScale(13),
+        color: colors.textSecondary,
         marginBottom: verticalScale(8),
     },
     editButton: {

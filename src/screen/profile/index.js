@@ -64,13 +64,14 @@ export default function UserScreen() {
 
     // Get user name from user data, default to "User"
     const userName = user?.name || 'User';
+    const userUsername = user?.username || '';
     // Check if user is verified (0 = not verified, 1 = verified)
     const isVerified = user?.isverified === 1;
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-                <ProfileHeader name={userName} onEditPress={handleEditProfile} />
+                <ProfileHeader name={userName} username={userUsername} onEditPress={handleEditProfile} />
 
                 {/* Show verification warning if not verified */}
                 {!isVerified && <VerificationWarning />}
