@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '@/core/theme/colors';
 
 // Screens
-import { LoginScreen } from '@/screen/auth';
+import { LoginScreen, RegisterScreen } from '@/screen/auth';
 import HomeScreen from '@/screen/homepage';
 import HistoryScreen from '@/screen/history';
 import WalletScreen from '@/screen/wallet';
@@ -119,6 +119,7 @@ const Navigation = () => {
             <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="MainApp">
                 <Stack.Screen name="MainApp" component={TabNavigator} />
                 <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Register" component={RegisterScreen} />
                 <Stack.Screen name="EditProfile" component={EditProfile} />
                 <Stack.Screen name="HelpAndSupport" component={HelpAndSupport} />
                 <Stack.Screen name="ReferAndEarn" component={ReferAndEarn} />

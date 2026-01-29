@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     TextInput,
@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     Image,
     ScrollView,
-    SafeAreaView,
+
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
@@ -16,14 +16,28 @@ import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import * as ImagePicker from 'expo-image-picker';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useApp } from '@/context/AppContext';
 
 export default function EditProfile() {
     const navigation = useNavigation();
-    const [name, setName] = useState('General User');
-    const [email, setEmail] = useState('user@example.com');
-    const [mobile] = useState('9876543210');
-    const [age, setAge] = useState('25');
+    const { user, updateUser } = useApp();
+
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [mobile, setMobile] = useState('');
+    const [age, setAge] = useState('');
     const [profileImage, setProfileImage] = useState(null);
+
+    // Load user data when component mounts
+    useEffect(() => {
+        if (user) {
+            setName(user.name || '');
+            setEmail(user.email || '');
+            setMobile(user.mobile || '');
+            setAge(user.age?.toString() || '');
+        }
+    }, [user]);
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -38,9 +52,22 @@ export default function EditProfile() {
         }
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        // Update user data in context
+        await updateUser({
+            name,
+            email,
+            age: age ? parseInt(age) : undefined,
+            profileImage,
+        });
+
         console.log('Profile saved:', { name, email, age, profileImage });
         navigation.goBack();
+    };
+
+    // Get first letter of name for avatar
+    const getInitial = () => {
+        return name ? name.charAt(0).toUpperCase() : 'U';
     };
 
     return (
@@ -70,7 +97,9 @@ export default function EditProfile() {
                             {profileImage ? (
                                 <Image source={{ uri: profileImage }} style={styles.avatarImage} />
                             ) : (
-                                <MaterialCommunityIcons name="account" size={moderateScale(60)} color={colors.textSecondary} />
+                                <View style={styles.avatarLetter}>
+                                    <CText style={styles.avatarLetterText}>{getInitial()}</CText>
+                                </View>
                             )}
                             <View style={styles.cameraIcon}>
                                 <MaterialCommunityIcons name="camera" size={moderateScale(20)} color={colors.black} />
@@ -111,18 +140,7 @@ export default function EditProfile() {
                             </View>
                         </View>
 
-                        <View style={styles.inputWrapper}>
-                            <CText style={styles.label}>Age</CText>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter your age"
-                                placeholderTextColor={colors.textSecondary}
-                                value={age}
-                                onChangeText={setAge}
-                                keyboardType="numeric"
-                                maxLength={3}
-                            />
-                        </View>
+                     
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -180,6 +198,19 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         borderRadius: moderateScale(50),
+    },
+    avatarLetter: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.primary,
+        borderRadius: moderateScale(50),
+    },
+    avatarLetterText: {
+        fontSize: moderateScale(40),
+        fontWeight: 'bold',
+        color: colors.black,
     },
     cameraIcon: {
         position: 'absolute',

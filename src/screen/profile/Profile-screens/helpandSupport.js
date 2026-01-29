@@ -1,11 +1,15 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Linking } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HelpAndSupport() {
+    const navigation = useNavigation();
+
     const handleEmailPress = () => {
         Linking.openURL('mailto:support@contoz-bet.com');
     };
@@ -15,10 +19,18 @@ export default function HelpAndSupport() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top']}>
+            {/* Header */}
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <MaterialCommunityIcons name="chevron-left" size={moderateScale(28)} color={colors.textPrimary} />
+                </TouchableOpacity>
+                <CText style={styles.headerTitle}>Help & Support</CText>
+                <View style={styles.headerPlaceholder} />
+            </View>
+
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
-                    <CText style={styles.title}>Help & Support</CText>
                     <CText style={styles.subtitle}>We're here to help you!</CText>
 
                     <View style={styles.section}>
@@ -72,17 +84,31 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.background,
     },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: moderateScale(16),
+        paddingVertical: verticalScale(12),
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+    },
+    backButton: {
+        padding: moderateScale(4),
+    },
+    headerTitle: {
+        fontSize: moderateScale(20),
+        fontWeight: 'bold',
+        color: colors.textPrimary,
+    },
+    headerPlaceholder: {
+        width: moderateScale(36),
+    },
     scroll: {
         flex: 1,
     },
     content: {
-        padding: moderateScale(16),
-    },
-    title: {
-        fontSize: moderateScale(28),
-        fontWeight: 'bold',
-        color: colors.textPrimary,
-        marginBottom: verticalScale(8),
+        padding: moderateScale(20),
     },
     subtitle: {
         fontSize: moderateScale(16),
@@ -93,7 +119,7 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(24),
     },
     sectionTitle: {
-        fontSize: moderateScale(20),
+        fontSize: moderateScale(18),
         fontWeight: 'bold',
         color: colors.textPrimary,
         marginBottom: verticalScale(12),

@@ -33,7 +33,26 @@
   elevation: 3, // For Android
   ```
 
-## 5. Razorpay Integration
+## 5. API Integration
+- Use the base axios instance from `src/api/index.js` for all API calls.
+- Base URL is configured in `.env` as `EXPO_PUBLIC_BASE_URL`.
+- Pre-built service functions available in `src/api/services.js`.
+- Example usage:
+  ```javascript
+  import api from '@/api';
+  import { authAPI, walletAPI } from '@/api/services';
+  
+  // Direct axios usage
+  const response = await api.get('/endpoint');
+  const data = await api.post('/endpoint', { payload });
+  
+  // Using service functions
+  const user = await authAPI.login({ email, password });
+  const balance = await walletAPI.getBalance();
+  ```
+- Request/Response interceptors handle auth tokens and error logging automatically.
+
+## 6. Razorpay Integration
 - Use the reusable Razorpay component from `src/features/payments/Razorpay.js`.
 - API keys are stored in `.env` file and loaded via `razorpay.config.js`.
 - Example usage:
@@ -49,12 +68,12 @@
   });
   ```
 
-## 6. Folder Structure
+## 7. Folder Structure
 - Maintain a clean, production-grade structure.
 - Group related files (screens, components).
 - Ensure `index.js` exports for clean imports.
 
-## 7. Best Practices
+## 8. Best Practices
 - Functional Components with Hooks.
 - Clean navigation usage.
 - Modularize logic where possible.

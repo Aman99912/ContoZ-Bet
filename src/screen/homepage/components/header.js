@@ -35,11 +35,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: moderateScale(16),
-        // paddingVertical: verticalScale(12),
         backgroundColor: colors.background,
     },
     appName: {
-        fontSize: moderateScale(24),
+        fontSize: moderateScale(20),
         fontWeight: 'bold',
         color: colors.textPrimary,
         fontStyle: 'italic',
@@ -47,7 +46,7 @@ const styles = StyleSheet.create({
     balanceCard: {
         backgroundColor: colors.surface,
         paddingHorizontal: moderateScale(20),
-        paddingVertical: moderateScale(12),
+        paddingVertical: moderateScale(5),
         borderRadius: moderateScale(24),
         borderWidth: 2,
         borderColor: colors.border,

@@ -11,8 +11,26 @@
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "package": "com.amandeep_saroha.ContoZ"
+      "package": "com.amandeep_saroha.ContoZ",
+      "enableProguardInReleaseBuilds": true,
+      "enableShrinkResourcesInReleaseBuilds": true,
+      "splits": {
+        "abi": true,
+        "density": false
+      }
     },
-    "web": {}
+    "web": {},
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "useLegacyPackaging": false
+          }
+        }
+      ]
+    ]
   }
 }

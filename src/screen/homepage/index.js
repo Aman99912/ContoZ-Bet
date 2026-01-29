@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { GameCard, BannerCard, GameTabSelector } from '@/Games';
 import HomeHeader from './components/header';
+import { useApp } from '@/context/AppContext';
 
 export default function HomeScreen() {
+    const { user, isLoggedIn } = useApp();
     const [activeTab, setActiveTab] = useState('All');
-
-    // Set to true when user is logged in, false otherwise
-    const isLoggedIn = false; // Change this based on your auth state
 
     const tabs = ['All', 'Popular', 'New', '2 Player'];
 
@@ -23,10 +22,13 @@ export default function HomeScreen() {
         { title: 'Tic Tac Toe', entryFee: 50, icon: 'tic-tac-toe' },
     ];
 
+    // Get wallet balance from user data, default to 0
+    const balance = user?.wallet?.balance || 0;
+
     return (
-        <SafeAreaView style={styles.container}>
-            <HomeHeader balance={1212} isLoggedIn={isLoggedIn} />
+        <View style={styles.container}>
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+                <HomeHeader balance={balance} isLoggedIn={isLoggedIn} />
                 <View style={styles.content}>
                     <BannerCard
                         title="Play Games &"
@@ -57,7 +59,7 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 }
 

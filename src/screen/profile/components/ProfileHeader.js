@@ -6,26 +6,36 @@ import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const ProfileHeader = ({ name = 'General User', onEditPress }) => {
+const ProfileHeader = ({ name = 'User', onEditPress }) => {
+    // Get first letter of name for avatar
+    const getInitial = () => {
+        return name ? name.charAt(0).toUpperCase() : 'U';
+    };
+
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.avatarCircle}>
-                <MaterialCommunityIcons name="account" size={moderateScale(50)} color={colors.textSecondary} />
+                <CText style={styles.avatarLetter}>{getInitial()}</CText>
             </View>
-            <CText style={styles.name}> {name}</CText>
-            <TouchableOpacity style={styles.editButton} onPress={onEditPress} activeOpacity={0.8}>
-                <CText style={styles.editButtonText}>Edit Profile</CText>
-            </TouchableOpacity>
-        </SafeAreaView>
+
+            <View style={styles.infoContainer}>
+                <CText style={styles.name}>{name}</CText>
+                <TouchableOpacity style={styles.editButton} onPress={onEditPress} activeOpacity={0.8}>
+                    <MaterialCommunityIcons name="pencil" size={moderateScale(16)} color={colors.primary} />
+                    <CText style={styles.editButtonText}>Edit Profile</CText>
+                </TouchableOpacity>
+            </View>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         backgroundColor: colors.surface,
-        padding: moderateScale(24),
+        padding: moderateScale(20),
         margin: moderateScale(16),
         borderRadius: moderateScale(16),
+        flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
         borderColor: colors.border,
@@ -36,13 +46,12 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     avatarCircle: {
-        width: moderateScale(80),
-        height: moderateScale(80),
-        borderRadius: moderateScale(40),
-        backgroundColor: colors.inputBackground,
+        width: moderateScale(70),
+        height: moderateScale(70),
+        borderRadius: moderateScale(35),
+        backgroundColor: colors.primary,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: verticalScale(12),
         borderWidth: 2,
         borderColor: colors.border,
         shadowColor: colors.primary,
@@ -51,29 +60,38 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+    avatarLetter: {
+        fontSize: moderateScale(28),
+        fontWeight: 'bold',
+        color: colors.black,
+    },
+    infoContainer: {
+        flex: 1,
+        marginLeft: moderateScale(16),
+        justifyContent: 'center',
+    },
     name: {
-        fontSize: moderateScale(18),
+        fontSize: moderateScale(20),
         fontWeight: 'bold',
         color: colors.textPrimary,
-        marginBottom: verticalScale(16),
+        marginBottom: verticalScale(8),
     },
     editButton: {
-        backgroundColor: colors.surface,
-        paddingHorizontal: moderateScale(32),
-        paddingVertical: moderateScale(12),
-        borderRadius: moderateScale(24),
-        borderWidth: 2,
-        borderColor: colors.border,
-        shadowColor: colors.primary,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        paddingHorizontal: moderateScale(16),
+        paddingVertical: moderateScale(8),
+        borderRadius: moderateScale(20),
+        borderWidth: 1.5,
+        borderColor: colors.primary,
+        backgroundColor: colors.background,
     },
     editButtonText: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(13),
         fontWeight: '600',
-        color: colors.textPrimary,
+        color: colors.primary,
+        marginLeft: moderateScale(6),
     },
 });
 
