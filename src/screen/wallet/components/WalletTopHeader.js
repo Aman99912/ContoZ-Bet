@@ -1,19 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing, Modal } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale, scale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useApp } from '@/context/AppContext';
 import EarnToCashModal from './EarnToCashModal';
+import CustomAlert from '@/components/common/CustomAlert';
 
 const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, onTransfer, onRefresh }) => {
+    const navigation = useNavigation();
+    const { user } = useApp();
     const rotation = useRef(new Animated.Value(0)).current;
     const arrowTranslate = useRef(new Animated.Value(20)).current;
     const [showTooltip, setShowTooltip] = useState(false);
     const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0, width: 0, height: 0 });
     const [showTransferModal, setShowTransferModal] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
     const buttonRef = useRef(null);
     const hasAnimated = useRef(false);
 
@@ -57,6 +63,14 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
         outputRange: ['0deg', '360deg'],
     });
 
+    const handleAddMoney = () => {
+        if (user?.isverified !== 1) {
+            setShowAlert(true);
+            return;
+        }
+        onAddMoney?.();
+    };
+
     const handleTransferPress = () => {
         setShowTransferModal(true);
     };
@@ -76,7 +90,7 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
                             <CText style={styles.totalBalanceLabel}>Total balance</CText>
                             <CText style={styles.totalBalanceAmount}>₹{balance}</CText>
                         </View>
-                        <TouchableOpacity style={styles.addMoneyPill} onPress={onAddMoney}>
+                        <TouchableOpacity style={styles.addMoneyPill} onPress={handleAddMoney}>
                             <MaterialCommunityIcons name="plus" size={moderateScale(16)} color={colors.black} />
                             <CText style={styles.addMoneyPillText} numberOfLines={1}>Add Money</CText>
                         </TouchableOpacity>
@@ -155,6 +169,17 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
                 earningsBalance={earningsBalance}
                 availableToConvert={earningsBalance}
                 onTransfer={handleTransferComplete}
+            />
+
+            <CustomAlert
+                visible={showAlert}
+                title="Verification Required"
+                message="Please verify your email to add money to your wallet"
+                showConfirm={true}
+                confirmText="Verify"
+                cancelText="Cancel"
+                onConfirm={() => navigation.navigate('EmailVerify')}
+                onClose={() => setShowAlert(false)}
             />
         </>
     );

@@ -1,28 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
+import CustomAlert from '@/components/common/CustomAlert';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useApp } from '@/context/AppContext';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - moderateScale(48)) / 2; // 2 cards per row with padding
 
 const GameCard = ({ title, entryFee, prize, image, onPress, icon }) => {
-    return (
-        <TouchableOpacity style={[styles.card, { width: cardWidth }]} onPress={onPress} activeOpacity={0.8}>
-            {image ? (
-                <Image source={image} style={styles.image} />
-            ) : (
-                <View style={styles.iconContainer}>
-                    <MaterialCommunityIcons name={icon || 'gamepad-variant'} size={60} color={colors.primary} />
-                </View>
-            )}
+    const navigation = useNavigation();
+    const { user } = useApp();
+    const [showAlert, setShowAlert] = useState(false);
 
-            <View style={styles.footer}>
-                <CText style={styles.entryFee}>Entry Fee: ₹{entryFee}</CText>
-            </View>
-        </TouchableOpacity>
+    const handlePress = () => {
+        if (user?.isverified !== 1) {
+            setShowAlert(true);
+            return;
+        }
+        onPress?.();
+    };
+
+    return (
+        <>
+            <TouchableOpacity style={[styles.card, { width: cardWidth }]} onPress={handlePress} activeOpacity={0.8}>
+                {image ? (
+                    <Image source={image} style={styles.image} />
+                ) : (
+                    <View style={styles.iconContainer}>
+                        <MaterialCommunityIcons name={icon || 'gamepad-variant'} size={60} color={colors.primary} />
+                    </View>
+                )}
+
+                <View style={styles.footer}>
+                    <CText style={styles.entryFee}>Entry Fee: ₹{entryFee}</CText>
+                </View>
+            </TouchableOpacity>
+
+            <CustomAlert
+                visible={showAlert}
+                title="Verification Required"
+                message="Please verify your email to play games"
+                showConfirm={true}
+                confirmText="Verify"
+                cancelText="Cancel"
+                onConfirm={() => navigation.navigate('EmailVerify')}
+                onClose={() => setShowAlert(false)}
+            />
+        </>
     );
 };
 
@@ -34,7 +62,7 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(16),
         borderWidth: 1,
         borderColor: colors.border,
-          shadowColor: colors.primary,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.2,
         shadowRadius: 5,

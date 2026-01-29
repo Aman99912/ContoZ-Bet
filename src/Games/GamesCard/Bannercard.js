@@ -1,18 +1,46 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
+import CustomAlert from '@/components/common/CustomAlert';
+import { useApp } from '@/context/AppContext';
 
 const BannerCard = ({ title, subtitle, image, onPress }) => {
+    const navigation = useNavigation();
+    const { user } = useApp();
+    const [showAlert, setShowAlert] = useState(false);
+
+    const handlePress = () => {
+        if (user?.isverified !== 1) {
+            setShowAlert(true);
+            return;
+        }
+        onPress?.();
+    };
+
     return (
-        <TouchableOpacity style={styles.banner} onPress={onPress} activeOpacity={0.9}>
-            {image && <Image source={image} style={styles.bgImage} />}
-            <View style={styles.overlay}>
-                <CText style={styles.title}>{title}</CText>
-                {subtitle && <CText style={styles.subtitle}>{subtitle}</CText>}
-            </View>
-        </TouchableOpacity>
+        <>
+            <TouchableOpacity style={styles.banner} onPress={handlePress} activeOpacity={0.9}>
+                {image && <Image source={image} style={styles.bgImage} />}
+                <View style={styles.overlay}>
+                    <CText style={styles.title}>{title}</CText>
+                    {subtitle && <CText style={styles.subtitle}>{subtitle}</CText>}
+                </View>
+            </TouchableOpacity>
+
+            <CustomAlert
+                visible={showAlert}
+                title="Verification Required"
+                message="Please verify your email to play games"
+                showConfirm={true}
+                confirmText="Verify"
+                cancelText="Cancel"
+                onConfirm={() => navigation.navigate('EmailVerify')}
+                onClose={() => setShowAlert(false)}
+            />
+        </>
     );
 };
 
@@ -25,7 +53,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.surface,
         borderWidth: 1,
         borderColor: colors.border,
-          shadowColor: colors.primary,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.2,
         shadowRadius: 5,
