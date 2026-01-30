@@ -71,6 +71,14 @@ const GameInit = () => {
 
         // Handle join logic here (API call, etc.)
         console.log(`Joining ${gameTitle} with fee ₹${selectedFee}`);
+
+        // Navigate to Waiting Screen
+        navigation.navigate('GameWaiting', {
+            gameTitle,
+            gameIcon,
+            entryFee: selectedFee,
+            prizePool: selectedFee * 1.8 // Example calculation
+        });
     };
 
     return (

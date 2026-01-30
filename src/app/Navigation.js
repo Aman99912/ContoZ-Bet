@@ -21,6 +21,7 @@ import TermsAndConditions from '@/screen/profile/Profile-screens/TermsAndConditi
 import PrivacyPolicy from '@/screen/profile/Profile-screens/PrivacyPolicy';
 import EmailVerify from '@/screen/profile/components/emailVerfiy';
 import GameInit from '@/Games/components/Gameinit/gameinit';
+import GameWaiting from '@/Games/components/Gameinit/gamewating';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -124,6 +125,7 @@ const Navigation = () => {
                 <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
                 <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
                 <Stack.Screen name="GameInit" component={GameInit} />
+                <Stack.Screen name="GameWaiting" component={GameWaiting} />
             </Stack.Navigator>
         </NavigationContainer>
     );
