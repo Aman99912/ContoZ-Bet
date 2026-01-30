@@ -23,7 +23,7 @@ const AddMoneyModal = ({
     setAmount,
     selectedPreset,
     setSelectedPreset,
-    presetAmounts = [50, 100, 500, 750, 1000, 1500],
+    presetAmounts = [100, 500, 750, 1000, 1500],
     calculateGST,
     gstPercentage = 18,
     onAddMoney,

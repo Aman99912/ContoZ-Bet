@@ -62,6 +62,9 @@ export const userAPI = {
      */
     addBankDetails: (data) => api.post('/user/add-bank-details', data),
 
+    createRechargeOrder: (data) => api.post('/user/recharge-create-order', data),
+    verifyRechargePayment: (data) => api.post('/user/recharge-verify-payment', data),
+
     getUserPaymentDetails: () => api.get('/user/get-user-payment-details'),
 
     getProjectConfig: () => api.get('/user/project-config'),

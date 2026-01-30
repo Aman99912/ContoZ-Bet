@@ -8,7 +8,7 @@ import WalletTabSelector from './components/WalletTabSelector';
 import Transactions from './components/Transactions';
 import AddMoneyModal from './components/AddMoneyModal';
 import api from '@/api';
-
+import { initiateRazorpayPayment } from '@/features/payments/Razorpay';
 import { useApp } from '@/context/AppContext';
 
 export default function WalletScreen() {

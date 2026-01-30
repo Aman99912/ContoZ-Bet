@@ -1,102 +1,99 @@
 import RazorpayCheckout from 'react-native-razorpay';
 import { RAZORPAY_CONFIG } from './razorpay.config';
+import { userAPI } from '@/api/services';
 
 /**
  * Razorpay Payment Integration Component
  * 
- * @param {Object} options - Payment options
- * @param {string} options.key - Razorpay API key (optional, uses env by default)
- * @param {number} options.amount - Amount in paise (e.g., 100 = ₹1)
- * @param {string} options.currency - Currency code (default: 'INR')
- * @param {string} options.name - Business/App name
- * @param {string} options.description - Payment description
- * @param {string} options.orderId - Order ID from backend
- * @param {Object} options.prefill - User prefill data
- * @param {string} options.prefill.name - User name
- * @param {string} options.prefill.email - User email
- * @param {string} options.prefill.contact - User contact number
- * @param {Function} onSuccess - Success callback
- * @param {Function} onError - Error callback
+ * Orchestrates:
+ * 1. Create Order (Server)
+ * 2. Checkout (Razorpay SDK)
+ * 3. Verify Payment (Server)
  */
-export const initiateRazorpayPayment = ({
-    key = RAZORPAY_CONFIG.KEY_ID, // Use env key by default
-    amount,
-    currency = 'INR',
+export const initiateRazorpayPayment = async ({
+    amount, // Amount in INR (e.g. 150) - function converts to paise if needed checking backend response
     name = 'Conto-Z Bet',
     description = 'Add Money to Wallet',
-    orderId,
     prefill = {},
     onSuccess,
     onError,
 }) => {
-    const options = {
-        key: key, // Razorpay API Key
-        amount: amount, // Amount in paise
-        currency: currency,
-        name: name,
-        description: description,
-        order_id: orderId, // Order ID from backend
-        prefill: {
-            name: prefill.name || '',
-            email: prefill.email || '',
-            contact: prefill.contact || '',
-        },
-        theme: {
-            color: '#00FF00', // Primary green color
-        },
-    };
+    try {
+        console.log('[Razorpay] Initiating Recharge:', amount);
 
-    RazorpayCheckout.open(options)
-        .then((data) => {
-            // Payment success
+        // 1. Create Order
+        // Helper to ensure we catch API errors before opening checkout
+        const orderResponse = await userAPI.createRechargeOrder({ amount });
+        console.log('[Razorpay] Order Created:', orderResponse);
+
+        if (orderResponse?.status !== 201 || !orderResponse?.order) {
+            throw new Error(orderResponse?.message || 'Failed to create order');
+        }
+
+        const { id: order_id, amount: order_amount, key, currency } = orderResponse.order;
+
+        // 2. Open Checkout
+        const options = {
+            key: key || RAZORPAY_CONFIG.KEY_ID,
+            amount: order_amount, // Amount in paise from backend
+            currency: currency || 'INR',
+            name: name,
+            description: description,
+            order_id: order_id,
+            prefill: {
+                name: prefill.name || '',
+                email: prefill.email || '',
+                contact: prefill.contact || '',
+            },
+            theme: {
+                color: '#28a745', // Brand color
+            },
+        };
+
+        const data = await RazorpayCheckout.open(options);
+        console.log('[Razorpay] Payment Success (Client):', data);
+
+        // 3. Verify Payment
+        // data contains: razorpay_payment_id, razorpay_order_id, razorpay_signature
+        const verifyPayload = {
+            razorpay_order_id: data.razorpay_order_id,
+            razorpay_payment_id: data.razorpay_payment_id,
+            razorpay_signature: data.razorpay_signature,
+        };
+
+        // Note: You might want to show a "Verifying..." spinner here if UI allows, 
+        // but since this is a helper function, we just await.
+
+        try {
+            const verifyResponse = await userAPI.verifyRechargePayment(verifyPayload);
+            console.log('[Razorpay] Verification Success:', verifyResponse);
+
             if (onSuccess) {
                 onSuccess({
-                    paymentId: data.razorpay_payment_id,
-                    orderId: data.razorpay_order_id,
-                    signature: data.razorpay_signature,
+                    ...data,
+                    verifyResponse: verifyResponse
                 });
             }
-        })
-        .catch((error) => {
-            // Payment failed or cancelled
+        } catch (verifyError) {
+            console.error('[Razorpay] Verification Failed:', verifyError);
+            // Even if client payment succeeded, verification failed. 
+            // Usually we treat this as error or "pending" state.
             if (onError) {
                 onError({
-                    code: error.code,
-                    description: error.description,
-                    source: error.source,
-                    step: error.step,
-                    reason: error.reason,
+                    message: 'Payment verification failed',
+                    details: verifyError
                 });
             }
-        });
-};
+        }
 
-/**
- * Example Usage:
- * 
- * import { initiateRazorpayPayment } from '@/features/payments/Razorpay';
- * 
- * const handleAddMoney = () => {
- *     initiateRazorpayPayment({
- *         // key is optional, uses env variable by default
- *         amount: 50000, // ₹500 in paise
- *         orderId: 'order_xyz123', // Get from backend
- *         prefill: {
- *             name: 'John Doe',
- *             email: 'john@example.com',
- *             contact: '9876543210',
- *         },
- *         onSuccess: (response) => {
- *             console.log('Payment Success:', response);
- *             // Update wallet balance
- *             // Show success message
- *         },
- *         onError: (error) => {
- *             console.log('Payment Error:', error);
- *             // Show error message
- *         },
- *     });
- * };
- */
+    } catch (error) {
+        console.log('[Razorpay] Error:', error);
+
+        // Handle Razorpay cancellation or API errors
+        if (onError) {
+            onError(error);
+        }
+    }
+};
 
 export default initiateRazorpayPayment;

@@ -14,7 +14,19 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useApp } from '@/context/AppContext';
 
-// ... imports
+import { useNavigation } from '@react-navigation/native';
+import { useTheme, colors } from '@/core/theme/colors';
+import { moderateScale, verticalScale } from '@/core/utils/responsive';
+import CText from './CText';
+import CInput from './CInput';
+import CCard from './CCard'; // Assuming CCard is used or was imported
+// Note: CCard wasn't used in the component body in the view I saw (Wallet modal usually doesn't need card unless for bank details rendering which I saw uses custom views), 
+// but checking usage: renderAccountDetails uses View/CText/Icon. 
+// I'll include it just in case to match original state if possible, or omit if unused.
+// Original file had it.
+// Also width/height.
+
+const { width, height } = Dimensions.get('window');
 
 const WithdrawalModal = ({
     visible,
