@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CInput from '@/components/common/CInput';
@@ -26,6 +26,7 @@ import { walletAPI } from '@/api/services';
 const { width } = Dimensions.get('window');
 
 const UPIDetailsScreen = ({ navigation }) => {
+    const { colors } = useTheme();
     const { saveUPI, savedUPIs, removeUPI, totalBalance, refreshWallets } = useApp();
     const [viewMode, setViewMode] = useState(savedUPIs && savedUPIs.length > 0 ? 'list' : 'add');
 
@@ -129,9 +130,9 @@ const UPIDetailsScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.blobTop} />
-            <View style={styles.blobBottom} />
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <View style={[styles.blobTop, { backgroundColor: colors.primary }]} />
+            <View style={[styles.blobBottom, { backgroundColor: colors.primary }]} />
 
             <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
                 {/* Header */}
@@ -143,7 +144,7 @@ const UPIDetailsScreen = ({ navigation }) => {
                     >
                         <MaterialCommunityIcons name="arrow-left" size={moderateScale(28)} color={colors.textPrimary} />
                     </TouchableOpacity>
-                    <CText style={styles.headerTitle}>{viewMode === 'list' ? 'Saved UPIs' : 'Add UPI'}</CText>
+                    <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>{viewMode === 'list' ? 'Saved UPIs' : 'Add UPI'}</CText>
                     <View style={styles.headerPlaceholder} />
                 </View>
 
@@ -155,14 +156,14 @@ const UPIDetailsScreen = ({ navigation }) => {
                                 activeOpacity={0.9}
                                 onPress={() => handleCardPress(item)}
                             >
-                                <CCard style={styles.savedCard}>
+                                <CCard style={[styles.savedCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                                     <View style={styles.cardContent}>
-                                        <View style={styles.iconContainer}>
+                                        <View style={[styles.iconContainer, { backgroundColor: colors.inputBackground }]}>
                                             <MaterialCommunityIcons name="qrcode-scan" size={moderateScale(24)} color={colors.primary} />
                                         </View>
                                         <View style={styles.textContainer}>
-                                            <CText style={styles.cardTitle}>{item.name}</CText>
-                                            <CText style={styles.cardSubtitle}>{item.upiId}</CText>
+                                            <CText style={[styles.cardTitle, { color: colors.textPrimary }]}>{item.name}</CText>
+                                            <CText style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{item.upiId}</CText>
                                         </View>
                                         <TouchableOpacity onPress={() => handleDelete(index)} style={styles.deleteButton}>
                                             <MaterialCommunityIcons name="trash-can-outline" size={moderateScale(20)} color={colors.error} />
@@ -173,12 +174,12 @@ const UPIDetailsScreen = ({ navigation }) => {
                         ))}
 
                         <TouchableOpacity
-                            style={styles.addButton}
+                            style={[styles.addButton, { backgroundColor: colors.primary }]}
                             onPress={() => setViewMode('add')}
                             activeOpacity={0.8}
                         >
                             <MaterialCommunityIcons name="plus" size={moderateScale(20)} color={colors.black} />
-                            <CText style={styles.addButtonText}>Add New UPI</CText>
+                            <CText style={[styles.addButtonText, { color: colors.black }]}>Add New UPI</CText>
                         </TouchableOpacity>
                     </ScrollView>
                 ) : (
@@ -191,7 +192,7 @@ const UPIDetailsScreen = ({ navigation }) => {
                                 contentContainerStyle={styles.scrollContent}
                                 showsVerticalScrollIndicator={false}
                             >
-                                <CCard style={styles.formCard}>
+                                <CCard style={[styles.formCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                                     <View style={styles.inputContainer}>
                                         <CInput
                                             placeholder="Full Name"
@@ -200,7 +201,7 @@ const UPIDetailsScreen = ({ navigation }) => {
                                             autoCapitalize="words"
                                             leftIcon="account-outline"
                                         />
-                                        {errors.name && <CText style={styles.errorText}>{errors.name}</CText>}
+                                        {errors.name && <CText style={[styles.errorText, { color: colors.error }]}>{errors.name}</CText>}
                                     </View>
 
                                     <View style={styles.inputContainer}>
@@ -212,27 +213,27 @@ const UPIDetailsScreen = ({ navigation }) => {
                                             leftIcon="qrcode-scan"
                                             keyboardType="email-address"
                                         />
-                                        {errors.upiId && <CText style={styles.errorText}>{errors.upiId}</CText>}
+                                        {errors.upiId && <CText style={[styles.errorText, { color: colors.error }]}>{errors.upiId}</CText>}
                                     </View>
 
                                     <View style={styles.buttonRow}>
                                         {savedUPIs.length > 0 && (
                                             <TouchableOpacity
-                                                style={styles.cancelButton}
+                                                style={[styles.cancelButton, { backgroundColor: colors.inputBackground }]}
                                                 onPress={() => setViewMode('list')}
                                             >
-                                                <CText style={styles.cancelButtonText}>Cancel</CText>
+                                                <CText style={[styles.cancelButtonText, { color: colors.textPrimary }]}>Cancel</CText>
                                             </TouchableOpacity>
                                         )}
                                         <TouchableOpacity
-                                            style={[styles.saveButton, loading && styles.disabledButton, { flex: savedUPIs.length > 0 ? 1 : 0, width: savedUPIs.length > 0 ? undefined : '100%' }]}
+                                            style={[styles.saveButton, { backgroundColor: colors.primary }, loading && styles.disabledButton, { flex: savedUPIs.length > 0 ? 1 : 0, width: savedUPIs.length > 0 ? undefined : '100%' }]}
                                             onPress={handleSave}
                                             disabled={loading}
                                         >
                                             {loading ? (
                                                 <ActivityIndicator color={colors.black} size="small" />
                                             ) : (
-                                                <CText style={styles.saveButtonText}>Save UPI Details</CText>
+                                                <CText style={[styles.saveButtonText, { color: colors.black }]}>Save UPI Details</CText>
                                             )}
                                         </TouchableOpacity>
                                     </View>

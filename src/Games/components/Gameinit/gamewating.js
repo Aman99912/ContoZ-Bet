@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity, Animated, Dimensions, Image } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width } = Dimensions.get('window');
 
 const GameWaiting = () => {
+    const { colors } = useTheme();
     const navigation = useNavigation();
     const route = useRoute();
     const {
@@ -55,76 +56,76 @@ const GameWaiting = () => {
     });
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <MaterialCommunityIcons name="close" size={moderateScale(24)} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <CText style={styles.headerTitle}>Lobby Search</CText>
+                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Lobby Search</CText>
                 <View style={styles.empty} />
             </View>
 
             <View style={styles.content}>
                 {/* Game Type Badge */}
-                <View style={styles.gameBadge}>
+                <View style={[styles.gameBadge, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name={gameIcon} size={moderateScale(20)} color={colors.primary} />
-                    <CText style={styles.gameBadgeText}>{gameTitle}</CText>
+                    <CText style={[styles.gameBadgeText, { color: colors.textPrimary }]}>{gameTitle}</CText>
                 </View>
 
                 {/* Main VS Card */}
-                <View style={styles.matchCard}>
+                <View style={[styles.matchCard, { backgroundColor: colors.surface }]}>
                     <View style={styles.playerContainer}>
                         <View style={styles.avatarWrapper}>
-                            <View style={styles.avatarCircle}>
+                            <View style={[styles.avatarCircle, { backgroundColor: colors.inputBackground, borderColor: colors.primary }]}>
                                 <MaterialCommunityIcons name="account" size={moderateScale(50)} color={colors.primary} />
                             </View>
-                            <View style={styles.statusIndicator} />
+                            <View style={[styles.statusIndicator, { borderColor: colors.surface, backgroundColor: colors.primary }]} />
                         </View>
-                        <CText style={styles.playerName}>You</CText>
+                        <CText style={[styles.playerName, { color: colors.textPrimary }]}>You</CText>
                     </View>
 
                     <Animated.View style={[styles.vsContainer, { transform: [{ scale: pulseAnim }] }]}>
-                        <View style={styles.vsCircle}>
+                        <View style={[styles.vsCircle, { borderColor: colors.surface }]}>
                             <CText style={styles.vsText}>VS</CText>
                         </View>
                     </Animated.View>
 
                     <View style={styles.playerContainer}>
                         <View style={styles.avatarWrapper}>
-                            <View style={[styles.avatarCircle, styles.opponentCircle]}>
+                            <View style={[styles.avatarCircle, styles.opponentCircle, { backgroundColor: colors.background, borderColor: colors.border }]}>
                                 <Animated.View style={{ transform: [{ rotate: rotation }] }}>
                                     <MaterialCommunityIcons name="loading" size={moderateScale(50)} color={colors.textSecondary} />
                                 </Animated.View>
                             </View>
                         </View>
-                        <CText style={styles.opponentName}>Searching...</CText>
+                        <CText style={[styles.opponentName, { color: colors.textSecondary }]}>Searching...</CText>
                     </View>
                 </View>
 
                 {/* Match Details */}
                 <View style={styles.detailsContainer}>
-                    <View style={styles.detailRow}>
+                    <View style={[styles.detailRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                         <View style={styles.detailItem}>
-                            <CText style={styles.detailLabel}>ENTRY FEE</CText>
-                            <CText style={styles.detailValue}>₹{entryFee}</CText>
+                            <CText style={[styles.detailLabel, { color: colors.textSecondary }]}>ENTRY FEE</CText>
+                            <CText style={[styles.detailValue, { color: colors.textPrimary }]}>₹{entryFee}</CText>
                         </View>
-                        <View style={styles.divider} />
+                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
                         <View style={styles.detailItem}>
-                            <CText style={styles.detailLabel}>PRIZE POOL</CText>
-                            <CText style={[styles.detailValue, styles.prizeText]}>₹{prizePool}</CText>
+                            <CText style={[styles.detailLabel, { color: colors.textSecondary }]}>PRIZE POOL</CText>
+                            <CText style={[styles.detailValue, styles.prizeText, { color: colors.primary }]}>₹{prizePool}</CText>
                         </View>
                     </View>
                 </View>
 
                 {/* Status Message */}
                 <View style={styles.statusContainer}>
-                    <CText style={styles.statusText}>Finding a suitable opponent for you</CText>
-                    <CText style={styles.subStatusText}>Please do not close the app</CText>
+                    <CText style={[styles.statusText, { color: colors.textPrimary }]}>Finding a suitable opponent for you</CText>
+                    <CText style={[styles.subStatusText, { color: colors.textSecondary }]}>Please do not close the app</CText>
                 </View>
             </View>
 
-           
+
         </SafeAreaView>
     );
 };
@@ -132,7 +133,6 @@ const GameWaiting = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.background,
     },
     header: {
         flexDirection: 'row',
@@ -147,7 +147,6 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: moderateScale(18),
         fontWeight: 'bold',
-        color: colors.textPrimary,
     },
     empty: {
         width: moderateScale(32),
@@ -161,16 +160,13 @@ const styles = StyleSheet.create({
     gameBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: colors.surface,
         paddingHorizontal: moderateScale(16),
         paddingVertical: moderateScale(8),
         borderRadius: moderateScale(20),
         borderWidth: 1,
-        borderColor: colors.border,
         marginBottom: verticalScale(40),
     },
     gameBadgeText: {
-        color: colors.textPrimary,
         fontSize: moderateScale(14),
         fontWeight: 'bold',
         marginLeft: moderateScale(8),
@@ -180,7 +176,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
-        backgroundColor: colors.surface,
         borderRadius: moderateScale(24),
         padding: moderateScale(24),
         borderWidth: 1.5,
@@ -203,15 +198,13 @@ const styles = StyleSheet.create({
         width: moderateScale(80),
         height: moderateScale(80),
         borderRadius: moderateScale(40),
-        backgroundColor: colors.inputBackground,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: colors.primary,
     },
     opponentCircle: {
-        borderColor: colors.border,
-        backgroundColor: colors.background,
+        // borderColor: colors.border,
+        // backgroundColor: colors.background,
     },
     statusIndicator: {
         position: 'absolute',
@@ -220,12 +213,9 @@ const styles = StyleSheet.create({
         width: moderateScale(16),
         height: moderateScale(16),
         borderRadius: moderateScale(8),
-        backgroundColor: colors.primary,
         borderWidth: 2,
-        borderColor: colors.surface,
     },
     playerName: {
-        color: colors.textPrimary,
         fontSize: moderateScale(14),
         fontWeight: 'bold',
     },
@@ -240,7 +230,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
-        borderColor: colors.surface,
     },
     vsText: {
         color: colors.black,
@@ -249,7 +238,6 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
     },
     opponentName: {
-        color: colors.textSecondary,
         fontSize: moderateScale(14),
         fontWeight: '400',
     },
@@ -260,11 +248,9 @@ const styles = StyleSheet.create({
     detailRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: colors.surface,
         borderRadius: moderateScale(16),
         padding: moderateScale(16),
         borderWidth: 1,
-        borderColor: colors.border,
     },
     detailItem: {
         flex: 1,
@@ -272,36 +258,30 @@ const styles = StyleSheet.create({
     },
     detailLabel: {
         fontSize: moderateScale(10),
-        color: colors.textSecondary,
         fontWeight: 'bold',
         letterSpacing: 1,
         marginBottom: verticalScale(4),
     },
     detailValue: {
         fontSize: moderateScale(18),
-        color: colors.textPrimary,
         fontWeight: 'bold',
     },
     prizeText: {
-        color: colors.primary,
     },
     divider: {
         width: 1,
         height: verticalScale(30),
-        backgroundColor: colors.border,
     },
     statusContainer: {
         marginTop: verticalScale(30),
         alignItems: 'center',
     },
     statusText: {
-        color: colors.textPrimary,
         fontSize: moderateScale(14),
         textAlign: 'center',
         marginBottom: verticalScale(4),
     },
     subStatusText: {
-        color: colors.textSecondary,
         fontSize: moderateScale(12),
         textAlign: 'center',
     },

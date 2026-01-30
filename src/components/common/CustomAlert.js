@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Modal, TouchableOpacity } from 'react-native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
@@ -15,6 +15,8 @@ const CustomAlert = ({
     onConfirm = null,
     cancelText = 'Cancel',
 }) => {
+    const { colors } = useTheme();
+
     return (
         <Modal
             visible={visible}
@@ -23,32 +25,32 @@ const CustomAlert = ({
             onRequestClose={onClose}
         >
             <View style={styles.modalOverlay}>
-                <View style={styles.alertCard}>
-                    {title && <CText style={styles.alertTitle}>{title}</CText>}
-                    <CText style={styles.alertMessage}>{message}</CText>
+                <View style={[styles.alertCard, { backgroundColor: colors.surface }]}>
+                    {title && <CText style={[styles.alertTitle, { color: colors.textPrimary }]}>{title}</CText>}
+                    <CText style={[styles.alertMessage, { color: colors.textSecondary }]}>{message}</CText>
 
                     <View style={styles.buttonContainer}>
                         {showConfirm ? (
                             <>
                                 <TouchableOpacity
-                                    style={[styles.alertButton, styles.cancelButton]}
+                                    style={[styles.alertButton, styles.cancelButton, { backgroundColor: colors.background, borderColor: colors.border }]}
                                     onPress={onClose}
                                 >
-                                    <CText style={styles.cancelButtonText}>{cancelText}</CText>
+                                    <CText style={[styles.cancelButtonText, { color: colors.textSecondary }]}>{cancelText}</CText>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    style={[styles.alertButton, styles.confirmButton]}
+                                    style={[styles.alertButton, styles.confirmButton, { backgroundColor: colors.primary }]}
                                     onPress={() => {
                                         if (onConfirm) onConfirm();
                                         onClose();
                                     }}
                                 >
-                                    <CText style={styles.alertButtonText}>{confirmText}</CText>
+                                    <CText style={[styles.alertButtonText, { color: colors.black }]}>{confirmText}</CText>
                                 </TouchableOpacity>
                             </>
                         ) : (
-                            <TouchableOpacity style={styles.alertButton} onPress={onClose}>
-                                <CText style={styles.alertButtonText}>{buttonText}</CText>
+                            <TouchableOpacity style={[styles.alertButton, { backgroundColor: colors.primary }]} onPress={onClose}>
+                                <CText style={[styles.alertButtonText, { color: colors.black }]}>{buttonText}</CText>
                             </TouchableOpacity>
                         )}
                     </View>
@@ -66,7 +68,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     alertCard: {
-        backgroundColor: colors.surface,
         width: '80%',
         borderRadius: moderateScale(16),
         padding: moderateScale(24),
@@ -80,13 +81,11 @@ const styles = StyleSheet.create({
     alertTitle: {
         fontSize: moderateScale(20),
         fontWeight: 'bold',
-        color: colors.textPrimary,
         marginBottom: verticalScale(12),
         textAlign: 'center',
     },
     alertMessage: {
         fontSize: moderateScale(16),
-        color: colors.textSecondary,
         textAlign: 'center',
         marginBottom: verticalScale(24),
         lineHeight: moderateScale(22),
@@ -98,7 +97,6 @@ const styles = StyleSheet.create({
         gap: moderateScale(12),
     },
     alertButton: {
-        backgroundColor: colors.primary,
         paddingVertical: moderateScale(12),
         paddingHorizontal: moderateScale(30),
         borderRadius: moderateScale(25),
@@ -106,20 +104,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     cancelButton: {
-        backgroundColor: colors.background,
         borderWidth: 1,
-        borderColor: colors.border,
     },
     confirmButton: {
-        backgroundColor: colors.primary,
     },
     alertButtonText: {
-        color: colors.black,
         fontSize: moderateScale(16),
         fontWeight: '600',
     },
     cancelButtonText: {
-        color: colors.textSecondary,
         fontSize: moderateScale(16),
         fontWeight: '600',
     },

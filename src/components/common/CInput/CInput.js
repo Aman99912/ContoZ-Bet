@@ -3,7 +3,7 @@ import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '../CText/CText';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 
 const CInput = forwardRef(({
     label,
@@ -16,6 +16,7 @@ const CInput = forwardRef(({
     showPasswordToggle = false, // New prop to show eye button
     ...props
 }, ref) => {
+    const { colors } = useTheme();
     const [isFocused, setIsFocused] = useState(false);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -24,10 +25,11 @@ const CInput = forwardRef(({
 
     return (
         <View style={[styles.container, style]}>
-            {label && <CText style={styles.label}>{label}</CText>}
+            {label && <CText style={[styles.label, { color: colors.textPrimary }]}>{label}</CText>}
             <View style={[
                 styles.inputWrapper,
-                isFocused && styles.inputWrapperFocused
+                { backgroundColor: colors.inputBackground, borderColor: colors.border },
+                isFocused && { borderColor: colors.primary }
             ]}>
                 <TextInput
                     ref={ref}
@@ -39,6 +41,7 @@ const CInput = forwardRef(({
                     allowFontScaling={false}
                     style={[
                         styles.input,
+                        { color: colors.textPrimary },
                         showPasswordToggle && styles.inputWithIcon,
                         inputStyle
                     ]}
@@ -71,27 +74,19 @@ const styles = StyleSheet.create({
     },
     label: {
         marginBottom: verticalScale(8),
-        color: colors.textPrimary,
         fontSize: moderateScale(14),
         fontWeight: '600',
     },
     inputWrapper: {
         position: 'relative',
-        backgroundColor: colors.inputBackground,
         borderWidth: 2,
-        borderColor: colors.border,
         borderRadius: moderateScale(12),
         flexDirection: 'row',
         alignItems: 'center',
-        transition: 'border-color 0.1s',
-    },
-    inputWrapperFocused: {
-        borderColor: colors.primary,
     },
     input: {
         flex: 1,
         padding: moderateScale(20),
-        color: colors.textPrimary,
         fontSize: moderateScale(16),
         outlineStyle: 'none',
     },

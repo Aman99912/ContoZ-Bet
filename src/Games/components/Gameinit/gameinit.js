@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import EarnToCashModal from '@/screen/wallet/components/EarnToCashModal';
 const { width } = Dimensions.get('window');
 
 const GameInit = () => {
+    const { colors } = useTheme();
     const navigation = useNavigation();
     const route = useRoute();
     const { wallets, totalBalance, isLoggedIn, user, refreshWallets } = useApp();
@@ -99,60 +100,64 @@ const GameInit = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <MaterialCommunityIcons name="arrow-left" size={moderateScale(24)} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <CText style={styles.headerTitle}>{gameTitle}</CText>
+                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>{gameTitle}</CText>
                 <View style={styles.empty} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Game Info Card */}
-                <View style={styles.gameInfoCard}>
-                    <View style={styles.iconWrapper}>
+                <View style={[styles.gameInfoCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <View style={[styles.iconWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.primary }]}>
                         <MaterialCommunityIcons name={gameIcon} size={moderateScale(60)} color={colors.primary} />
                     </View>
                     <View style={styles.gameTextInfo}>
-                        <CText style={styles.gameName}>{gameTitle}</CText>
-                        <CText style={styles.gameDescription} numberOfLines={2}>
+                        <CText style={[styles.gameName, { color: colors.textPrimary }]}>{gameTitle}</CText>
+                        <CText style={[styles.gameDescription, { color: colors.textSecondary }]} numberOfLines={2}>
                             Compete with players and win real money. Select your fee below!
                         </CText>
                     </View>
                 </View>
 
                 {/* How to Play / Rules Section */}
-                <View style={styles.rulesSection}>
-                    <CText style={styles.sectionTitle}>Rules & Guidelines</CText>
+                <View style={[styles.rulesSection, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>Rules & Guidelines</CText>
                     <View style={styles.ruleItem}>
                         <MaterialCommunityIcons name="circle-medium" size={moderateScale(18)} color={colors.primary} />
-                        <CText style={styles.ruleText}>Players must join before the lobby timer expires.</CText>
+                        <CText style={[styles.ruleText, { color: colors.textSecondary }]}>Players must join before the lobby timer expires.</CText>
                     </View>
                     <View style={styles.ruleItem}>
                         <MaterialCommunityIcons name="circle-medium" size={moderateScale(18)} color={colors.primary} />
-                        <CText style={styles.ruleText}>Entry fee will be deducted once the game starts.</CText>
+                        <CText style={[styles.ruleText, { color: colors.textSecondary }]}>Entry fee will be deducted once the game starts.</CText>
                     </View>
                     <View style={styles.ruleItem}>
                         <MaterialCommunityIcons name="circle-medium" size={moderateScale(18)} color={colors.primary} />
-                        <CText style={styles.ruleText}>Winnings distributed instantly after verification.</CText>
+                        <CText style={[styles.ruleText, { color: colors.textSecondary }]}>Winnings distributed instantly after verification.</CText>
                     </View>
                     <View style={styles.ruleItem}>
                         <MaterialCommunityIcons name="circle-medium" size={moderateScale(18)} color={colors.primary} />
-                        <CText style={styles.ruleText}>Fair play is mandatory; cheating leads to a ban.</CText>
+                        <CText style={[styles.ruleText, { color: colors.textSecondary }]}>Fair play is mandatory; cheating leads to a ban.</CText>
                     </View>
                 </View>
 
                 {/* Balance Info */}
-                <View style={styles.balanceInfo}>
-                    <CText style={styles.balanceLabel}>Your Balance</CText>
-                    <CText style={styles.balanceAmount}>₹{totalBalance}</CText>
+                <View style={[styles.balanceInfo, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <CText style={[styles.balanceLabel, { color: colors.textSecondary }]}>Your Balance</CText>
+                    <CText style={[styles.balanceAmount, { color: colors.primary }]}>₹{totalBalance}</CText>
                 </View>
             </ScrollView>
 
             {/* Bottom Join Section */}
-            <View style={[styles.bottomSection, { paddingBottom: Math.max(insets.bottom, moderateScale(12)) }]}>
+            <View style={[styles.bottomSection, {
+                backgroundColor: colors.surface,
+                borderTopColor: colors.border,
+                paddingBottom: Math.max(insets.bottom, moderateScale(12))
+            }]}>
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -164,14 +169,16 @@ const GameInit = () => {
                             key={fee}
                             style={[
                                 styles.feeChip,
-                                selectedFee === fee && styles.selectedFeeChip
+                                { backgroundColor: colors.surface, borderColor: colors.border },
+                                selectedFee === fee && { backgroundColor: colors.primary + '20', borderColor: colors.primary, borderWidth: 2 }
                             ]}
                             onPress={() => setSelectedFee(fee)}
                             activeOpacity={0.7}
                         >
                             <CText style={[
                                 styles.feeText,
-                                selectedFee === fee && styles.selectedFeeText
+                                { color: colors.textSecondary },
+                                selectedFee === fee && { color: colors.primary }
                             ]}>₹{fee}</CText>
                         </TouchableOpacity>
                     ))}
@@ -179,22 +186,28 @@ const GameInit = () => {
 
                 {/* Demo Tools */}
                 <View style={styles.demoRow}>
-                    <TouchableOpacity style={styles.demoButton} onPress={handleDemoBalance} activeOpacity={0.7}>
+                    <TouchableOpacity style={[
+                        styles.demoButton,
+                        { backgroundColor: colors.primary + '15', borderColor: colors.primary }
+                    ]} onPress={handleDemoBalance} activeOpacity={0.7}>
                         <MaterialCommunityIcons name="wallet-outline" size={moderateScale(14)} color={colors.primary} />
-                        <CText style={styles.demoText}>Demo: Balance</CText>
+                        <CText style={[styles.demoText, { color: colors.primary }]}>Demo: Balance</CText>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.demoButton} onPress={handleDemoWaiting} activeOpacity={0.7}>
+                    <TouchableOpacity style={[
+                        styles.demoButton,
+                        { backgroundColor: colors.primary + '15', borderColor: colors.primary }
+                    ]} onPress={handleDemoWaiting} activeOpacity={0.7}>
                         <MaterialCommunityIcons name="play-outline" size={moderateScale(14)} color={colors.primary} />
-                        <CText style={styles.demoText}>Demo: Waiting</CText>
+                        <CText style={[styles.demoText, { color: colors.primary }]}>Demo: Waiting</CText>
                     </TouchableOpacity>
                 </View>
 
                 <View style={styles.summaryRow}>
-                    <CText style={styles.summaryLabel}>Total Payable</CText>
-                    <CText style={styles.summaryAmount}>₹{selectedFee}</CText>
+                    <CText style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Payable</CText>
+                    <CText style={[styles.summaryAmount, { color: colors.textPrimary }]}>₹{selectedFee}</CText>
                 </View>
-                <TouchableOpacity style={styles.joinButton} onPress={handleJoin} activeOpacity={0.9}>
-                    <CText style={styles.joinButtonText} numberOfLines={1}>Join Game</CText>
+                <TouchableOpacity style={[styles.joinButton, { backgroundColor: colors.primary }]} onPress={handleJoin} activeOpacity={0.9}>
+                    <CText style={[styles.joinButtonText, { color: colors.black }]} numberOfLines={1}>Join Game</CText>
                 </TouchableOpacity>
             </View>
 
@@ -243,7 +256,6 @@ const GameInit = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.background,
     },
     header: {
         flexDirection: 'row',
@@ -252,7 +264,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: moderateScale(16),
         paddingVertical: verticalScale(12),
         borderBottomWidth: 1,
-        borderBottomColor: colors.border,
     },
     backButton: {
         padding: moderateScale(4),
@@ -260,7 +271,6 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: moderateScale(20),
         fontWeight: 'bold',
-        color: colors.textPrimary,
     },
     empty: {
         width: moderateScale(32),
@@ -270,24 +280,20 @@ const styles = StyleSheet.create({
         paddingBottom: verticalScale(160),
     },
     gameInfoCard: {
-        backgroundColor: colors.surface,
         borderRadius: moderateScale(16),
         padding: moderateScale(16),
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: colors.border,
         marginBottom: verticalScale(16),
     },
     iconWrapper: {
         width: moderateScale(70),
         height: moderateScale(70),
         borderRadius: moderateScale(35),
-        backgroundColor: colors.inputBackground,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: colors.primary,
     },
     gameTextInfo: {
         flex: 1,
@@ -296,26 +302,21 @@ const styles = StyleSheet.create({
     gameName: {
         fontSize: moderateScale(16),
         fontWeight: 'bold',
-        color: colors.textPrimary,
         marginBottom: verticalScale(2),
     },
     gameDescription: {
         fontSize: moderateScale(11),
-        color: colors.textSecondary,
         lineHeight: verticalScale(14),
     },
     rulesSection: {
         marginBottom: verticalScale(20),
-        backgroundColor: colors.surface,
         borderRadius: moderateScale(16),
         padding: moderateScale(16),
         borderWidth: 1,
-        borderColor: colors.border,
     },
     sectionTitle: {
         fontSize: moderateScale(16),
         fontWeight: 'bold',
-        color: colors.textPrimary,
         marginBottom: verticalScale(12),
     },
     ruleItem: {
@@ -326,7 +327,6 @@ const styles = StyleSheet.create({
     ruleText: {
         flex: 1,
         fontSize: moderateScale(13),
-        color: colors.textSecondary,
         lineHeight: verticalScale(18),
         marginLeft: moderateScale(4),
     },
@@ -334,31 +334,25 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: colors.surface,
         padding: moderateScale(12),
         borderRadius: moderateScale(12),
         borderWidth: 1,
-        borderColor: colors.border,
     },
     balanceLabel: {
         fontSize: moderateScale(13),
-        color: colors.textSecondary,
     },
     balanceAmount: {
         fontSize: moderateScale(15),
         fontWeight: 'bold',
-        color: colors.primary,
     },
     bottomSection: {
         position: 'absolute',
         bottom: 0,
         width: '100%',
-        backgroundColor: colors.surface,
         padding: moderateScale(12),
         paddingTop: moderateScale(8),
         borderTopWidth: 1,
-        borderTopColor: colors.border,
-        shadowColor: colors.black,
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: -4 },
         shadowOpacity: 0.1,
         shadowRadius: 8,
@@ -370,26 +364,15 @@ const styles = StyleSheet.create({
     feeChip: {
         paddingHorizontal: moderateScale(12),
         height: verticalScale(36),
-        backgroundColor: colors.surface,
         borderRadius: moderateScale(18),
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: colors.border,
         marginRight: moderateScale(8),
-    },
-    selectedFeeChip: {
-        backgroundColor: colors.primary + '20',
-        borderColor: colors.primary,
-        borderWidth: 2,
     },
     feeText: {
         fontSize: moderateScale(14),
         fontWeight: 'bold',
-        color: colors.textSecondary,
-    },
-    selectedFeeText: {
-        color: colors.primary,
     },
     demoRow: {
         flexDirection: 'row',
@@ -402,16 +385,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: moderateScale(12),
         paddingVertical: verticalScale(6),
-        backgroundColor: colors.primary + '15',
         borderRadius: moderateScale(20),
         borderWidth: 1,
         borderStyle: 'dashed',
-        borderColor: colors.primary,
     },
     demoText: {
         fontSize: moderateScale(11),
         fontWeight: 'bold',
-        color: colors.primary,
         marginLeft: moderateScale(4),
     },
     summaryRow: {
@@ -422,15 +402,12 @@ const styles = StyleSheet.create({
     },
     summaryLabel: {
         fontSize: moderateScale(13),
-        color: colors.textSecondary,
     },
     summaryAmount: {
         fontSize: moderateScale(18),
         fontWeight: 'bold',
-        color: colors.textPrimary,
     },
     joinButton: {
-        backgroundColor: colors.primary,
         height: verticalScale(40),
         bottom: verticalScale(8),
         borderRadius: moderateScale(12),
@@ -440,7 +417,6 @@ const styles = StyleSheet.create({
     joinButtonText: {
         fontSize: moderateScale(16),
         fontWeight: 'bold',
-        color: colors.black,
     },
 });
 

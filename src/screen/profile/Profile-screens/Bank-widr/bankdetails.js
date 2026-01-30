@@ -26,6 +26,7 @@ import { walletAPI } from '@/api/services';
 const { width } = Dimensions.get('window');
 
 const BankDetailsScreen = ({ navigation }) => {
+    const { colors } = useTheme();
     const { saveBank, savedBanks, removeBank, totalBalance, refreshWallets } = useApp();
     const [viewMode, setViewMode] = useState(savedBanks && savedBanks.length > 0 ? 'list' : 'add'); // 'list' or 'add'
 
@@ -137,9 +138,9 @@ const BankDetailsScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.blobTop} />
-            <View style={styles.blobBottom} />
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <View style={[styles.blobTop, { backgroundColor: colors.primary }]} />
+            <View style={[styles.blobBottom, { backgroundColor: colors.primary }]} />
 
             <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
                 {/* Header */}
@@ -151,7 +152,7 @@ const BankDetailsScreen = ({ navigation }) => {
                     >
                         <MaterialCommunityIcons name="arrow-left" size={moderateScale(28)} color={colors.textPrimary} />
                     </TouchableOpacity>
-                    <CText style={styles.headerTitle} numberOfLines={1}>{viewMode === 'list' ? 'Saved Accounts' : 'Add Bank'}</CText>
+                    <CText style={[styles.headerTitle, { color: colors.textPrimary }]} numberOfLines={1}>{viewMode === 'list' ? 'Saved Accounts' : 'Add Bank'}</CText>
                     <View style={styles.headerPlaceholder} />
                 </View>
 
@@ -163,15 +164,15 @@ const BankDetailsScreen = ({ navigation }) => {
                                 activeOpacity={0.9}
                                 onPress={() => handleCardPress(item)}
                             >
-                                <CCard style={styles.savedCard}>
+                                <CCard style={[styles.savedCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                                     <View style={styles.cardContent}>
-                                        <View style={styles.iconContainer}>
+                                        <View style={[styles.iconContainer, { backgroundColor: colors.inputBackground }]}>
                                             <MaterialCommunityIcons name="bank-outline" size={moderateScale(24)} color={colors.primary} />
                                         </View>
                                         <View style={styles.textContainer}>
-                                            <CText style={styles.cardTitle}>{item.bankName}</CText>
-                                            <CText style={styles.cardSubtitle}>**** {item.accountNumber.slice(-4)}</CText>
-                                            <CText style={[styles.cardSubtitle, { fontSize: moderateScale(10), marginTop: 2 }]}>{item.holderName}</CText>
+                                            <CText style={[styles.cardTitle, { color: colors.textPrimary }]}>{item.bankName}</CText>
+                                            <CText style={[styles.cardSubtitle, { color: colors.textSecondary }]}>**** {item.accountNumber.slice(-4)}</CText>
+                                            <CText style={[styles.cardSubtitle, { fontSize: moderateScale(10), marginTop: 2, color: colors.textSecondary }]}>{item.holderName}</CText>
                                         </View>
                                         <TouchableOpacity onPress={() => handleDelete(index)} style={styles.deleteButton}>
                                             <MaterialCommunityIcons name="trash-can-outline" size={moderateScale(20)} color={colors.error} />
@@ -182,12 +183,12 @@ const BankDetailsScreen = ({ navigation }) => {
                         ))}
 
                         <TouchableOpacity
-                            style={styles.addButton}
+                            style={[styles.addButton, { backgroundColor: colors.primary }]}
                             onPress={() => setViewMode('add')}
                             activeOpacity={0.8}
                         >
                             <MaterialCommunityIcons name="plus" size={moderateScale(20)} color={colors.black} />
-                            <CText style={styles.addButtonText}>Add New Account</CText>
+                            <CText style={[styles.addButtonText, { color: colors.black }]}>Add New Account</CText>
                         </TouchableOpacity>
                     </ScrollView>
                 ) : (
@@ -200,7 +201,7 @@ const BankDetailsScreen = ({ navigation }) => {
                                 contentContainerStyle={styles.scrollContent}
                                 showsVerticalScrollIndicator={false}
                             >
-                                <CCard style={styles.formCard}>
+                                <CCard style={[styles.formCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                                     <View style={styles.inputContainer}>
                                         <CInput
                                             placeholder="Account Holder Name"
@@ -209,7 +210,7 @@ const BankDetailsScreen = ({ navigation }) => {
                                             autoCapitalize="words"
                                             leftIcon="account-outline"
                                         />
-                                        {errors.holderName && <CText style={styles.errorText}>{errors.holderName}</CText>}
+                                        {errors.holderName && <CText style={[styles.errorText, { color: colors.error }]}>{errors.holderName}</CText>}
                                     </View>
 
                                     <View style={styles.inputContainer}>
@@ -220,7 +221,7 @@ const BankDetailsScreen = ({ navigation }) => {
                                             autoCapitalize="words"
                                             leftIcon="bank-outline"
                                         />
-                                        {errors.bankName && <CText style={styles.errorText}>{errors.bankName}</CText>}
+                                        {errors.bankName && <CText style={[styles.errorText, { color: colors.error }]}>{errors.bankName}</CText>}
                                     </View>
 
                                     <View style={styles.inputContainer}>
@@ -232,7 +233,7 @@ const BankDetailsScreen = ({ navigation }) => {
                                             leftIcon="numeric"
                                             secureTextEntry={true}
                                         />
-                                        {errors.accountNumber && <CText style={styles.errorText}>{errors.accountNumber}</CText>}
+                                        {errors.accountNumber && <CText style={[styles.errorText, { color: colors.error }]}>{errors.accountNumber}</CText>}
                                     </View>
 
                                     <View style={styles.inputContainer}>
@@ -243,7 +244,7 @@ const BankDetailsScreen = ({ navigation }) => {
                                             keyboardType="number-pad"
                                             leftIcon="numeric"
                                         />
-                                        {errors.confirmAccountNumber && <CText style={styles.errorText}>{errors.confirmAccountNumber}</CText>}
+                                        {errors.confirmAccountNumber && <CText style={[styles.errorText, { color: colors.error }]}>{errors.confirmAccountNumber}</CText>}
                                     </View>
 
                                     <View style={styles.inputContainer}>
@@ -255,27 +256,27 @@ const BankDetailsScreen = ({ navigation }) => {
                                             leftIcon="code-tags"
                                             maxLength={11}
                                         />
-                                        {errors.ifscCode && <CText style={styles.errorText}>{errors.ifscCode}</CText>}
+                                        {errors.ifscCode && <CText style={[styles.errorText, { color: colors.error }]}>{errors.ifscCode}</CText>}
                                     </View>
 
                                     <View style={styles.buttonRow}>
                                         {savedBanks.length > 0 && (
                                             <TouchableOpacity
-                                                style={styles.cancelButton}
+                                                style={[styles.cancelButton, { backgroundColor: colors.inputBackground }]}
                                                 onPress={() => setViewMode('list')}
                                             >
-                                                <CText style={styles.cancelButtonText}>Cancel</CText>
+                                                <CText style={[styles.cancelButtonText, { color: colors.textPrimary }]}>Cancel</CText>
                                             </TouchableOpacity>
                                         )}
                                         <TouchableOpacity
-                                            style={[styles.saveButton, loading && styles.disabledButton, { flex: savedBanks.length > 0 ? 1 : 0, width: savedBanks.length > 0 ? undefined : '100%' }]}
+                                            style={[styles.saveButton, { backgroundColor: colors.primary }, loading && styles.disabledButton, { flex: savedBanks.length > 0 ? 1 : 0, width: savedBanks.length > 0 ? undefined : '100%' }]}
                                             onPress={handleSave}
                                             disabled={loading}
                                         >
                                             {loading ? (
                                                 <ActivityIndicator color={colors.black} size="small" />
                                             ) : (
-                                                <CText style={styles.saveButtonText}>Save Bank Details</CText>
+                                                <CText style={[styles.saveButtonText, { color: colors.black }]}>Save Bank Details</CText>
                                             )}
                                         </TouchableOpacity>
                                     </View>

@@ -15,7 +15,7 @@ import {
 import Modal from 'react-native-modal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CustomAlert from '@/components/common/CustomAlert';
@@ -38,6 +38,7 @@ const EarnToCashModal = ({
     availableToConvert = 0,
     onTransfer,
 }) => {
+    const { colors } = useTheme();
     const [amount, setAmount] = useState('');
     const [selectedPreset, setSelectedPreset] = useState(null);
     const [gstPercent, setGstPercent] = useState(18);
@@ -243,37 +244,37 @@ const EarnToCashModal = ({
                 pointerEvents="box-none"
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <SafeAreaView style={styles.sheet} edges={['bottom']}>
+                    <SafeAreaView style={[styles.sheet, { backgroundColor: colors.surface }]} edges={['bottom']}>
                         <ScrollView
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}
                             contentContainerStyle={styles.content}
                         >
-                            <View style={styles.dragHandle} />
+                            <View style={[styles.dragHandle, { backgroundColor: colors.border }]} />
 
                             <View style={styles.headerRow}>
-                                <CText style={styles.headerTitle}>Earnings → Cash</CText>
+                                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Earnings → Cash</CText>
                             </View>
 
-                            <CText style={styles.headerSubtitle}>
+                            <CText style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
                                 This is a one-way transfer. Money moved to Cash cannot be moved back.
                             </CText>
 
                             <View style={styles.walletRow}>
-                                <View style={styles.walletMini}>
-                                    <CText style={styles.walletMiniLabel}>Cash</CText>
-                                    <CText style={styles.walletMiniAmount}>₹{formatCurrency(cashBalance, 2)}</CText>
+                                <View style={[styles.walletMini, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                                    <CText style={[styles.walletMiniLabel, { color: colors.textSecondary }]}>Cash</CText>
+                                    <CText style={[styles.walletMiniAmount, { color: colors.textPrimary }]}>₹{formatCurrency(cashBalance, 2)}</CText>
                                 </View>
-                                <View style={styles.walletMini}>
-                                    <CText style={styles.walletMiniLabel}>Earnings</CText>
-                                    <CText style={styles.walletMiniAmount}>₹{formatCurrency(earningsBalance, 2)}</CText>
+                                <View style={[styles.walletMini, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                                    <CText style={[styles.walletMiniLabel, { color: colors.textSecondary }]}>Earnings</CText>
+                                    <CText style={[styles.walletMiniAmount, { color: colors.textPrimary }]}>₹{formatCurrency(earningsBalance, 2)}</CText>
                                 </View>
                             </View>
 
                             <View style={styles.sectionHeaderRow}>
-                                <CText style={styles.sectionTitle}>Amount to add to Cash</CText>
+                                <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>Amount to add to Cash</CText>
                             </View>
-                            <CText style={styles.sectionSubtitle}>
+                            <CText style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
                                 Available to convert: ₹{formatCurrency(availableToConvert, 2)}
                             </CText>
 
@@ -284,13 +285,15 @@ const EarnToCashModal = ({
                                         onPress={() => handlePreset(value)}
                                         style={[
                                             styles.presetChip,
-                                            selectedPreset === value && styles.presetChipActive,
+                                            { borderColor: colors.border, backgroundColor: colors.background },
+                                            selectedPreset === value && { borderColor: colors.primary, backgroundColor: colors.surface },
                                         ]}
                                     >
                                         <CText
                                             style={[
                                                 styles.presetText,
-                                                selectedPreset === value && styles.presetTextActive,
+                                                { color: colors.textSecondary },
+                                                selectedPreset === value && { color: colors.primary },
                                             ]}
                                         >
                                             {value}%
@@ -309,60 +312,61 @@ const EarnToCashModal = ({
                                     placeholder="e.g. 100"
                                     placeholderTextColor={colors.textSecondary}
                                     keyboardType="decimal-pad"
-                                    style={styles.amountInput}
+                                    style={[styles.amountInput, { borderColor: colors.border, color: colors.textPrimary, backgroundColor: colors.background }]}
                                 />
-                                <TouchableOpacity onPress={handleMax} style={styles.maxButton}>
-                                    <CText style={styles.maxText}>Max</CText>
+                                <TouchableOpacity onPress={handleMax} style={[styles.maxButton, { borderColor: colors.border, backgroundColor: colors.surface }]}>
+                                    <CText style={[styles.maxText, { color: colors.textPrimary }]}>Max</CText>
                                 </TouchableOpacity>
                             </View>
 
-                            <CText style={styles.helperText}>
+                            <CText style={[styles.helperText, { color: colors.textSecondary }]}>
                                 We'll debit Earnings by amount + GST and credit Cash by amount.
                             </CText>
 
-                            <View style={styles.summaryCard}>
+                            <View style={[styles.summaryCard, { borderColor: colors.border, backgroundColor: colors.background }]}>
                                 <View style={styles.summaryRow}>
-                                    <CText style={styles.summaryLabel}>Credit to Cash</CText>
-                                    <CText style={styles.summaryValue}>
+                                    <CText style={[styles.summaryLabel, { color: colors.textPrimary }]}>Credit to Cash</CText>
+                                    <CText style={[styles.summaryValue, { color: colors.textPrimary }]}>
                                         {amountNumber > 0 ? `₹${formatCurrency(amountNumber, 2)}` : '—'}
                                     </CText>
                                 </View>
                                 <View style={styles.summaryRow}>
-                                    <CText style={styles.summaryLabel}>GST ({gstPercent}%)</CText>
-                                    <CText style={styles.summaryValue}>
+                                    <CText style={[styles.summaryLabel, { color: colors.textPrimary }]}>GST ({gstPercent}%)</CText>
+                                    <CText style={[styles.summaryValue, { color: colors.textPrimary }]}>
                                         {amountNumber > 0 ? `₹${formatCurrency(gstAmount, 2)}` : '—'}
                                     </CText>
                                 </View>
                                 <View style={styles.summaryRow}>
-                                    <CText style={styles.summaryLabel}>Debit from Earnings</CText>
-                                    <CText style={styles.summaryValue}>
+                                    <CText style={[styles.summaryLabel, { color: colors.textPrimary }]}>Debit from Earnings</CText>
+                                    <CText style={[styles.summaryValue, { color: colors.textPrimary }]}>
                                         {amountNumber > 0 ? `₹${formatCurrency(debitTotal, 2)}` : '—'}
                                     </CText>
                                 </View>
                             </View>
 
-                            <View style={styles.noteBox}>
-                                <CText style={styles.noteText}>
+                            <View style={[styles.noteBox, { borderColor: colors.border, backgroundColor: colors.surface }]}>
+                                <CText style={[styles.noteText, { color: colors.textSecondary }]}>
                                     Note: This is a one-way transaction. Transfers are final and cannot be reversed.
                                 </CText>
                             </View>
 
                             <View style={styles.footerRow}>
-                                <TouchableOpacity onPress={onClose} style={styles.cancelBtn}>
-                                    <CText style={styles.cancelText}>Cancel</CText>
+                                <TouchableOpacity onPress={onClose} style={[styles.cancelBtn, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                                    <CText style={[styles.cancelText, { color: colors.textPrimary }]}>Cancel</CText>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     onPress={handleTransfer}
                                     style={[
                                         styles.transferBtn,
-                                        (!isAmountValid || isSubmitting) && styles.transferBtnDisabled,
+                                        { backgroundColor: colors.primary },
+                                        (!isAmountValid || isSubmitting) && { backgroundColor: colors.textSecondary, opacity: 0.5 },
                                     ]}
                                     disabled={!isAmountValid || isSubmitting}
                                 >
                                     {isSubmitting ? (
                                         <ActivityIndicator color={colors.white} size="small" />
                                     ) : (
-                                        <CText style={styles.transferText}>Transfer</CText>
+                                        <CText style={[styles.transferText, { color: colors.black }]}>Transfer</CText>
                                     )}
                                 </TouchableOpacity>
                             </View>
@@ -394,7 +398,6 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     sheet: {
-        backgroundColor: colors.surface,
         borderTopLeftRadius: moderateScale(20),
         borderTopRightRadius: moderateScale(20),
         paddingHorizontal: moderateScale(16),
@@ -409,7 +412,6 @@ const styles = StyleSheet.create({
         width: moderateScale(48),
         height: verticalScale(5),
         borderRadius: moderateScale(4),
-        backgroundColor: colors.border,
         marginBottom: verticalScale(12),
     },
     headerRow: {
@@ -421,11 +423,9 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: moderateScale(18),
         fontWeight: '700',
-        color: colors.textPrimary,
     },
     headerSubtitle: {
         fontSize: moderateScale(12),
-        color: colors.textSecondary,
         lineHeight: moderateScale(16),
         marginBottom: verticalScale(12),
         textAlign: 'center',
@@ -440,18 +440,14 @@ const styles = StyleSheet.create({
         padding: moderateScale(12),
         borderRadius: moderateScale(12),
         borderWidth: 1.3,
-        borderColor: colors.border,
-        backgroundColor: colors.background,
     },
     walletMiniLabel: {
         fontSize: moderateScale(12),
-        color: colors.textSecondary,
         marginBottom: verticalScale(4),
     },
     walletMiniAmount: {
         fontSize: moderateScale(16),
         fontWeight: '700',
-        color: colors.textPrimary,
     },
     sectionHeaderRow: {
         flexDirection: 'row',
@@ -461,11 +457,9 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: moderateScale(14),
         fontWeight: '600',
-        color: colors.textPrimary,
     },
     sectionSubtitle: {
         fontSize: moderateScale(11),
-        color: colors.textSecondary,
         marginTop: verticalScale(2),
         marginBottom: verticalScale(10),
     },
@@ -484,58 +478,39 @@ const styles = StyleSheet.create({
         flex: 1,
         borderRadius: moderateScale(10),
         borderWidth: 1,
-        borderColor: colors.border,
         paddingVertical: moderateScale(8),
         alignItems: 'center',
-        backgroundColor: colors.background,
-    },
-    presetChipActive: {
-        borderColor: colors.primary,
-        backgroundColor: colors.surface,
     },
     presetText: {
         fontSize: moderateScale(12),
-        color: colors.textSecondary,
         fontWeight: '600',
-    },
-    presetTextActive: {
-        color: colors.primary,
     },
     amountInput: {
         flex: 1,
         borderWidth: 1,
-        borderColor: colors.border,
         borderRadius: moderateScale(10),
         paddingHorizontal: moderateScale(12),
         paddingVertical: moderateScale(10),
         fontSize: moderateScale(14),
-        color: colors.textPrimary,
-        backgroundColor: colors.background,
     },
     maxButton: {
         paddingVertical: moderateScale(10),
         paddingHorizontal: moderateScale(16),
         borderRadius: moderateScale(10),
         borderWidth: 1,
-        borderColor: colors.border,
-        backgroundColor: colors.surface,
     },
     maxText: {
         fontSize: moderateScale(12),
-        color: colors.textPrimary,
         fontWeight: '600',
     },
     helperText: {
         fontSize: moderateScale(11),
-        color: colors.textSecondary,
         marginBottom: verticalScale(10),
     },
     summaryCard: {
         borderWidth: 1,
-        borderColor: colors.border,
         borderRadius: moderateScale(12),
         padding: moderateScale(12),
-        backgroundColor: colors.background,
         marginBottom: verticalScale(10),
     },
     summaryRow: {
@@ -545,24 +520,19 @@ const styles = StyleSheet.create({
     },
     summaryLabel: {
         fontSize: moderateScale(12),
-        color: colors.textPrimary,
     },
     summaryValue: {
         fontSize: moderateScale(12),
-        color: colors.textPrimary,
         fontWeight: '600',
     },
     noteBox: {
         borderWidth: 1,
-        borderColor: colors.border,
         borderRadius: moderateScale(10),
         padding: moderateScale(10),
-        backgroundColor: colors.surface,
         marginBottom: verticalScale(12),
     },
     noteText: {
         fontSize: moderateScale(11),
-        color: colors.textSecondary,
         textAlign: 'center',
     },
     footerRow: {
@@ -576,27 +546,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: moderateScale(18),
         borderRadius: moderateScale(18),
         borderWidth: 1,
-        borderColor: colors.border,
-        backgroundColor: colors.background,
     },
     cancelText: {
         fontSize: moderateScale(13),
-        color: colors.textPrimary,
         fontWeight: '600',
     },
     transferBtn: {
         paddingVertical: moderateScale(10),
         paddingHorizontal: moderateScale(18),
         borderRadius: moderateScale(18),
-        backgroundColor: colors.primary,
-    },
-    transferBtnDisabled: {
-        backgroundColor: colors.textSecondary,
-        opacity: 0.5,
     },
     transferText: {
         fontSize: moderateScale(13),
-        color: colors.black,
         fontWeight: '600',
     },
 });

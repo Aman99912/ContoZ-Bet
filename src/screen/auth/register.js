@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CInput from '@/components/common/CInput';
@@ -25,6 +25,7 @@ import { useApp } from '@/context/AppContext';
 const { width } = Dimensions.get('window');
 
 const RegisterScreen = ({ navigation }) => {
+    const { colors } = useTheme();
     const { login } = useApp();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -106,10 +107,10 @@ const RegisterScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Background Blobs */}
-            <View style={styles.blobTop} />
-            <View style={styles.blobBottom} />
+            <View style={[styles.blobTop, { backgroundColor: colors.primary }]} />
+            <View style={[styles.blobBottom, { backgroundColor: colors.primary }]} />
 
             <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
                 <KeyboardAvoidingView
@@ -125,19 +126,19 @@ const RegisterScreen = ({ navigation }) => {
                             <View style={styles.contentWrapper}>
                                 {/* Header Section with Icon */}
                                 <View style={styles.headerContainer}>
-                                    <View style={styles.iconContainer}>
+                                    <View style={[styles.iconContainer, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                                         <MaterialCommunityIcons
                                             name="shield-account-outline"
                                             size={moderateScale(32)}
                                             color={colors.primary}
                                         />
                                     </View>
-                                    <CText style={styles.welcomeText}>Create Account</CText>
-                                    <CText style={styles.subtitleText}>Join us and start your journey</CText>
+                                    <CText style={[styles.welcomeText, { color: colors.textPrimary }]}>Create Account</CText>
+                                    <CText style={[styles.subtitleText, { color: colors.textSecondary }]}>Join us and start your journey</CText>
                                 </View>
 
                                 {/* Register Card */}
-                                <CCard style={styles.registerCard}>
+                                <CCard style={[styles.registerCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                                     {/* Name Input */}
                                     <View style={styles.inputContainer}>
                                         <CInput
@@ -148,7 +149,7 @@ const RegisterScreen = ({ navigation }) => {
                                             autoCapitalize="words"
                                             leftIcon="account-outline"
                                         />
-                                        {errors.name && <CText style={styles.errorText}>{errors.name}</CText>}
+                                        {errors.name && <CText style={[styles.errorText, { color: colors.error }]}>{errors.name}</CText>}
                                     </View>
 
                                     {/* Email Input */}
@@ -162,7 +163,7 @@ const RegisterScreen = ({ navigation }) => {
                                             autoCapitalize="none"
                                             leftIcon="email-outline"
                                         />
-                                        {errors.email && <CText style={styles.errorText}>{errors.email}</CText>}
+                                        {errors.email && <CText style={[styles.errorText, { color: colors.error }]}>{errors.email}</CText>}
                                     </View>
 
                                     {/* Mobile Input */}
@@ -176,7 +177,7 @@ const RegisterScreen = ({ navigation }) => {
                                             maxLength={10}
                                             leftIcon="phone-outline"
                                         />
-                                        {errors.mobile && <CText style={styles.errorText}>{errors.mobile}</CText>}
+                                        {errors.mobile && <CText style={[styles.errorText, { color: colors.error }]}>{errors.mobile}</CText>}
                                     </View>
 
                                     {/* Password Input */}
@@ -189,10 +190,8 @@ const RegisterScreen = ({ navigation }) => {
                                             showPasswordToggle={true}
                                             leftIcon="lock-outline"
                                         />
-                                        {errors.password && <CText style={styles.errorText}>{errors.password}</CText>}
+                                        {errors.password && <CText style={[styles.errorText, { color: colors.error }]}>{errors.password}</CText>}
                                     </View>
-
-
 
                                     {/* Sponsor Code Input */}
                                     <View style={styles.inputContainer}>
@@ -208,7 +207,7 @@ const RegisterScreen = ({ navigation }) => {
 
                                     {/* Register Button */}
                                     <TouchableOpacity
-                                        style={[styles.registerButton, loading && styles.registerButtonDisabled]}
+                                        style={[styles.registerButton, { backgroundColor: colors.primary, shadowColor: colors.primary }, loading && styles.registerButtonDisabled]}
                                         onPress={handleRegister}
                                         disabled={loading}
                                         activeOpacity={0.8}
@@ -216,16 +215,16 @@ const RegisterScreen = ({ navigation }) => {
                                         {loading ? (
                                             <ActivityIndicator color={colors.black} size="small" />
                                         ) : (
-                                            <CText style={styles.registerButtonText}>Sign Up</CText>
+                                            <CText style={[styles.registerButtonText, { color: colors.black }]}>Sign Up</CText>
                                         )}
                                     </TouchableOpacity>
                                 </CCard>
 
                                 {/* Login Link */}
                                 <View style={styles.loginContainer}>
-                                    <CText style={styles.loginText}>Already have an account? </CText>
+                                    <CText style={[styles.loginText, { color: colors.textSecondary }]}>Already have an account? </CText>
                                     <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                                        <CText style={styles.loginLink}>Login</CText>
+                                        <CText style={[styles.loginLink, { color: colors.primary }]}>Login</CText>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -250,7 +249,6 @@ const RegisterScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.background,
         position: 'relative',
     },
     safeArea: {
@@ -263,7 +261,6 @@ const styles = StyleSheet.create({
         width: width * 0.9,
         height: width * 0.9,
         borderRadius: width * 0.45,
-        backgroundColor: colors.primary,
         opacity: 0.08,
     },
     blobBottom: {
@@ -273,7 +270,6 @@ const styles = StyleSheet.create({
         width: width * 0.8,
         height: width * 0.8,
         borderRadius: width * 0.4,
-        backgroundColor: colors.primary,
         opacity: 0.05,
         transform: [{ scaleX: 1.2 }],
     },
@@ -298,48 +294,39 @@ const styles = StyleSheet.create({
         width: moderateScale(60),
         height: moderateScale(60),
         borderRadius: moderateScale(30),
-        backgroundColor: 'rgba(44, 182, 125, 0.1)',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: verticalScale(8),
         borderWidth: 1,
-        borderColor: 'rgba(44, 182, 125, 0.2)',
     },
     welcomeText: {
         fontSize: moderateScale(22),
         fontWeight: 'bold',
-        color: colors.textPrimary,
         marginBottom: verticalScale(4),
     },
     subtitleText: {
         fontSize: moderateScale(13),
-        color: colors.textSecondary,
     },
     registerCard: {
         width: '100%',
         paddingVertical: verticalScale(16),
         paddingHorizontal: moderateScale(20),
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-        backgroundColor: 'rgba(26, 26, 26, 0.95)',
     },
     inputContainer: {
         marginBottom: verticalScale(4),
     },
     errorText: {
         fontSize: moderateScale(12),
-        color: colors.error,
         marginTop: verticalScale(-12),
         marginBottom: verticalScale(8),
         marginLeft: moderateScale(4),
     },
     registerButton: {
-        backgroundColor: colors.primary,
         paddingVertical: moderateScale(12),
         borderRadius: moderateScale(14),
         alignItems: 'center',
         marginTop: verticalScale(12),
-        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -349,7 +336,6 @@ const styles = StyleSheet.create({
         opacity: 0.6,
     },
     registerButtonText: {
-        color: colors.black,
         fontSize: moderateScale(16),
         fontWeight: 'bold',
         letterSpacing: 0.5,
@@ -362,11 +348,9 @@ const styles = StyleSheet.create({
     },
     loginText: {
         fontSize: moderateScale(14),
-        color: colors.textSecondary,
     },
     loginLink: {
         fontSize: moderateScale(14),
-        color: colors.primary,
         fontWeight: '700',
     },
 });

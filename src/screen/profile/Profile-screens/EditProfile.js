@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,6 +21,7 @@ import CustomAlert from '@/components/common/CustomAlert';
 import api from '@/api';
 
 export default function EditProfile() {
+    const { colors } = useTheme();
     const navigation = useNavigation();
     const { user, updateUser } = useApp();
 
@@ -133,16 +134,16 @@ export default function EditProfile() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
-                <View style={styles.header}>
+                <View style={[styles.header, { borderBottomColor: colors.border }]}>
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
                         <MaterialCommunityIcons name="close" size={moderateScale(28)} color={colors.textPrimary} />
                     </TouchableOpacity>
-                    <CText style={styles.headerTitle}>Edit Profile</CText>
+                    <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Edit Profile</CText>
                     <View style={styles.headerButton} />
                 </View>
 
@@ -154,9 +155,9 @@ export default function EditProfile() {
                 >
                     <View style={styles.inputContainer}>
                         <View style={styles.inputWrapper}>
-                            <CText style={styles.label}>Full Name</CText>
+                            <CText style={[styles.label, { color: colors.textPrimary }]}>Full Name</CText>
                             <TextInput
-                                style={styles.input}
+                                style={[styles.input, { backgroundColor: colors.surface, color: colors.textPrimary, borderColor: colors.border }]}
                                 placeholder="Enter your name"
                                 placeholderTextColor={colors.textSecondary}
                                 value={name}
@@ -166,9 +167,9 @@ export default function EditProfile() {
                         </View>
 
                         <View style={styles.inputWrapper}>
-                            <CText style={styles.label}>Email</CText>
+                            <CText style={[styles.label, { color: colors.textPrimary }]}>Email</CText>
                             <TextInput
-                                style={styles.input}
+                                style={[styles.input, { backgroundColor: colors.surface, color: colors.textPrimary, borderColor: colors.border }]}
                                 placeholder="Enter your email"
                                 placeholderTextColor={colors.textSecondary}
                                 value={email}
@@ -180,9 +181,9 @@ export default function EditProfile() {
                         </View>
 
                         <View style={styles.inputWrapper}>
-                            <CText style={styles.label}>Mobile</CText>
+                            <CText style={[styles.label, { color: colors.textPrimary }]}>Mobile</CText>
                             <TextInput
-                                style={styles.input}
+                                style={[styles.input, { backgroundColor: colors.surface, color: colors.textPrimary, borderColor: colors.border }]}
                                 placeholder="Enter your mobile"
                                 placeholderTextColor={colors.textSecondary}
                                 value={mobile}
@@ -194,7 +195,7 @@ export default function EditProfile() {
 
                         {!otpSent ? (
                             <TouchableOpacity
-                                style={[styles.button, isLoading && { opacity: 0.6 }]}
+                                style={[styles.button, { backgroundColor: colors.primary }, isLoading && { opacity: 0.6 }]}
                                 onPress={handleSendOTP}
                                 disabled={isLoading}
                             >
@@ -203,21 +204,25 @@ export default function EditProfile() {
                                 ) : (
                                     <>
                                         <MaterialCommunityIcons name="send" size={moderateScale(20)} color={colors.black} />
-                                        <CText style={styles.buttonText}>Send OTP to Update</CText>
+                                        <CText style={[styles.buttonText, { color: colors.black }]}>Send OTP to Update</CText>
                                     </>
                                 )}
                             </TouchableOpacity>
                         ) : (
                             <>
                                 <View style={styles.otpSection}>
-                                    <CText style={styles.otpTitle}>Enter OTP</CText>
-                                    <CText style={styles.otpSubtitle}>6-digit code sent to verify changes</CText>
+                                    <CText style={[styles.otpTitle, { color: colors.textPrimary }]}>Enter OTP</CText>
+                                    <CText style={[styles.otpSubtitle, { color: colors.textSecondary }]}>6-digit code sent to verify changes</CText>
                                     <View style={styles.otpContainer}>
                                         {otp.map((digit, index) => (
                                             <TextInput
                                                 key={index}
                                                 ref={otpRefs.current[index]}
-                                                style={styles.otpBox}
+                                                style={[styles.otpBox, {
+                                                    borderColor: colors.border,
+                                                    color: colors.textPrimary,
+                                                    backgroundColor: colors.surface
+                                                }]}
                                                 value={digit}
                                                 onChangeText={(value) => handleOtpChange(value, index)}
                                                 onKeyPress={(e) => handleKeyPress(e, index)}
@@ -230,19 +235,19 @@ export default function EditProfile() {
                                 </View>
 
                                 <TouchableOpacity
-                                    style={[styles.button, isLoading && { opacity: 0.6 }]}
+                                    style={[styles.button, { backgroundColor: colors.primary }, isLoading && { opacity: 0.6 }]}
                                     onPress={handleUpdateProfile}
                                     disabled={isLoading}
                                 >
                                     {isLoading ? (
                                         <ActivityIndicator color={colors.black} size="small" />
                                     ) : (
-                                        <CText style={styles.buttonText}>Update Profile</CText>
+                                        <CText style={[styles.buttonText, { color: colors.black }]}>Update Profile</CText>
                                     )}
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={handleSendOTP} style={styles.resendButton}>
-                                    <CText style={styles.resendText}>Resend OTP</CText>
+                                    <CText style={[styles.resendText, { color: colors.primary }]}>Resend OTP</CText>
                                 </TouchableOpacity>
                             </>
                         )}

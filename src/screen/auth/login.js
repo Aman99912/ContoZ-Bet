@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CInput from '@/components/common/CInput';
@@ -25,6 +25,7 @@ import { useApp } from '@/context/AppContext';
 const { width } = Dimensions.get('window');
 
 const LoginScreen = ({ navigation }) => {
+    const { colors } = useTheme();
     const { login } = useApp();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -79,10 +80,10 @@ const LoginScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Background Blobs */}
-            <View style={styles.blobTop} />
-            <View style={styles.blobBottom} />
+            <View style={[styles.blobTop, { backgroundColor: colors.primary }]} />
+            <View style={[styles.blobBottom, { backgroundColor: colors.primary }]} />
 
             <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
                 <KeyboardAvoidingView
@@ -98,19 +99,19 @@ const LoginScreen = ({ navigation }) => {
                             <View style={styles.contentWrapper}>
                                 {/* Header Section */}
                                 <View style={styles.headerContainer}>
-                                    <View style={styles.iconContainer}>
+                                    <View style={[styles.iconContainer, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                                         <MaterialCommunityIcons
                                             name="shield-lock-outline"
                                             size={moderateScale(59)} // Reduced size
                                             color={colors.primary}
                                         />
                                     </View>
-                                    <CText style={styles.welcomeText}>Welcome Back</CText>
-                                    <CText style={styles.subtitleText}>Sign in to continue</CText>
+                                    <CText style={[styles.welcomeText, { color: colors.textPrimary }]}>Welcome Back</CText>
+                                    <CText style={[styles.subtitleText, { color: colors.textSecondary }]}>Sign in to continue</CText>
                                 </View>
 
                                 {/* Login Card */}
-                                <CCard style={styles.loginCard}>
+                                <CCard style={[styles.loginCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                                     {/* Username Input */}
                                     <View style={styles.inputContainer}>
                                         <CInput
@@ -122,7 +123,7 @@ const LoginScreen = ({ navigation }) => {
                                             autoCorrect={false}
                                             leftIcon="account-outline"
                                         />
-                                        {errors.username && <CText style={styles.errorText}>{errors.username}</CText>}
+                                        {errors.username && <CText style={[styles.errorText, { color: colors.error }]}>{errors.username}</CText>}
                                     </View>
 
                                     {/* Password Input */}
@@ -135,17 +136,17 @@ const LoginScreen = ({ navigation }) => {
                                             showPasswordToggle={true}
                                             leftIcon="lock-outline"
                                         />
-                                        {errors.password && <CText style={styles.errorText}>{errors.password}</CText>}
+                                        {errors.password && <CText style={[styles.errorText, { color: colors.error }]}>{errors.password}</CText>}
                                     </View>
 
                                     {/* Forgot Password */}
                                     <TouchableOpacity style={styles.forgotPassword}>
-                                        <CText style={styles.forgotPasswordText}>Forgot Password?</CText>
+                                        <CText style={[styles.forgotPasswordText, { color: colors.primary }]}>Forgot Password?</CText>
                                     </TouchableOpacity>
 
                                     {/* Login Button */}
                                     <TouchableOpacity
-                                        style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+                                        style={[styles.loginButton, { backgroundColor: colors.primary, shadowColor: colors.primary }, loading && styles.loginButtonDisabled]}
                                         onPress={handleLogin}
                                         disabled={loading}
                                         activeOpacity={0.8}
@@ -153,16 +154,16 @@ const LoginScreen = ({ navigation }) => {
                                         {loading ? (
                                             <ActivityIndicator color={colors.black} size="small" />
                                         ) : (
-                                            <CText style={styles.loginButtonText}>Login</CText>
+                                            <CText style={[styles.loginButtonText, { color: colors.black }]}>Login</CText>
                                         )}
                                     </TouchableOpacity>
                                 </CCard>
 
                                 {/* Register Link */}
                                 <View style={styles.registerContainer}>
-                                    <CText style={styles.registerText}>Don't have an account? </CText>
+                                    <CText style={[styles.registerText, { color: colors.textSecondary }]}>Don't have an account? </CText>
                                     <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                                        <CText style={styles.registerLink}>Create Account</CText>
+                                        <CText style={[styles.registerLink, { color: colors.primary }]}>Create Account</CText>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -187,7 +188,6 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.background,
         position: 'relative',
     },
     safeArea: {
@@ -200,7 +200,6 @@ const styles = StyleSheet.create({
         width: width * 0.9,
         height: width * 0.9,
         borderRadius: width * 0.45,
-        backgroundColor: colors.primary,
         opacity: 0.08,
         transform: [{ scaleX: 1.2 }],
     },
@@ -211,7 +210,6 @@ const styles = StyleSheet.create({
         width: width * 0.8,
         height: width * 0.8,
         borderRadius: width * 0.4,
-        backgroundColor: colors.primary,
         opacity: 0.05,
     },
     keyboardView: {
@@ -235,38 +233,31 @@ const styles = StyleSheet.create({
         width: moderateScale(80), // Reduced from 80
         height: moderateScale(80), // Reduced from 80
         borderRadius: moderateScale(70),
-        backgroundColor: 'rgba(44, 182, 125, 0.1)',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: verticalScale(8), // Reduced from 16
         borderWidth: 1,
-        borderColor: 'rgba(44, 182, 125, 0.2)',
     },
     welcomeText: {
         fontSize: moderateScale(30), // Reduced from 28
         fontWeight: 'bold',
         // right: moderateScale(-20),
-        color: colors.textPrimary,
         marginBottom: verticalScale(4), // Reduced from 8
     },
     subtitleText: {
         fontSize: moderateScale(16), // Reduced from 16
-        color: colors.textSecondary,
     },
     loginCard: {
         width: '100%',
         paddingVertical: verticalScale(16), // Reduced from 30
         paddingHorizontal: moderateScale(20), // Reduced from 24
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-        backgroundColor: 'rgba(26, 26, 26, 0.95)',
     },
     inputContainer: {
         marginBottom: verticalScale(4), // Reduced from 8
     },
     errorText: {
         fontSize: moderateScale(12),
-        color: colors.error,
         marginTop: verticalScale(-12),
         marginBottom: verticalScale(8),
         marginLeft: moderateScale(4),
@@ -278,15 +269,12 @@ const styles = StyleSheet.create({
     },
     forgotPasswordText: {
         fontSize: moderateScale(13), // Slightly smaller
-        color: colors.primary,
         fontWeight: '600',
     },
     loginButton: {
-        backgroundColor: colors.primary,
         paddingVertical: moderateScale(12), // Reduced from 16
         borderRadius: moderateScale(14),
         alignItems: 'center',
-        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -296,7 +284,6 @@ const styles = StyleSheet.create({
         opacity: 0.6,
     },
     loginButtonText: {
-        color: colors.black,
         fontSize: moderateScale(16),
         fontWeight: 'bold',
         letterSpacing: 0.5,
@@ -309,11 +296,9 @@ const styles = StyleSheet.create({
     },
     registerText: {
         fontSize: moderateScale(14),
-        color: colors.textSecondary,
     },
     registerLink: {
         fontSize: moderateScale(14),
-        color: colors.primary,
         fontWeight: '700',
     },
 });
