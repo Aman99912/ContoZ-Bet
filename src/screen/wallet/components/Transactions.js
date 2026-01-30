@@ -28,7 +28,7 @@ const Transactions = ({
         <FlatList
             data={transactions}
             keyExtractor={(item, index) => {
-                const id = item?.id || item?.attributes?.id;
+                const id = item?.id || item?._id || item?.attributes?.id;
                 return id ? String(id) : String(index);
             }}
             renderItem={defaultRenderItem}

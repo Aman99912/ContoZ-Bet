@@ -81,6 +81,8 @@ export const walletAPI = {
     withdraw: (data) => api.post('/wallet/withdraw', data),
     getTransactions: (page = 1, limit = 10) =>
         api.get(`/wallet/transactions?page=${page}&limit=${limit}`),
+
+    getPaymentTransactions: (source) => api.get(`/user/get-payment-transaction${source ? `?source=${source}` : ''}`),
 };
 
 // Game APIs

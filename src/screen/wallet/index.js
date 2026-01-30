@@ -45,16 +45,84 @@ export default function WalletScreen() {
     const cashBalance = fundWalletObj ? fundWalletObj.value : 0;
     const earningsBalance = mainWalletObj ? mainWalletObj.value : 0;
 
-    const [transactions, setTransactions] = useState([
-        { id: 1, type: 'topup', title: 'Wallet Top Up', description: 'Added to Cash Wallet', amount: 500, transaction_Id: 'TXN-001', createdAt: new Date().toISOString(), paymentStatus: 'success' },
-        { id: 2, type: 'debit', title: '8 Ball Pool', description: 'Entry Fee', amount: 50, transaction_Id: 'TXN-002', createdAt: new Date().toISOString(), paymentStatus: 'success' },
-        { id: 3, type: 'credit', title: 'Ludo Win', description: 'Prize Money', amount: 87.5, transaction_Id: 'TXN-003', createdAt: new Date().toISOString(), paymentStatus: 'success' },
-        { id: 4, type: 'debit', title: 'Carrom', description: 'Entry Fee', amount: 50, transaction_Id: 'TXN-004', createdAt: new Date().toISOString(), paymentStatus: 'success' },
-    ]);
+    // Filter Tabs Configuration
+    const FILTER_TABS = [
+        { label: 'All', value: '' },
+        { label: 'Recharge', value: 'recharge' },
+        { label: 'Withdrawal', value: 'withdrawal' },
+        { label: 'Conversion', value: 'fund_convert' },
+        { label: 'Income', value: 'level_income' },
+    ];
+
+    const [transactions, setTransactions] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         refreshWallets();
-    }, []);
+        fetchTransactions();
+    }, [activeTab]); // Fetch when tab changes
+
+    const fetchTransactions = async () => {
+        try {
+            setLoading(true);
+            const { walletAPI } = require('@/api/services');
+
+            const selectedTabObj = FILTER_TABS.find(t => t.label === activeTab);
+            const sourceParam = selectedTabObj ? selectedTabObj.value : '';
+
+            console.log('Fetching transactions for source:', sourceParam);
+            const res = await walletAPI.getPaymentTransactions(sourceParam);
+
+            if (res?.data?.success && Array.isArray(res?.data?.data)) {
+                const mappedData = res.data.data.map(item => {
+                    let type = item.debit_credit;
+                    if (item.source === 'recharge' && item.debit_credit === 'credit') {
+                        type = 'topup'; 
+                    } else if (item.source === 'recharge' && item.debit_credit === 'debit') {
+                         type = 'debit';
+                    }
+
+                    let title = 'Transaction';
+                    switch(item.source) {
+                        case 'recharge': title = 'Wallet Top Up'; break;
+                        case 'fund_convert': title = 'Wallet Conversion'; break;
+                        case 'withdrawal': title = 'Withdrawal'; break;
+                        case 'level_income': title = 'Level Income'; break;
+                        default: title = item.source || 'Transaction';
+                    }
+
+                    return {
+                        id: item._id,
+                        transaction_Id: item.tx_Id,
+                        amount: item.amount,
+                        type: type,
+                        title: title,
+                        description: item.wallet_type === 'main_wallet' ? 'Earnings Wallet' : 'Cash Wallet',
+                        paymentStatus: item.status === 1 ? 'success' : (item.status === 2 ? 'failure' : 'pending'),
+                        createdAt: item.createdAt,
+                        raw: item
+                    };
+                });
+                setTransactions(mappedData);
+            } else {
+                setTransactions([]);
+            }
+        } catch (error) {
+            console.error('Failed to fetch transactions:', error);
+            // Optional: Handle error state
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await Promise.all([
+            refreshWallets(),
+            fetchTransactions()
+        ]);
+        setRefreshing(false);
+    };
 
     const handleAddMoney = () => {
         const amountNum = Number(amount);
@@ -66,7 +134,7 @@ export default function WalletScreen() {
         setButtonLoading(true);
 
         initiateRazorpayPayment({
-            amount: amountNum, // Passing exact amount logic
+            amount: amountNum,
             prefill: {
                 name: user?.name || 'User',
                 contact: user?.mobile || '9999999999',
@@ -87,6 +155,7 @@ export default function WalletScreen() {
                 setShowPaymentModal(true);
 
                 refreshWallets();
+                fetchTransactions();
             },
             onError: (error) => {
                 console.log('Recharge Failed:', error);
@@ -104,12 +173,13 @@ export default function WalletScreen() {
 
     const handleTransfer = () => {
         console.log('Transfer initiated');
-    };
-
-    const handleRefresh = async () => {
-        setRefreshing(true);
-        await refreshWallets();
-        setRefreshing(false);
+        // If this opens a modal, it should be here. 
+        // Based on EarnToCashModal usage in other files, it seems handled by WalletTopHeader onTransfer prop which might open something?
+        // Wait, where is EarnToCashModal used? 
+        // I see it in open documents. It's likely used in WalletScreen but I don't see it imported/rendered in the current file view!
+        // Ah, checked lines 1-189, EarnToCashModal is NOT imported/rendered in WalletScreen.js currently.
+        // It should probably be added if the user expects "Earn to Cash" to work from here.
+        // But for now I'll just restore the function placeholder as it was requested "wapis kro sahi" implying restore previous state.
     };
 
     const handleLoadMore = () => {
@@ -139,11 +209,12 @@ export default function WalletScreen() {
             <WalletTabSelector
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
+                tabs={FILTER_TABS.map(t => t.label)}
             />
 
             <Transactions
                 transactions={transactions}
-                loading={false}
+                loading={loading}
                 refreshing={refreshing}
                 isLoadingMore={isLoadingMore}
                 hasMore={false}
