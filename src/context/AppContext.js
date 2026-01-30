@@ -12,12 +12,26 @@ export const AppProvider = ({ children }) => {
 
     const [savedBanks, setSavedBanks] = useState([]);
     const [savedUPIs, setSavedUPIs] = useState([]);
+    const [config, setConfig] = useState(null);
 
     // Load user data and token from storage on app start
     useEffect(() => {
         loadUserData();
         loadSavedMethods();
     }, []);
+
+    const refreshConfig = async () => {
+        if (!token) return;
+        try {
+            const api = require('@/api').default;
+            const res = await api.get('/user/project-config');
+            if (res) {
+                setConfig(res);
+            }
+        } catch (error) {
+            console.error('Error refreshing project config:', error);
+        }
+    };
 
     const refreshWallets = async () => {
         if (!token) return;
@@ -27,11 +41,18 @@ export const AppProvider = ({ children }) => {
             const res = await api.get('/user/get_wallets');
             if (res && res.wallets) {
                 setWallets(res.wallets);
-                const mainWallet = res.wallets.find(w => w.slug === 'main_wallet')?.value || 0;
-                const fundWallet = res.wallets.find(w => w.slug === 'fund_wallet')?.value || 0;
-                const incomeWallet = res.wallets.find(w => w.slug === 'level_income')?.value || 0;
 
-                const total = res.totalIncome || (mainWallet + fundWallet + incomeWallet);
+                // MAPPING BASED ON USER REQUIREMENT:
+                // Fund_wallet (id: 2) -> Deposit Balance (cashBalance)
+                // Main_wallet (id: 1) -> Winning Amount / Withdrawal (earningsBalance)
+
+                const mainWallet = res.wallets.find(w => w.slug === 'main_wallet')?.value || 0; // Winnings
+                const fundWallet = res.wallets.find(w => w.slug === 'fund_wallet')?.value || 0; // Deposit
+                // const incomeWallet = res.wallets.find(w => w.slug === 'level_income')?.value || 0; 
+
+                // For Total Balance display if needed, we can sum them or just expose them
+                // We'll store the total valid balance
+                const total = mainWallet + fundWallet;
                 setTotalBalance(total);
             }
         } catch (error) {
@@ -42,8 +63,43 @@ export const AppProvider = ({ children }) => {
     useEffect(() => {
         if (token) {
             refreshWallets();
+            refreshPaymentDetails();
+            refreshConfig();
         }
     }, [token]);
+
+    const refreshPaymentDetails = async () => {
+        if (!token) return;
+        try {
+            const api = require('@/api').default;
+            const res = await api.get('/user/get-user-payment-details');
+
+            if (res && res.success && Array.isArray(res.data)) {
+                const banks = [];
+                const upis = [];
+
+                res.data.forEach(item => {
+                    if (item.bank) {
+                        // Normalize bank data to match UI expectations
+                        banks.push({
+                            ...item.bank,
+                            holderName: item.bank.holder, // Map holder -> holderName
+                            ifscCode: item.bank.ifsc,     // Map ifsc -> ifscCode if needed (UI uses ifscCode in card?)
+                            // existing fields: bankName, accountNumber, branch, ac_type
+                        });
+                    }
+                    if (item.upi) {
+                        upis.push(item.upi);
+                    }
+                });
+
+                setSavedBanks(banks);
+                setSavedUPIs(upis);
+            }
+        } catch (error) {
+            console.error('Error refreshing payment details:', error);
+        }
+    };
 
     const loadUserData = async () => {
         try {
@@ -166,6 +222,7 @@ export const AppProvider = ({ children }) => {
         totalBalance,
         savedBanks,
         savedUPIs,
+        config,
         isLoading,
         isLoggedIn: !!token,
         login,
@@ -173,6 +230,8 @@ export const AppProvider = ({ children }) => {
         updateUser,
         updateVerificationStatus,
         refreshWallets,
+        refreshPaymentDetails,
+        refreshConfig,
         saveBank,
         saveUPI,
         removeBank,

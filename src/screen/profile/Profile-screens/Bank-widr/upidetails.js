@@ -27,8 +27,15 @@ const { width } = Dimensions.get('window');
 
 const UPIDetailsScreen = ({ navigation }) => {
     const { colors } = useTheme();
-    const { saveUPI, savedUPIs, removeUPI, totalBalance, refreshWallets } = useApp();
-    const [viewMode, setViewMode] = useState(savedUPIs && savedUPIs.length > 0 ? 'list' : 'add');
+    const { savedUPIs, removeUPI, totalBalance, refreshWallets, refreshPaymentDetails, wallets } = useApp();
+    const [viewMode, setViewMode] = useState('list');
+
+    // Calculate Usage Balance: Main Wallet (Winning Amount)
+    const winningBalance = wallets.find(w => w.slug === 'main_wallet')?.value || 0;
+
+    React.useEffect(() => {
+        refreshPaymentDetails();
+    }, []);
 
     // Withdrawal State
     const [modalVisible, setModalVisible] = useState(false);
@@ -173,14 +180,16 @@ const UPIDetailsScreen = ({ navigation }) => {
                             </TouchableOpacity>
                         ))}
 
-                        <TouchableOpacity
-                            style={[styles.addButton, { backgroundColor: colors.primary }]}
-                            onPress={() => setViewMode('add')}
-                            activeOpacity={0.8}
-                        >
-                            <MaterialCommunityIcons name="plus" size={moderateScale(20)} color={colors.black} />
-                            <CText style={[styles.addButtonText, { color: colors.black }]}>Add New UPI</CText>
-                        </TouchableOpacity>
+                        {savedUPIs.length === 0 && (
+                            <TouchableOpacity
+                                style={[styles.addButton, { backgroundColor: colors.primary }]}
+                                onPress={() => setViewMode('add')}
+                                activeOpacity={0.8}
+                            >
+                                <MaterialCommunityIcons name="plus" size={moderateScale(20)} color={colors.black} />
+                                <CText style={[styles.addButtonText, { color: colors.black }]}>Add New UPI</CText>
+                            </TouchableOpacity>
+                        )}
                     </ScrollView>
                 ) : (
                     <KeyboardAvoidingView
@@ -247,7 +256,7 @@ const UPIDetailsScreen = ({ navigation }) => {
                     visible={modalVisible}
                     onClose={() => setModalVisible(false)}
                     onSubmit={handleWithdrawalSubmit}
-                    balance={totalBalance}
+                    balance={winningBalance}
                     loading={withdrawalLoading}
                     accountDetails={selectedUPI}
                     type="upi"

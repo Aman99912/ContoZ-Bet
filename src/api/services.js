@@ -7,6 +7,16 @@ import api from './index';
 
 // Auth APIs
 export const authAPI = {
+    /**
+     * Login User
+     * Response:
+     * {
+     *     "message": "Login successful.",
+     *     "status": 200,
+     *     "token": "eyJhbGci...",
+     *     "user": { ... }
+     * }
+     */
     login: (credentials) => api.post('/user/login', credentials),
     register: (userData) => api.post('/user/register', userData),
     logout: () => api.post('/auth/logout'),
@@ -14,8 +24,49 @@ export const authAPI = {
 
 // User APIs
 export const userAPI = {
-    getProfile: () => api.get('/user/profile'),
+    /**
+     * Get User Profile
+     * Endpoint: /user/get_profile
+     * Header: token
+     * Response:
+     * {
+     *     "uid": 11,
+     *     "username": "CZ788751",
+     *     "name": "dmeo12121111",
+     *     "email": "deta@gmail.com",
+     *     "mobile": "+915677868364",
+     *     "status": 0,
+     *     "isverified": 1,
+     *     "sponsor_username": null,
+     *     "sponsor_name": null,
+     *     "joining_date": "2026-01-29T17:17:40.842Z",
+     *     "Activation_date": null
+     * }
+     */
+    getProfile: () => api.get('/user/get_profile'),
+
     updateProfile: (data) => api.put('/user/profile', data),
+
+    /**
+     * Add Bank Details
+     * Endpoint: /user/add-bank-details
+     * Payload:
+     * {
+     *     "bankName": "data",
+     *     "accountNumber": 55645645,
+     *     "ifsc": "GJFFH6565A",
+     *     "holder": "TEST",
+     *     "ac_type": "saving", // saving, current, salary
+     *     "branch": "SBI423"
+     * }
+     */
+    addBankDetails: (data) => api.post('/user/add-bank-details', data),
+
+    getUserPaymentDetails: () => api.get('/user/get-user-payment-details'),
+
+    getProjectConfig: () => api.get('/user/project-config'),
+
+    getWallets: () => api.get('/user/get_wallets'),
 };
 
 // Wallet APIs

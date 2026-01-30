@@ -9,3 +9,4 @@ export const RAZORPAY_CONFIG = {
 };
 
 export default RAZORPAY_CONFIG;
+

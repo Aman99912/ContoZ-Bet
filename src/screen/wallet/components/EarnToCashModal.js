@@ -30,7 +30,12 @@ const formatCurrency = (value, decimals = 2) =>
 // Truncation helper to ensure we don't exceed balance
 const truncateToTwoDecimals = (num) => Math.floor(Number(num || 0) * 100) / 100;
 
+import { useApp } from '@/context/AppContext';
+
+// ...
+
 const EarnToCashModal = ({
+    // ... props ...
     visible,
     onClose,
     cashBalance = 0,
@@ -39,7 +44,13 @@ const EarnToCashModal = ({
     onTransfer,
 }) => {
     const { colors } = useTheme();
+    const { config } = useApp(); // Get config
+
+    // Dynamic minimum investment
+    const minInvestment = config?.investment?.minimum_investment || 50;
+
     const [amount, setAmount] = useState('');
+    // ... existing ...
     const [selectedPreset, setSelectedPreset] = useState(null);
     const [gstPercent, setGstPercent] = useState(18);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,6 +61,7 @@ const EarnToCashModal = ({
         onConfirm: () => setShowAlert(false)
     });
 
+    // ... existing useEffects ...
     useEffect(() => {
         if (!visible) return;
         console.log('[EarnToCashModal] Balances:', {
@@ -60,22 +72,23 @@ const EarnToCashModal = ({
         });
     }, [visible, cashBalance, earningsBalance, availableToConvert, gstPercent]);
 
-    useEffect(() => {
-        if (!visible) return;
-        const loadGst = async () => {
-            try {
-                const res = await api.get('/api/gst');
-                const igst = res?.data?.data?.IGST;
-                if (typeof igst === 'number') {
-                    setGstPercent(igst);
-                }
-            } catch (err) {
-                // Keep default GST if request fails
-                console.log('[EarnToCashModal] GST fetch failed, using default 18%');
-            }
-        };
-        loadGst();
-    }, [visible]);
+    // GST is fixed at 18% as per requirement
+    // useEffect(() => {
+    //     if (!visible) return;
+    //     const loadGst = async () => {
+    //         try {
+    //             const res = await api.get('/api/gst');
+    //             const igst = res?.data?.data?.IGST;
+    //             if (typeof igst === 'number') {
+    //                 setGstPercent(igst);
+    //             }
+    //         } catch (err) {
+    //             // Keep default GST if request fails
+    //             console.log('[EarnToCashModal] GST fetch failed, using default 18%');
+    //         }
+    //     };
+    //     loadGst();
+    // }, [visible]);
 
     useEffect(() => {
         if (!visible) {
@@ -125,7 +138,7 @@ const EarnToCashModal = ({
 
     const isAmountValid =
         Number.isFinite(amountNumber) &&
-        amountNumber >= 10 &&
+        amountNumber >= minInvestment &&
         amountNumber <= 100000 &&
         amountNumber > 0 &&
         amountNumber <= maxAmount + 0.001 &&
@@ -143,10 +156,10 @@ const EarnToCashModal = ({
             setShowAlert(true);
             return;
         }
-        if (amountValue < 10 || amountValue > 100000) {
+        if (amountValue < minInvestment || amountValue > 100000) {
             setAlertConfig({
                 title: 'Invalid Amount',
-                message: 'Amount must be between ₹10 and ₹100,000.',
+                message: `Amount must be between ₹${minInvestment} and ₹100,000.`,
                 onConfirm: () => setShowAlert(false)
             });
             setShowAlert(true);

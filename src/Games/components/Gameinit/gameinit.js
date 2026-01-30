@@ -26,7 +26,8 @@ const GameInit = () => {
     const fundWallet = wallets.find(w => w.slug === 'fund_wallet')?.value || 0;
     const incomeWallet = wallets.find(w => w.slug === 'level_income')?.value || 0;
 
-    const cashBalance = mainWallet + fundWallet;
+    // Restricted: Games only played from Fund Wallet
+    const cashBalance = fundWallet;
     const earningsBalance = incomeWallet;
 
     const [showBalanceModal, setShowBalanceModal] = useState(false);
@@ -147,8 +148,8 @@ const GameInit = () => {
 
                 {/* Balance Info */}
                 <View style={[styles.balanceInfo, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    <CText style={[styles.balanceLabel, { color: colors.textSecondary }]}>Your Balance</CText>
-                    <CText style={[styles.balanceAmount, { color: colors.primary }]}>₹{totalBalance}</CText>
+                    <CText style={[styles.balanceLabel, { color: colors.textSecondary }]}>Deposit Balance</CText>
+                    <CText style={[styles.balanceAmount, { color: colors.primary }]}>₹{cashBalance}</CText>
                 </View>
             </ScrollView>
 

@@ -21,14 +21,25 @@ import CCard from '@/components/common/CCard';
 import CustomAlert from '@/components/common/CustomAlert';
 import WithdrawalModal from '@/components/common/WithdrawalModal';
 import { useApp } from '@/context/AppContext';
-import { walletAPI } from '@/api/services';
+import { walletAPI, userAPI } from '@/api/services';
 
 const { width } = Dimensions.get('window');
 
 const BankDetailsScreen = ({ navigation }) => {
     const { colors } = useTheme();
-    const { saveBank, savedBanks, removeBank, totalBalance, refreshWallets } = useApp();
-    const [viewMode, setViewMode] = useState(savedBanks && savedBanks.length > 0 ? 'list' : 'add'); // 'list' or 'add'
+    const { saveBank, savedBanks, removeBank, totalBalance, refreshWallets, refreshPaymentDetails, wallets } = useApp();
+    const [viewMode, setViewMode] = useState('list'); // Default to list because we load from API
+
+    // Calculate Usage Balance: Main Wallet (Winning Amount)
+    const winningBalance = wallets.find(w => w.slug === 'main_wallet')?.value || 0;
+
+    // Refresh on mount to ensure fresh data
+    React.useEffect(() => {
+        refreshPaymentDetails();
+    }, []);
+
+    // Effect to switch to add mode if no banks (optional, user preferred just listing what's there and handling add manually if needed)
+    // But importantly, if we have banks, we force list mode initially.
 
     // Withdrawal State
     const [modalVisible, setModalVisible] = useState(false);
@@ -41,6 +52,8 @@ const BankDetailsScreen = ({ navigation }) => {
     const [confirmAccountNumber, setConfirmAccountNumber] = useState('');
     const [ifscCode, setIfscCode] = useState('');
     const [bankName, setBankName] = useState('');
+    const [branch, setBranch] = useState('');
+    const [accountType, setAccountType] = useState('saving'); // Default to saving
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [showAlert, setShowAlert] = useState(false);
@@ -54,6 +67,7 @@ const BankDetailsScreen = ({ navigation }) => {
         if (accountNumber !== confirmAccountNumber) newErrors.confirmAccountNumber = 'Account numbers do not match';
         if (!ifscCode.trim()) newErrors.ifscCode = 'IFSC code is required';
         if (!bankName.trim()) newErrors.bankName = 'Bank name is required';
+        if (!branch.trim()) newErrors.branch = 'Branch name is required';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -64,33 +78,48 @@ const BankDetailsScreen = ({ navigation }) => {
 
         setLoading(true);
         try {
-            const success = await saveBank({ holderName, accountNumber, ifscCode, bankName });
-            if (success) {
-                setLoading(false);
-                setAlertMessage('Bank details saved successfully!');
-                setShowAlert(true);
-                // Clear Form
-                setHolderName('');
-                setAccountNumber('');
-                setConfirmAccountNumber('');
-                setIfscCode('');
-                setBankName('');
+            const payload = {
+                bankName: bankName.trim(),
+                accountNumber: Number(accountNumber), // Ensure number if expected as number
+                ifsc: ifscCode.trim().toUpperCase(),
+                holder: holderName.trim(),
+                ac_type: accountType,
+                branch: branch.trim()
+            };
 
-                // Switch to list
-                setTimeout(() => {
-                    setShowAlert(false);
-                    setViewMode('list');
-                }, 1000);
-            } else {
-                setLoading(false);
-                setAlertMessage('Failed to save details.');
-                setShowAlert(true);
-            }
+            const response = await userAPI.addBankDetails(payload);
+            console.log('Add Bank Response:', response);
+
+            setLoading(false);
+            setAlertMessage('Bank details saved successfully!');
+            setShowAlert(true);
+
+            // Clear Form
+            setHolderName('');
+            setAccountNumber('');
+            setConfirmAccountNumber('');
+            setIfscCode('');
+            setBankName('');
+            setBranch('');
+            setAccountType('saving');
+
+            // Switch to list (and refresh list if we had an API for getBanks, but for now assuming savedBanks context might need update if it was real)
+            // Ideally we should call a fetchBanks() here.
+            // Since User only asked for add-bank-details, I'll assume list refresh logic is handled or we just switch back.
+
+            // Refresh data
+            await refreshPaymentDetails();
+
+            setTimeout(() => {
+                setShowAlert(false);
+                setViewMode('list');
+            }, 1000);
 
         } catch (error) {
             console.error('Error saving bank details:', error);
             setLoading(false);
-            setAlertMessage('Failed to save details. Please try again.');
+            const msg = error.response?.data?.message || 'Failed to save details. Please try again.';
+            setAlertMessage(msg);
             setShowAlert(true);
         }
     };
@@ -182,14 +211,16 @@ const BankDetailsScreen = ({ navigation }) => {
                             </TouchableOpacity>
                         ))}
 
-                        <TouchableOpacity
-                            style={[styles.addButton, { backgroundColor: colors.primary }]}
-                            onPress={() => setViewMode('add')}
-                            activeOpacity={0.8}
-                        >
-                            <MaterialCommunityIcons name="plus" size={moderateScale(20)} color={colors.black} />
-                            <CText style={[styles.addButtonText, { color: colors.black }]}>Add New Account</CText>
-                        </TouchableOpacity>
+                        {savedBanks.length === 0 && (
+                            <TouchableOpacity
+                                style={[styles.addButton, { backgroundColor: colors.primary }]}
+                                onPress={() => setViewMode('add')}
+                                activeOpacity={0.8}
+                            >
+                                <MaterialCommunityIcons name="plus" size={moderateScale(20)} color={colors.black} />
+                                <CText style={[styles.addButtonText, { color: colors.black }]}>Add New Account</CText>
+                            </TouchableOpacity>
+                        )}
                     </ScrollView>
                 ) : (
                     <KeyboardAvoidingView
@@ -259,6 +290,43 @@ const BankDetailsScreen = ({ navigation }) => {
                                         {errors.ifscCode && <CText style={[styles.errorText, { color: colors.error }]}>{errors.ifscCode}</CText>}
                                     </View>
 
+                                    <View style={styles.inputContainer}>
+                                        <CInput
+                                            placeholder="Branch Name"
+                                            value={branch}
+                                            onChangeText={setBranch}
+                                            autoCapitalize="words"
+                                            leftIcon="source-branch"
+                                        />
+                                        {errors.branch && <CText style={[styles.errorText, { color: colors.error }]}>{errors.branch}</CText>}
+                                    </View>
+
+                                    {/* Account Type Selection */}
+                                    <View style={styles.inputContainer}>
+                                        <CText style={[styles.label, { color: colors.textSecondary }]}>Account Type</CText>
+                                        <View style={styles.typeContainer}>
+                                            {['saving', 'current', 'salary'].map((type) => (
+                                                <TouchableOpacity
+                                                    key={type}
+                                                    style={[
+                                                        styles.typeChip,
+                                                        { borderColor: colors.border, backgroundColor: colors.inputBackground },
+                                                        accountType === type && { borderColor: colors.primary, backgroundColor: colors.primary + '20' }
+                                                    ]}
+                                                    onPress={() => setAccountType(type)}
+                                                >
+                                                    <CText style={[
+                                                        styles.typeText,
+                                                        { color: colors.textSecondary },
+                                                        accountType === type && { color: colors.primary, fontWeight: 'bold' }
+                                                    ]}>
+                                                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                                                    </CText>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    </View>
+
                                     <View style={styles.buttonRow}>
                                         {savedBanks.length > 0 && (
                                             <TouchableOpacity
@@ -290,7 +358,7 @@ const BankDetailsScreen = ({ navigation }) => {
                     visible={modalVisible}
                     onClose={() => setModalVisible(false)}
                     onSubmit={handleWithdrawalSubmit}
-                    balance={totalBalance}
+                    balance={winningBalance}
                     loading={withdrawalLoading}
                     accountDetails={selectedBank}
                     type="bank"
@@ -402,10 +470,27 @@ const styles = StyleSheet.create({
         opacity: 0.6,
     },
     saveButtonText: {
-        color: colors.black,
         fontSize: moderateScale(16),
         fontWeight: 'bold',
         letterSpacing: 0.5,
+    },
+    label: {
+        fontSize: moderateScale(12),
+        marginBottom: verticalScale(8),
+        marginLeft: moderateScale(4),
+    },
+    typeContainer: {
+        flexDirection: 'row',
+        gap: moderateScale(10),
+    },
+    typeChip: {
+        paddingHorizontal: moderateScale(16),
+        paddingVertical: verticalScale(8),
+        borderRadius: moderateScale(20),
+        borderWidth: 1,
+    },
+    typeText: {
+        fontSize: moderateScale(12),
     },
 });
 

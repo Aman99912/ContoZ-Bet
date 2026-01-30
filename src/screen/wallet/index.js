@@ -22,12 +22,18 @@ export default function WalletScreen() {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [buttonLoading, setButtonLoading] = useState(false);
 
-    const mainWallet = wallets.find(w => w.slug === 'main_wallet')?.value || 0;
-    const fundWallet = wallets.find(w => w.slug === 'fund_wallet')?.value || 0;
-    const incomeWallet = wallets.find(w => w.slug === 'level_income')?.value || 0;
+    // const [buttonLoading, setButtonLoading] = useState(false);
 
-    const cashBalance = mainWallet + fundWallet;
-    const earningsBalance = incomeWallet;
+    // MAPPING: 
+    // cashBalance = Fund Wallet (Deposit)
+    // earningsBalance = Main Wallet (Winnings)
+
+    // Find wallets from context safely
+    const fundWalletObj = wallets.find(w => w.slug === 'fund_wallet');
+    const mainWalletObj = wallets.find(w => w.slug === 'main_wallet');
+
+    const cashBalance = fundWalletObj ? fundWalletObj.value : 0;
+    const earningsBalance = mainWalletObj ? mainWalletObj.value : 0;
 
     const [transactions, setTransactions] = useState([
         { id: 1, type: 'topup', title: 'Wallet Top Up', description: 'Added to Cash Wallet', amount: 500, transaction_Id: 'TXN-001', createdAt: new Date().toISOString(), paymentStatus: 'success' },

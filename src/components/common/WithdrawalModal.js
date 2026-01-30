@@ -12,14 +12,9 @@ import {
     Dimensions,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { useTheme, colors } from '@/core/theme/colors';
-import { moderateScale, verticalScale } from '@/core/utils/responsive';
-import CText from './CText';
-import CInput from './CInput';
-import CCard from './CCard';
+import { useApp } from '@/context/AppContext';
 
-const { width, height } = Dimensions.get('window');
+// ... imports
 
 const WithdrawalModal = ({
     visible,
@@ -27,12 +22,19 @@ const WithdrawalModal = ({
     onSubmit,
     balance = 0,
     loading = false,
-    minAmount = 100,
+    minAmount = 100, // Fallback
     accountDetails,
     type, // 'bank' or 'upi'
 }) => {
     const { colors } = useTheme();
     const navigation = useNavigation();
+    const { config } = useApp(); // Get config from context
+
+    // Extract dynamic config values
+    const dynamicMin = config?.withdrawal?.min_withdrawal || minAmount;
+    const dynamicMax = config?.withdrawal?.max_withdrawal || 10000000;
+    const txCharge = config?.withdrawal?.tx_charge || 0;
+
     const [amount, setAmount] = useState('');
     const [error, setError] = useState('');
     const [isChecked, setIsChecked] = useState(false);
@@ -68,10 +70,22 @@ const WithdrawalModal = ({
             return;
         }
 
-        if (numAmount < minAmount) {
-            setError(`Minimum withdrawal amount is ₹${minAmount}`);
+        if (numAmount < dynamicMin) {
+            setError(`Minimum withdrawal amount is ₹${dynamicMin}`);
             return;
         }
+
+        if (numAmount > dynamicMax) {
+            setError(`Maximum withdrawal amount is ₹${dynamicMax}`);
+            return;
+        }
+
+        // Logic check: does user need balance >= amount + charge? 
+        // Typically withdrawal amount is deducted from wallet, and charge is either deducted additionally or part of it.
+        // Assuming: User requests 100, we check if they have 100. Backend handles charge deduction.
+        // Or if charge is extra: if (numAmount + txCharge > balance)...
+        // Usually in betting apps: User enters 100. 100 is deducted. User receives 95 (if 5% charge).
+        // Let's assume standard behavior: check purely against balance for now.
 
         if (numAmount > balance) {
             setError('Insufficient wallet balance');
@@ -171,7 +185,9 @@ const WithdrawalModal = ({
                                             textStyle={styles.amountText}
                                         />
                                         {error ? <CText style={[styles.errorText, { color: colors.error }]}>{error}</CText> : null}
-                                        <CText style={[styles.hintText, { color: colors.textSecondary }]}>Minimum withdrawal: ₹{minAmount}</CText>
+                                        <CText style={[styles.hintText, { color: colors.textSecondary }]}>
+                                            Min: ₹{dynamicMin} {txCharge > 0 ? `| Charge: ${txCharge}%` : ''}
+                                        </CText>
                                     </View>
 
                                     {/* Terms Checkbox */}
