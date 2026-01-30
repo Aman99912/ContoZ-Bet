@@ -56,13 +56,6 @@ export default function WalletScreen() {
         refreshWallets();
     }, []);
 
-    const calculateGST = (baseAmount) => {
-        const base = Number(baseAmount);
-        const gst = (base * 18) / 100;
-        const total = base + gst;
-        return { base, gst, total };
-    };
-
     const handleAddMoney = () => {
         const amountNum = Number(amount);
         if (!amountNum || amountNum <= 0) {
@@ -70,13 +63,10 @@ export default function WalletScreen() {
             return;
         }
 
-        // Calculate total amount including GST
-        const { total } = calculateGST(amountNum);
-
         setButtonLoading(true);
 
         initiateRazorpayPayment({
-            amount: total, // Passing total amount in INR
+            amount: amountNum, // Passing exact amount logic
             prefill: {
                 name: user?.name || 'User',
                 contact: user?.mobile || '9999999999',
@@ -173,8 +163,6 @@ export default function WalletScreen() {
                 setAmount={setAmount}
                 selectedPreset={selectedPreset}
                 setSelectedPreset={setSelectedPreset}
-                calculateGST={calculateGST}
-                gstPercentage={18}
                 onAddMoney={handleAddMoney}
                 isAddDisabled={isAddDisabled}
                 buttonLoading={buttonLoading}
