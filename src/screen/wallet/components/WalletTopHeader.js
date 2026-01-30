@@ -20,6 +20,12 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
     const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0, width: 0, height: 0 });
     const [showTransferModal, setShowTransferModal] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
+    const [alertConfig, setAlertConfig] = useState({
+        title: '',
+        message: '',
+        confirmText: '',
+        onConfirm: () => { }
+    });
     const buttonRef = useRef(null);
     const hasAnimated = useRef(false);
 
@@ -64,7 +70,24 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
     });
 
     const handleAddMoney = () => {
+        if (!isLoggedIn) {
+            setAlertConfig({
+                title: 'Login Required',
+                message: 'Please login to add money to your wallet',
+                confirmText: 'Login',
+                onConfirm: () => navigation.navigate('Login')
+            });
+            setShowAlert(true);
+            return;
+        }
+
         if (user?.isverified !== 1) {
+            setAlertConfig({
+                title: 'Verification Required',
+                message: 'Please verify your email to add money to your wallet',
+                confirmText: 'Verify',
+                onConfirm: () => navigation.navigate('EmailVerify')
+            });
             setShowAlert(true);
             return;
         }
@@ -173,12 +196,12 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
 
             <CustomAlert
                 visible={showAlert}
-                title="Verification Required"
-                message="Please verify your email to add money to your wallet"
+                title={alertConfig.title}
+                message={alertConfig.message}
                 showConfirm={true}
-                confirmText="Verify"
+                confirmText={alertConfig.confirmText}
                 cancelText="Cancel"
-                onConfirm={() => navigation.navigate('EmailVerify')}
+                onConfirm={alertConfig.onConfirm}
                 onClose={() => setShowAlert(false)}
             />
         </>

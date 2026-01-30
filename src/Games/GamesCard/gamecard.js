@@ -13,11 +13,34 @@ const cardWidth = (width - moderateScale(48)) / 2; // 2 cards per row with paddi
 
 const GameCard = ({ title, entryFee, prize, image, onPress, icon }) => {
     const navigation = useNavigation();
-    const { user } = useApp();
+    const { user, isLoggedIn } = useApp();
     const [showAlert, setShowAlert] = useState(false);
+    const [alertConfig, setAlertConfig] = useState({
+        title: '',
+        message: '',
+        confirmText: '',
+        onConfirm: () => { }
+    });
 
     const handlePress = () => {
+        if (!isLoggedIn) {
+            setAlertConfig({
+                title: 'Login Required',
+                message: 'Please login to play games',
+                confirmText: 'Login',
+                onConfirm: () => navigation.navigate('Login')
+            });
+            setShowAlert(true);
+            return;
+        }
+
         if (user?.isverified !== 1) {
+            setAlertConfig({
+                title: 'Verification Required',
+                message: 'Please verify your email to play games',
+                confirmText: 'Verify',
+                onConfirm: () => navigation.navigate('EmailVerify')
+            });
             setShowAlert(true);
             return;
         }
@@ -42,12 +65,12 @@ const GameCard = ({ title, entryFee, prize, image, onPress, icon }) => {
 
             <CustomAlert
                 visible={showAlert}
-                title="Verification Required"
-                message="Please verify your email to play games"
+                title={alertConfig.title}
+                message={alertConfig.message}
                 showConfirm={true}
-                confirmText="Verify"
+                confirmText={alertConfig.confirmText}
                 cancelText="Cancel"
-                onConfirm={() => navigation.navigate('EmailVerify')}
+                onConfirm={alertConfig.onConfirm}
                 onClose={() => setShowAlert(false)}
             />
         </>

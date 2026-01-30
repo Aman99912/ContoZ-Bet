@@ -19,7 +19,7 @@ export default function HomeScreen() {
         { title: 'Ludo', entryFee: 50, icon: 'dice-multiple' },
         { title: 'Carrom', entryFee: 50, icon: 'checkerboard' },
         { title: 'Chess', entryFee: 50, icon: 'chess-knight' },
-        { title: 'Tic Tac Toe', entryFee: 50, icon: 'tic-tac-toe' },
+        { title: 'Tic Tac Toe', entryFee: 50, icon: 'grid' },
     ];
 
     // Get wallet balance from user data, default to 0

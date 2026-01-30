@@ -23,6 +23,12 @@ const EmailVerify = () => {
     const [otpSent, setOtpSent] = useState(false);
     const [otp, setOtp] = useState(['', '', '', '']);
     const [isLoading, setIsLoading] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertConfig, setAlertConfig] = useState({
+        title: '',
+        message: '',
+        onConfirm: () => setShowAlert(false)
+    });
     const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
 
     const handleSendOTP = async () => {
@@ -33,11 +39,21 @@ const EmailVerify = () => {
             });
 
             if (response.data.status === 200) {
-                Alert.alert('Success', 'OTP sent to your email!');
+                setAlertConfig({
+                    title: 'Success',
+                    message: 'OTP sent to your email!',
+                    onConfirm: () => setShowAlert(false)
+                });
+                setShowAlert(true);
                 setOtpSent(true);
             }
         } catch (error) {
-            Alert.alert('Error', error?.response?.data?.message || 'Failed to send OTP');
+            setAlertConfig({
+                title: 'Error',
+                message: error?.response?.data?.message || 'Failed to send OTP',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
         } finally {
             setIsLoading(false);
         }
@@ -68,7 +84,12 @@ const EmailVerify = () => {
         const otpCode = otp.join('');
 
         if (otpCode.length !== 4) {
-            Alert.alert('Invalid OTP', 'Please enter the 4-digit OTP');
+            setAlertConfig({
+                title: 'Invalid OTP',
+                message: 'Please enter the 4-digit OTP',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
             return;
         }
 
@@ -81,12 +102,23 @@ const EmailVerify = () => {
 
             if (response.data.status === 200) {
                 await updateVerificationStatus(true);
-                Alert.alert('Success', 'Email verified successfully!', [
-                    { text: 'OK', onPress: () => navigation.goBack() }
-                ]);
+                setAlertConfig({
+                    title: 'Success',
+                    message: 'Email verified successfully!',
+                    onConfirm: () => {
+                        setShowAlert(false);
+                        navigation.goBack();
+                    }
+                });
+                setShowAlert(true);
             }
         } catch (error) {
-            Alert.alert('Error', error?.response?.data?.message || 'Invalid OTP');
+            setAlertConfig({
+                title: 'Error',
+                message: error?.response?.data?.message || 'Invalid OTP',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
         } finally {
             setIsLoading(false);
         }
@@ -179,6 +211,16 @@ const EmailVerify = () => {
                     )}
                 </View>
             </ScrollView>
+
+            <CustomAlert
+                visible={showAlert}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                showConfirm={true}
+                confirmText="OK"
+                onConfirm={alertConfig.onConfirm}
+                onClose={() => setShowAlert(false)}
+            />
         </SafeAreaView>
     );
 };

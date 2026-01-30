@@ -7,13 +7,19 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "edgeToEdgeEnabled": true,
       "package": "com.amandeep_saroha.ContoZ",
       "enableProguardInReleaseBuilds": true,
       "enableShrinkResourcesInReleaseBuilds": true,
+      "usesCleartextTraffic": true,
       "splits": {
         "abi": true,
         "density": false
@@ -27,7 +33,8 @@
           "android": {
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
-            "useLegacyPackaging": false
+            "useLegacyPackaging": false,
+            "usesCleartextTraffic": true
           }
         }
       ]

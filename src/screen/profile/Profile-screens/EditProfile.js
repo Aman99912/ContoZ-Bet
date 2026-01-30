@@ -17,6 +17,7 @@ import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '@/context/AppContext';
+import CustomAlert from '@/components/common/CustomAlert';
 import api from '@/api';
 
 export default function EditProfile() {
@@ -29,6 +30,12 @@ export default function EditProfile() {
     const [otpSent, setOtpSent] = useState(false);
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [isLoading, setIsLoading] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertConfig, setAlertConfig] = useState({
+        title: '',
+        message: '',
+        onConfirm: () => setShowAlert(false)
+    });
     const otpRefs = useRef([...Array(6)].map(() => React.createRef()));
 
     useEffect(() => {
@@ -47,11 +54,21 @@ export default function EditProfile() {
                 action: 'profile_update',
             });
             if (res.data.status === 200) {
-                Alert.alert('Success', 'OTP sent successfully!');
+                setAlertConfig({
+                    title: 'Success',
+                    message: 'OTP sent successfully!',
+                    onConfirm: () => setShowAlert(false)
+                });
+                setShowAlert(true);
                 setOtpSent(true);
             }
         } catch (error) {
-            Alert.alert('Error', error?.response?.data?.message || 'Failed to send OTP');
+            setAlertConfig({
+                title: 'Error',
+                message: error?.response?.data?.message || 'Failed to send OTP',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
         } finally {
             setIsLoading(false);
         }
@@ -74,7 +91,12 @@ export default function EditProfile() {
     const handleUpdateProfile = async () => {
         const otpCode = otp.join('');
         if (otpCode.length !== 6) {
-            Alert.alert('Invalid OTP', 'Please enter the 6-digit OTP');
+            setAlertConfig({
+                title: 'Invalid OTP',
+                message: 'Please enter the 6-digit OTP',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
             return;
         }
 
@@ -88,12 +110,23 @@ export default function EditProfile() {
             const res = await api.post('/update-profile', payload);
             if (res.data.status === 200) {
                 await updateUser({ name, email, mobile });
-                Alert.alert('Success', 'Profile updated successfully!', [
-                    { text: 'OK', onPress: () => navigation.goBack() }
-                ]);
+                setAlertConfig({
+                    title: 'Success',
+                    message: 'Profile updated successfully!',
+                    onConfirm: () => {
+                        setShowAlert(false);
+                        navigation.goBack();
+                    }
+                });
+                setShowAlert(true);
             }
         } catch (error) {
-            Alert.alert('Error', error?.response?.data?.message || 'Failed to update profile');
+            setAlertConfig({
+                title: 'Error',
+                message: error?.response?.data?.message || 'Failed to update profile',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
         } finally {
             setIsLoading(false);
         }
@@ -216,6 +249,16 @@ export default function EditProfile() {
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
+
+            <CustomAlert
+                visible={showAlert}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                showConfirm={true}
+                confirmText="OK"
+                onConfirm={alertConfig.onConfirm}
+                onClose={() => setShowAlert(false)}
+            />
         </SafeAreaView>
     );
 }

@@ -22,7 +22,9 @@ api.interceptors.request.use(
         try {
             const token = await AsyncStorage.getItem('authToken');
             if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
+                // Testing both formats based on user requirements
+                config.headers.Authorization = token;
+                config.headers.token = token;
             }
         } catch (error) {
             console.error('Error fetching token from storage:', error);

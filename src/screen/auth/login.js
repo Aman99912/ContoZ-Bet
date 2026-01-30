@@ -16,6 +16,7 @@ import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CInput from '@/components/common/CInput';
+import CustomAlert from '@/components/common/CustomAlert';
 import { authAPI } from '@/api/services';
 import { useApp } from '@/context/AppContext';
 
@@ -25,6 +26,8 @@ const LoginScreen = ({ navigation }) => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
     const validateForm = () => {
         const newErrors = {};
@@ -64,7 +67,8 @@ const LoginScreen = ({ navigation }) => {
         } catch (error) {
             console.error('Login error:', error);
             const errorMessage = error.response?.data?.message || 'Login failed. Please check your credentials.';
-            alert(errorMessage);
+            setAlertMessage(errorMessage);
+            setShowAlert(true);
         } finally {
             setLoading(false);
         }
@@ -154,6 +158,16 @@ const LoginScreen = ({ navigation }) => {
                     </ScrollView>
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
+
+            <CustomAlert
+                visible={showAlert}
+                title="Login Error"
+                message={alertMessage}
+                showConfirm={true}
+                confirmText="OK"
+                onClose={() => setShowAlert(false)}
+                onConfirm={() => setShowAlert(false)}
+            />
         </SafeAreaView>
     );
 };

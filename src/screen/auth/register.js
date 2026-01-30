@@ -16,6 +16,7 @@ import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CInput from '@/components/common/CInput';
+import CustomAlert from '@/components/common/CustomAlert';
 import { authAPI } from '@/api/services';
 import { useApp } from '@/context/AppContext';
 
@@ -29,6 +30,8 @@ const RegisterScreen = ({ navigation }) => {
     const [sponsor, setSponsor] = useState('contoz');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
     const validateForm = () => {
         const newErrors = {};
@@ -91,7 +94,8 @@ const RegisterScreen = ({ navigation }) => {
         } catch (error) {
             console.error('Registration error:', error);
             const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
-            alert(errorMessage);
+            setAlertMessage(errorMessage);
+            setShowAlert(true);
         } finally {
             setLoading(false);
         }
@@ -210,6 +214,16 @@ const RegisterScreen = ({ navigation }) => {
                     </ScrollView>
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
+
+            <CustomAlert
+                visible={showAlert}
+                title="Registration Error"
+                message={alertMessage}
+                showConfirm={true}
+                confirmText="OK"
+                onClose={() => setShowAlert(false)}
+                onConfirm={() => setShowAlert(false)}
+            />
         </SafeAreaView>
     );
 };

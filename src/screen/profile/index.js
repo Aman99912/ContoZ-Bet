@@ -8,10 +8,12 @@ import MenuBar from './components/menuBar';
 import VerificationWarning from './components/VerificationWarning';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '@/context/AppContext';
+import CustomAlert from '@/components/common/CustomAlert';
 
 export default function UserScreen() {
     const navigation = useNavigation();
     const { user, logout } = useApp();
+    const [showLogoutAlert, setShowLogoutAlert] = React.useState(false);
 
     const handleEditProfile = () => {
         navigation.navigate('EditProfile');
@@ -42,24 +44,13 @@ export default function UserScreen() {
     };
 
     const handleLogout = () => {
-        Alert.alert(
-            'Logout',
-            'Are you sure you want to logout?',
-            [
-                {
-                    text: 'Cancel',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Logout',
-                    style: 'destructive',
-                    onPress: async () => {
-                        await logout();
-                        navigation.replace('Login');
-                    },
-                },
-            ]
-        );
+        setShowLogoutAlert(true);
+    };
+
+    const confirmLogout = async () => {
+        setShowLogoutAlert(false);
+        await logout();
+        navigation.replace('Login');
     };
 
     // Get user name from user data, default to "User"
@@ -86,6 +77,17 @@ export default function UserScreen() {
                     onLogoutPress={handleLogout}
                 />
             </ScrollView>
+
+            <CustomAlert
+                visible={showLogoutAlert}
+                title="Logout"
+                message="Are you sure you want to logout?"
+                showConfirm={true}
+                confirmText="Logout"
+                cancelText="Cancel"
+                onConfirm={confirmLogout}
+                onClose={() => setShowLogoutAlert(false)}
+            />
         </SafeAreaView>
     );
 }

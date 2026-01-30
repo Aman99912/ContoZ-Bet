@@ -41,6 +41,12 @@ const EarnToCashModal = ({
     const [selectedPreset, setSelectedPreset] = useState(null);
     const [gstPercent, setGstPercent] = useState(18);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertConfig, setAlertConfig] = useState({
+        title: '',
+        message: '',
+        onConfirm: () => setShowAlert(false)
+    });
 
     useEffect(() => {
         if (!visible) return;
@@ -127,24 +133,45 @@ const EarnToCashModal = ({
         if (isSubmitting) return;
         const amountValue = Number(amount || 0);
         if (!Number.isFinite(amountValue) || amountValue <= 0) {
-            Alert.alert('Invalid Amount', 'Please enter a valid amount to transfer.');
+            setAlertConfig({
+                title: 'Invalid Amount',
+                message: 'Please enter a valid amount to transfer.',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
             return;
         }
         if (amountValue < 10 || amountValue > 100000) {
-            Alert.alert('Invalid Amount', 'Amount must be between ₹10 and ₹100,000.');
+            setAlertConfig({
+                title: 'Invalid Amount',
+                message: 'Amount must be between ₹10 and ₹100,000.',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
             return;
         }
         if (amountValue > maxAmount + 0.001 || debitTotal > availableToConvert + 0.001) {
-            Alert.alert(
-                'Insufficient Balance',
-                'Your Earnings Wallet balance is not enough for this transfer including GST.',
-            );
+            setAlertConfig({
+                title: 'Insufficient Balance',
+                message: 'Your Earnings Wallet balance is not enough for this transfer including GST.',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
             return;
         }
 
         const authToken = await AsyncStorage.getItem('authToken');
         if (!authToken) {
-            Alert.alert('Unauthorized', 'Please log in again to continue.');
+            setAlertConfig({
+                title: 'Unauthorized',
+                message: 'Please log in again to continue.',
+                onConfirm: () => {
+                    setShowAlert(false);
+                    onClose();
+                    // Optional: navigate to login
+                }
+            });
+            setShowAlert(true);
             return;
         }
 
@@ -168,11 +195,18 @@ const EarnToCashModal = ({
             );
 
             console.log('[EarnToCashModal] Transfer success', res?.data);
-            Alert.alert('Success', 'Transfer completed successfully!');
+            setAlertConfig({
+                title: 'Success',
+                message: 'Transfer completed successfully!',
+                onConfirm: () => {
+                    setShowAlert(false);
+                    onClose();
+                }
+            });
+            setShowAlert(true);
             setAmount('');
             setSelectedPreset(null);
             onTransfer?.(res?.data);
-            onClose();
         } catch (err) {
             console.log('[EarnToCashModal] Transfer failed', {
                 status: err?.response?.status,
@@ -183,7 +217,12 @@ const EarnToCashModal = ({
                 err?.response?.data?.error?.message ||
                 err?.message;
             const title = err?.response?.status === 400 ? 'Transfer Failed' : 'Error';
-            Alert.alert(title, apiMessage || 'Unable to complete transfer.');
+            setAlertConfig({
+                title: title,
+                message: apiMessage || 'Unable to complete transfer.',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
         } finally {
             setIsSubmitting(false);
         }
@@ -330,6 +369,16 @@ const EarnToCashModal = ({
                     </SafeAreaView>
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
+
+            <CustomAlert
+                visible={showAlert}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                showConfirm={true}
+                confirmText="OK"
+                onConfirm={alertConfig.onConfirm}
+                onClose={() => setShowAlert(false)}
+            />
         </Modal>
     );
 };

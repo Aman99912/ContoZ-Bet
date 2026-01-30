@@ -26,91 +26,84 @@ const Tab = createBottomTabNavigator();
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useApp } from '@/context/AppContext';
+import CustomAlert from '@/components/common/CustomAlert';
+import { useNavigation } from '@react-navigation/native';
+
 const TabNavigator = () => {
     const insets = useSafeAreaInsets();
-
-    // Set to true when user is logged in
-    const isLoggedIn = true; // Change this based on your auth state
+    const navigation = useNavigation();
+    const { isLoggedIn } = useApp();
+    const [showAuthAlert, setShowAuthAlert] = React.useState(false);
 
     return (
-        <Tab.Navigator
-            screenOptions={({ route }) => ({
-                headerShown: false,
-                tabBarStyle: {
-                    backgroundColor: colors.background,
-                    borderTopColor: colors.border,
-                    height: 60 + insets.bottom,
-                    paddingBottom: insets.bottom + 8,
-                    paddingTop: 8,
-                },
-                tabBarActiveTintColor: colors.primary,
-                tabBarInactiveTintColor: colors.textSecondary,
-                tabBarLabelStyle: {
-                    fontSize: 12,
-                    fontWeight: '600',
-                },
-                tabBarIcon: ({ color, size, focused }) => {
-                    let iconName;
-                    if (route.name === 'Home') {
-                        iconName = focused ? 'home' : 'home-outline';
-                    } else if (route.name === 'History') {
-                        iconName = focused ? 'clock' : 'clock-outline';
-                    } else if (route.name === 'Wallet') {
-                        iconName = focused ? 'wallet' : 'wallet-outline';
-                    } else if (route.name === 'User') {
-                        iconName = focused ? 'account' : 'account-outline';
+        <>
+            <Tab.Navigator
+                screenOptions={({ route }) => ({
+                    headerShown: false,
+                    tabBarStyle: {
+                        backgroundColor: colors.background,
+                        borderTopColor: colors.border,
+                        height: 60 + insets.bottom,
+                        paddingBottom: insets.bottom + 8,
+                        paddingTop: 8,
+                    },
+                    tabBarActiveTintColor: colors.primary,
+                    tabBarInactiveTintColor: colors.textSecondary,
+                    tabBarLabelStyle: {
+                        fontSize: 12,
+                        fontWeight: '600',
+                    },
+                    tabBarIcon: ({ color, size, focused }) => {
+                        let iconName;
+                        if (route.name === 'Home') {
+                            iconName = focused ? 'home' : 'home-outline';
+                        } else if (route.name === 'History') {
+                            iconName = focused ? 'clock' : 'clock-outline';
+                        } else if (route.name === 'Wallet') {
+                            iconName = focused ? 'wallet' : 'wallet-outline';
+                        } else if (route.name === 'User') {
+                            iconName = focused ? 'account' : 'account-outline';
+                        }
+                        return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
                     }
-                    return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
-                }
-            })}
-            screenListeners={({ navigation, route }) => ({
-                tabPress: (e) => {
-                    // Prevent navigation to History, Wallet, User if not logged in
-                    if (!isLoggedIn && (route.name === 'History' || route.name === 'Wallet' || route.name === 'User')) {
-                        e.preventDefault();
+                })}
+                screenListeners={({ navigation, route }) => ({
+                    tabPress: (e) => {
+                        // Prevent navigation to History, Wallet, User if not logged in
+                        if (!isLoggedIn && (route.name === 'History' || route.name === 'Wallet' || route.name === 'User')) {
+                            e.preventDefault();
+                            setShowAuthAlert(true);
+                        }
+                    }
+                })}
+            >
+                <Tab.Screen name="Home" component={HomeScreen} />
+                <Tab.Screen
+                    name="History"
+                    component={HistoryScreen}
+                />
+                <Tab.Screen
+                    name="Wallet"
+                    component={WalletScreen}
+                />
+                <Tab.Screen
+                    name="User"
+                    component={UserScreen}
+                />
+            </Tab.Navigator>
 
-                    }
-                }
-            })}
-        >
-            <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen
-                name="History"
-                component={HistoryScreen}
-                options={{
-                    tabBarButton: (props) => (
-                        <TouchableOpacity
-                            {...props}
-                            style={[props.style, !isLoggedIn && { opacity: 0.5 }]}
-                        />
-                    )
-                }}
+            <CustomAlert
+                visible={showAuthAlert}
+                title="Login Required"
+                message="Please login to access this feature"
+                showConfirm={true}
+                confirmText="Login"
+                cancelText="Cancel"
+                onConfirm={() => navigation.navigate('Login')}
+                onClose={() => setShowAuthAlert(false)}
             />
-            <Tab.Screen
-                name="Wallet"
-                component={WalletScreen}
-                options={{
-                    tabBarButton: (props) => (
-                        <TouchableOpacity
-                            {...props}
-                            style={[props.style, !isLoggedIn && { opacity: 0.5 }]}
-                        />
-                    )
-                }}
-            />
-            <Tab.Screen
-                name="User"
-                component={UserScreen}
-                options={{
-                    tabBarButton: (props) => (
-                        <TouchableOpacity
-                            {...props}
-                            style={[props.style, !isLoggedIn && { opacity: 0.5 }]}
-                        />
-                    )
-                }}
-            />
-        </Tab.Navigator>
+        </>
     );
 };
 
