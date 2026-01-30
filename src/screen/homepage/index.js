@@ -8,7 +8,7 @@ import HomeHeader from './components/header';
 import { useApp } from '@/context/AppContext';
 
 export default function HomeScreen() {
-    const { user, isLoggedIn } = useApp();
+    const { user, isLoggedIn, totalBalance } = useApp();
     const [activeTab, setActiveTab] = useState('All');
 
     const tabs = ['All', 'Popular', 'New', '2 Player'];
@@ -22,8 +22,8 @@ export default function HomeScreen() {
         { title: 'Tic Tac Toe', entryFee: 50, icon: 'grid' },
     ];
 
-    // Get wallet balance from user data, default to 0
-    const balance = user?.wallet?.balance || 0;
+    // Get wallet balance from AppContext
+    const balance = totalBalance || 0;
 
     return (
         <View style={styles.container}>

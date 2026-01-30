@@ -6,12 +6,40 @@ const AppContext = createContext();
 export const AppProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
+    const [wallets, setWallets] = useState([]);
+    const [totalBalance, setTotalBalance] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
 
     // Load user data and token from storage on app start
     useEffect(() => {
         loadUserData();
     }, []);
+
+    const refreshWallets = async () => {
+        if (!token) return;
+        try {
+            // Using a direct import of api here if needed, or ensuring it's available
+            const api = require('@/api').default;
+            const res = await api.get('/user/get_wallets');
+            if (res && res.wallets) {
+                setWallets(res.wallets);
+                const mainWallet = res.wallets.find(w => w.slug === 'main_wallet')?.value || 0;
+                const fundWallet = res.wallets.find(w => w.slug === 'fund_wallet')?.value || 0;
+                const incomeWallet = res.wallets.find(w => w.slug === 'level_income')?.value || 0;
+
+                const total = res.totalIncome || (mainWallet + fundWallet + incomeWallet);
+                setTotalBalance(total);
+            }
+        } catch (error) {
+            console.error('Error refreshing wallets in AppContext:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (token) {
+            refreshWallets();
+        }
+    }, [token]);
 
     const loadUserData = async () => {
         try {
@@ -74,12 +102,15 @@ export const AppProvider = ({ children }) => {
     const value = {
         user,
         token,
+        wallets,
+        totalBalance,
         isLoading,
         isLoggedIn: !!token,
         login,
         logout,
         updateUser,
         updateVerificationStatus,
+        refreshWallets,
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

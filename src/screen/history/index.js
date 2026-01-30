@@ -6,7 +6,10 @@ import { GameTabSelector } from '@/Games';
 import HistoryItem from './components/historyItem';
 import HistoryHeader from './components/historyHeader';
 
+import { useApp } from '@/context/AppContext';
+
 export default function HistoryScreen() {
+    const { totalBalance } = useApp();
     const [activeTab, setActiveTab] = useState('All');
 
     const tabs = ['All', 'Won', 'Lost', '2 Player'];
@@ -23,7 +26,7 @@ export default function HistoryScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <HistoryHeader balance={1212} />
+            <HistoryHeader balance={totalBalance || 0} />
             <View style={styles.tabWrapper}>
                 <GameTabSelector
                     tabs={tabs}

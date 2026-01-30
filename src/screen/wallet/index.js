@@ -9,7 +9,10 @@ import Transactions from './components/Transactions';
 import AddMoneyModal from './components/AddMoneyModal';
 import api from '@/api';
 
+import { useApp } from '@/context/AppContext';
+
 export default function WalletScreen() {
+    const { wallets, totalBalance, refreshWallets } = useApp();
     const [activeTab, setActiveTab] = useState('All');
     const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
     const [amount, setAmount] = useState('');
@@ -18,12 +21,12 @@ export default function WalletScreen() {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [buttonLoading, setButtonLoading] = useState(false);
 
-    // Dynamic wallet data
-    const [balances, setBalances] = useState({
-        total: 0,
-        cash: 0,
-        earnings: 0
-    });
+    const mainWallet = wallets.find(w => w.slug === 'main_wallet')?.value || 0;
+    const fundWallet = wallets.find(w => w.slug === 'fund_wallet')?.value || 0;
+    const incomeWallet = wallets.find(w => w.slug === 'level_income')?.value || 0;
+
+    const cashBalance = mainWallet + fundWallet;
+    const earningsBalance = incomeWallet;
 
     const [transactions, setTransactions] = useState([
         { id: 1, type: 'topup', title: 'Wallet Top Up', description: 'Added to Cash Wallet', amount: 500, transaction_Id: 'TXN-001', createdAt: new Date().toISOString(), paymentStatus: 'success' },
@@ -32,30 +35,9 @@ export default function WalletScreen() {
         { id: 4, type: 'debit', title: 'Carrom', description: 'Entry Fee', amount: 50, transaction_Id: 'TXN-004', createdAt: new Date().toISOString(), paymentStatus: 'success' },
     ]);
 
-    const fetchWallets = useCallback(async () => {
-        try {
-            const res = await api.get('/user/get_wallets');
-            if (res && res.wallets) {
-                const wallets = res.wallets;
-                const mainWallet = wallets.find(w => w.slug === 'main_wallet')?.value || 0;
-                const fundWallet = wallets.find(w => w.slug === 'fund_wallet')?.value || 0;
-                const incomeWallet = wallets.find(w => w.slug === 'level_income')?.value || 0;
-
-                setBalances({
-                    total: res.totalIncome || (mainWallet + fundWallet + incomeWallet),
-                    cash: mainWallet + fundWallet,
-                    earnings: incomeWallet
-                });
-            }
-        } catch (error) {
-            console.error('Error fetching wallets:', error);
-            // Alert.alert('Error', 'Failed to fetch wallet balances');
-        }
-    }, []);
-
     useEffect(() => {
-        fetchWallets();
-    }, [fetchWallets]);
+        refreshWallets();
+    }, []);
 
     const calculateGST = (baseAmount) => {
         const base = Number(baseAmount);
@@ -72,7 +54,7 @@ export default function WalletScreen() {
             setAmount('');
             setSelectedPreset(null);
             console.log('Money added successfully');
-            fetchWallets(); // Refresh balances after add
+            refreshWallets(); // Refresh balances after add
         }, 2000);
     };
 
@@ -82,7 +64,7 @@ export default function WalletScreen() {
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        await fetchWallets();
+        await refreshWallets();
         setRefreshing(false);
     };
 
@@ -102,9 +84,9 @@ export default function WalletScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <WalletTopHeader
-                balance={balances.total}
-                cashBalance={balances.cash}
-                earningsBalance={balances.earnings}
+                balance={totalBalance}
+                cashBalance={cashBalance}
+                earningsBalance={earningsBalance}
                 onAddMoney={() => setShowAddMoneyModal(true)}
                 onTransfer={handleTransfer}
                 onRefresh={handleRefresh}
