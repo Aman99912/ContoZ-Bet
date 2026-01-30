@@ -10,10 +10,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '@/context/AppContext';
 import EarnToCashModal from './EarnToCashModal';
 import CustomAlert from '@/components/common/CustomAlert';
+import api from '@/api';
+
 
 const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, onTransfer, onRefresh }) => {
     const navigation = useNavigation();
-    const { user } = useApp();
+    const { user, isLoggedIn } = useApp();
     const rotation = useRef(new Animated.Value(0)).current;
     const arrowTranslate = useRef(new Animated.Value(20)).current;
     const [showTooltip, setShowTooltip] = useState(false);

@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
+import CustomAlert from '@/components/common/CustomAlert';
 import api from '@/api';
 
 const formatCurrency = (value, decimals = 2) =>
