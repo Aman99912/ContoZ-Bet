@@ -10,60 +10,18 @@ import { useApp } from '@/context/AppContext';
 const BannerCard = ({ title, subtitle, image, onPress }) => {
     const navigation = useNavigation();
     const { user, isLoggedIn } = useApp();
-    const [showAlert, setShowAlert] = useState(false);
-    const [alertConfig, setAlertConfig] = useState({
-        title: '',
-        message: '',
-        confirmText: '',
-        onConfirm: () => { }
-    });
-
     const handlePress = () => {
-        if (!isLoggedIn) {
-            setAlertConfig({
-                title: 'Login Required',
-                message: 'Please login to play games',
-                confirmText: 'Login',
-                onConfirm: () => navigation.navigate('Login')
-            });
-            setShowAlert(true);
-            return;
-        }
-
-        if (user?.isverified !== 1) {
-            setAlertConfig({
-                title: 'Verification Required',
-                message: 'Please verify your email to play games',
-                confirmText: 'Verify',
-                onConfirm: () => navigation.navigate('EmailVerify')
-            });
-            setShowAlert(true);
-            return;
-        }
         onPress?.();
     };
 
     return (
-        <>
-            <TouchableOpacity style={styles.banner} onPress={handlePress} activeOpacity={0.9}>
-                {image && <Image source={image} style={styles.bgImage} />}
-                <View style={styles.overlay}>
-                    <CText style={styles.title}>{title}</CText>
-                    {subtitle && <CText style={styles.subtitle}>{subtitle}</CText>}
-                </View>
-            </TouchableOpacity>
-
-            <CustomAlert
-                visible={showAlert}
-                title={alertConfig.title}
-                message={alertConfig.message}
-                showConfirm={true}
-                confirmText={alertConfig.confirmText}
-                cancelText="Cancel"
-                onConfirm={alertConfig.onConfirm}
-                onClose={() => setShowAlert(false)}
-            />
-        </>
+        <TouchableOpacity style={styles.banner} onPress={handlePress} activeOpacity={0.9}>
+            {image && <Image source={image} style={styles.bgImage} />}
+            <View style={styles.overlay}>
+                <CText style={styles.title}>{title}</CText>
+                {subtitle && <CText style={styles.subtitle}>{subtitle}</CText>}
+            </View>
+        </TouchableOpacity>
     );
 };
 

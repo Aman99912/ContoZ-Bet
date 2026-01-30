@@ -20,6 +20,7 @@ import Notifications from '@/screen/profile/Profile-screens/Notifications';
 import TermsAndConditions from '@/screen/profile/Profile-screens/TermsAndConditions';
 import PrivacyPolicy from '@/screen/profile/Profile-screens/PrivacyPolicy';
 import EmailVerify from '@/screen/profile/components/emailVerfiy';
+import GameInit from '@/Games/components/Gameinit/gameinit';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -122,6 +123,7 @@ const Navigation = () => {
                 <Stack.Screen name="Notifications" component={Notifications} />
                 <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
                 <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
+                <Stack.Screen name="GameInit" component={GameInit} />
             </Stack.Navigator>
         </NavigationContainer>
     );

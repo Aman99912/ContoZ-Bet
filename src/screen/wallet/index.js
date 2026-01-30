@@ -83,7 +83,7 @@ export default function WalletScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <WallopHeader
+            <WalletTopHeader
                 balance={totalBalance}
                 cashBalance={cashBalance}
                 earningsBalance={earningsBalance}

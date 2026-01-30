@@ -14,66 +14,24 @@ const cardWidth = (width - moderateScale(48)) / 2; // 2 cards per row with paddi
 const GameCard = ({ title, entryFee, prize, image, onPress, icon }) => {
     const navigation = useNavigation();
     const { user, isLoggedIn } = useApp();
-    const [showAlert, setShowAlert] = useState(false);
-    const [alertConfig, setAlertConfig] = useState({
-        title: '',
-        message: '',
-        confirmText: '',
-        onConfirm: () => { }
-    });
-
     const handlePress = () => {
-        if (!isLoggedIn) {
-            setAlertConfig({
-                title: 'Login Required',
-                message: 'Please login to play games',
-                confirmText: 'Login',
-                onConfirm: () => navigation.navigate('Login')
-            });
-            setShowAlert(true);
-            return;
-        }
-
-        if (user?.isverified !== 1) {
-            setAlertConfig({
-                title: 'Verification Required',
-                message: 'Please verify your email to play games',
-                confirmText: 'Verify',
-                onConfirm: () => navigation.navigate('EmailVerify')
-            });
-            setShowAlert(true);
-            return;
-        }
         onPress?.();
     };
 
     return (
-        <>
-            <TouchableOpacity style={[styles.card, { width: cardWidth }]} onPress={handlePress} activeOpacity={0.8}>
-                {image ? (
-                    <Image source={image} style={styles.image} />
-                ) : (
-                    <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons name={icon || 'gamepad-variant'} size={60} color={colors.primary} />
-                    </View>
-                )}
-
-                <View style={styles.footer}>
-                    <CText style={styles.entryFee}>Entry Fee: ₹{entryFee}</CText>
+        <TouchableOpacity style={[styles.card, { width: cardWidth }]} onPress={handlePress} activeOpacity={0.8}>
+            {image ? (
+                <Image source={image} style={styles.image} />
+            ) : (
+                <View style={styles.iconContainer}>
+                    <MaterialCommunityIcons name={icon || 'gamepad-variant'} size={60} color={colors.primary} />
                 </View>
-            </TouchableOpacity>
+            )}
 
-            <CustomAlert
-                visible={showAlert}
-                title={alertConfig.title}
-                message={alertConfig.message}
-                showConfirm={true}
-                confirmText={alertConfig.confirmText}
-                cancelText="Cancel"
-                onConfirm={alertConfig.onConfirm}
-                onClose={() => setShowAlert(false)}
-            />
-        </>
+            <View style={styles.footer}>
+                <CText style={styles.entryFee}>Entry Fee: ₹{entryFee}</CText>
+            </View>
+        </TouchableOpacity>
     );
 };
 

@@ -5,9 +5,11 @@ import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { GameCard, BannerCard, GameTabSelector } from '@/Games';
 import HomeHeader from './components/header';
+import { useNavigation } from '@react-navigation/native';
 import { useApp } from '@/context/AppContext';
 
 export default function HomeScreen() {
+    const navigation = useNavigation();
     const { user, isLoggedIn, totalBalance } = useApp();
     const [activeTab, setActiveTab] = useState('All');
 
@@ -49,7 +51,7 @@ export default function HomeScreen() {
                                 title={game.title}
                                 entryFee={game.entryFee}
                                 icon={game.icon}
-                                onPress={() => console.log(`${game.title} pressed`)}
+                                onPress={() => navigation.navigate('GameInit', { gameTitle: game.title, gameIcon: game.icon })}
                             />
                         ))}
                     </View>
