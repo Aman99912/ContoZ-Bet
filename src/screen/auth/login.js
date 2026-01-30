@@ -119,7 +119,7 @@ const LoginScreen = ({ navigation }) => {
                                             placeholder="Enter your username"
                                             value={username}
                                             onChangeText={setUsername}
-                                            autoCapitalize="none"
+                                            autoCapitalize="characters"
                                             autoCorrect={false}
                                             leftIcon="account-outline"
                                         />

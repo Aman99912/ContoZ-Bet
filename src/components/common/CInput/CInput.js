@@ -31,6 +31,17 @@ const CInput = forwardRef(({
                 { backgroundColor: colors.inputBackground, borderColor: colors.border },
                 isFocused && { borderColor: colors.primary }
             ]}>
+                {props.leftIcon && (
+                    <MaterialCommunityIcons
+                        name={props.leftIcon}
+                        size={moderateScale(20)}
+                        color={isFocused ? colors.primary : colors.textSecondary}
+                        style={styles.leftIcon}
+                    />
+                )}
+                {props.prefix && (
+                    <CText style={[styles.prefix, { color: colors.textPrimary }]}>{props.prefix}</CText>
+                )}
                 <TextInput
                     ref={ref}
                     value={value}
@@ -43,6 +54,7 @@ const CInput = forwardRef(({
                         styles.input,
                         { color: colors.textPrimary },
                         showPasswordToggle && styles.inputWithIcon,
+                        (props.leftIcon || props.prefix) && styles.inputWithLeftContent,
                         inputStyle
                     ]}
                     onFocus={handleFocus}
@@ -86,17 +98,28 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        padding: moderateScale(20),
+        padding: moderateScale(16),
         fontSize: moderateScale(16),
         outlineStyle: 'none',
     },
     inputWithIcon: {
         paddingRight: moderateScale(50),
     },
+    inputWithLeftContent: {
+        paddingLeft: moderateScale(8),
+    },
     eyeButton: {
         position: 'absolute',
         right: moderateScale(14),
         padding: moderateScale(4),
+    },
+    leftIcon: {
+        marginLeft: moderateScale(14),
+    },
+    prefix: {
+        marginLeft: moderateScale(8),
+        fontSize: moderateScale(16),
+        fontWeight: 'bold',
     },
 });
 

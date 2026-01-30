@@ -133,8 +133,8 @@ const RegisterScreen = ({ navigation }) => {
                                             color={colors.primary}
                                         />
                                     </View>
-                                    <CText style={[styles.welcomeText, { color: colors.textPrimary }]}>Create Account</CText>
-                                    <CText style={[styles.subtitleText, { color: colors.textSecondary }]}>Join us and start your journey</CText>
+                                    <CText style={[styles.welcomeText, { color: colors.textPrimary }]} numberOfLines={1}>Create Account</CText>
+                                    <CText style={[styles.subtitleText, { color: colors.textSecondary }]} numberOfLines={1}>Join us and start your journey</CText>
                                 </View>
 
                                 {/* Register Card */}
@@ -176,6 +176,7 @@ const RegisterScreen = ({ navigation }) => {
                                             keyboardType="phone-pad"
                                             maxLength={10}
                                             leftIcon="phone-outline"
+                                            prefix="+91 "
                                         />
                                         {errors.mobile && <CText style={[styles.errorText, { color: colors.error }]}>{errors.mobile}</CText>}
                                     </View>
@@ -222,7 +223,7 @@ const RegisterScreen = ({ navigation }) => {
 
                                 {/* Login Link */}
                                 <View style={styles.loginContainer}>
-                                    <CText style={[styles.loginText, { color: colors.textSecondary }]}>Already have an account? </CText>
+                                    <CText style={[styles.loginText, { color: colors.textSecondary }]} numberOfLines={1}>Already have an account? </CText>
                                     <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                                         <CText style={[styles.loginLink, { color: colors.primary }]}>Login</CText>
                                     </TouchableOpacity>
