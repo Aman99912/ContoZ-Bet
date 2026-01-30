@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(12),
         borderWidth: 1,
         borderColor: colors.border,
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.08,
         shadowRadius: 4,

@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     },
     paymentStatusSuccess: { color: colors.primary },
     paymentStatusFailure: { color: colors.error },
-    paymentStatusPending: { color: '#ff9800' },
+    paymentStatusPending: { color: colors.pending },
 });
 
 export default TransactionItem;

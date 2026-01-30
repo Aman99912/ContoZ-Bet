@@ -198,7 +198,7 @@ const EmailVerify = () => {
                                 disabled={isLoading}
                             >
                                 {isLoading ? (
-                                    <ActivityIndicator color="#fff" size="small" />
+                                    <ActivityIndicator color={colors.white} size="small" />
                                 ) : (
                                     <CText style={styles.verifyButtonText}>Verify OTP</CText>
                                 )}

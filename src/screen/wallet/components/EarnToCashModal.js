@@ -360,7 +360,7 @@ const EarnToCashModal = ({
                                     disabled={!isAmountValid || isSubmitting}
                                 >
                                     {isSubmitting ? (
-                                        <ActivityIndicator color="#fff" size="small" />
+                                        <ActivityIndicator color={colors.white} size="small" />
                                     ) : (
                                         <CText style={styles.transferText}>Transfer</CText>
                                     )}
