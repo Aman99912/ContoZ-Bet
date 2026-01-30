@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
@@ -10,7 +10,7 @@ const HistoryHeader = ({ balance = 1212 }) => {
     const navigation = useNavigation();
 
     return (
-        <SafeAreaView style={styles.headerContainer}>
+        <View style={styles.headerContainer}>
             <CText style={styles.appName}>History</CText>
 
             <TouchableOpacity
@@ -20,7 +20,7 @@ const HistoryHeader = ({ balance = 1212 }) => {
             >
                 <CText style={styles.balanceAmount}>₹{balance}</CText>
             </TouchableOpacity>
-        </SafeAreaView>
+        </View>
     );
 };
 
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     balanceCard: {
         backgroundColor: colors.surface,
         paddingHorizontal: moderateScale(20),
-        paddingVertical: moderateScale(12),
+        paddingVertical: moderateScale(5),
         borderRadius: moderateScale(24),
         borderWidth: 2,
         borderColor: colors.border,

@@ -83,7 +83,7 @@ export default function WalletScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <WalletTopHeader
+            <WallopHeader
                 balance={totalBalance}
                 cashBalance={cashBalance}
                 earningsBalance={earningsBalance}
@@ -132,6 +132,7 @@ export default function WalletScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        // paddingTop: verticalScale(-20),
         backgroundColor: colors.background,
     },
 });

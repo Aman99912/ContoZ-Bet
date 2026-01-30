@@ -108,7 +108,7 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
 
     return (
         <>
-            <SafeAreaView>
+            <View>
                 <View style={styles.headerContainer}>
                     <View style={styles.balanceRow}>
                         <View>
@@ -185,7 +185,7 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
                         </View>
                     </TouchableOpacity>
                 </Modal>
-            </SafeAreaView>
+            </View>
 
             <EarnToCashModal
                 visible={showTransferModal}
@@ -213,13 +213,13 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
 const styles = StyleSheet.create({
     headerContainer: {
         backgroundColor: colors.surface,
-        // top: verticalScale(16),
+      
         margin: moderateScale(16),
         padding: moderateScale(20),
         borderRadius: moderateScale(16),
         borderWidth: 1,
         borderColor: colors.border,
-        marginBottom: verticalScale(-2),
+        marginBottom: verticalScale(12),
     },
     balanceRow: {
         flexDirection: 'row',

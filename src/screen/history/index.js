@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import { GameTabSelector } from '@/Games';
@@ -7,6 +7,7 @@ import HistoryItem from './components/historyItem';
 import HistoryHeader from './components/historyHeader';
 
 import { useApp } from '@/context/AppContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HistoryScreen() {
     const { totalBalance } = useApp();
@@ -24,7 +25,7 @@ export default function HistoryScreen() {
         { game: 'Carrom', entryFee: 50, result: 'WON', amount: 37.5, date: 'Apr 24, 2024, 10:32 AM', icon: 'checkerboard' },
     ];
 
-    return (
+    return (<>
         <SafeAreaView style={styles.container}>
             <HistoryHeader balance={totalBalance || 0} />
             <View style={styles.tabWrapper}>
@@ -54,12 +55,14 @@ export default function HistoryScreen() {
                 ))}
             </ScrollView>
         </SafeAreaView>
+    </>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+     
         backgroundColor: colors.background,
     },
     tabWrapper: {
