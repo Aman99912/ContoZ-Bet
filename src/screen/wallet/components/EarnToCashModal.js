@@ -52,7 +52,7 @@ const EarnToCashModal = ({
     const [amount, setAmount] = useState('');
     // ... existing ...
     const [selectedPreset, setSelectedPreset] = useState(null);
-    const [gstPercent, setGstPercent] = useState(18);
+    const [gstPercent, setGstPercent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [alertConfig, setAlertConfig] = useState({
@@ -98,16 +98,11 @@ const EarnToCashModal = ({
     }, [visible]);
 
     const amountNumber = useMemo(() => Number(amount || 0), [amount]);
-    const gstAmount = useMemo(
-        () => amountNumber * (gstPercent / 100),
-        [amountNumber, gstPercent],
-    );
-    const debitTotal = useMemo(() => amountNumber + gstAmount, [amountNumber, gstAmount]);
+
+    // maxAmount is now just availableToConvert (minus buffer)
     const maxAmount = useMemo(() => {
-        const rawMax = availableToConvert / (1 + gstPercent / 100);
-        // Use a tiny buffer to handle floating point precision in reverse calculation
-        return Math.max(truncateToTwoDecimals(rawMax - 0.0001), 0);
-    }, [availableToConvert, gstPercent]);
+        return Math.max(truncateToTwoDecimals(availableToConvert - 0.0001), 0);
+    }, [availableToConvert]);
 
     const handlePreset = value => {
         setSelectedPreset(value);
@@ -141,12 +136,13 @@ const EarnToCashModal = ({
         amountNumber >= minInvestment &&
         amountNumber <= 100000 &&
         amountNumber > 0 &&
-        amountNumber <= maxAmount + 0.001 &&
-        debitTotal <= availableToConvert + 0.001;
+        amountNumber <= maxAmount + 0.001;
 
     const handleTransfer = async () => {
         if (isSubmitting) return;
         const amountValue = Number(amount || 0);
+
+        // Validation
         if (!Number.isFinite(amountValue) || amountValue <= 0) {
             setAlertConfig({
                 title: 'Invalid Amount',
@@ -156,85 +152,61 @@ const EarnToCashModal = ({
             setShowAlert(true);
             return;
         }
-        if (amountValue < minInvestment || amountValue > 100000) {
-            setAlertConfig({
-                title: 'Invalid Amount',
-                message: `Amount must be between ₹${minInvestment} and ₹100,000.`,
-                onConfirm: () => setShowAlert(false)
-            });
-            setShowAlert(true);
-            return;
-        }
-        if (amountValue > maxAmount + 0.001 || debitTotal > availableToConvert + 0.001) {
+
+        if (amountValue > availableToConvert) {
             setAlertConfig({
                 title: 'Insufficient Balance',
-                message: 'Your Earnings Wallet balance is not enough for this transfer including GST.',
+                message: 'You do not have enough earnings for this transfer.',
                 onConfirm: () => setShowAlert(false)
             });
             setShowAlert(true);
             return;
         }
 
-        const authToken = await AsyncStorage.getItem('authToken');
-        if (!authToken) {
-            setAlertConfig({
-                title: 'Unauthorized',
-                message: 'Please log in again to continue.',
-                onConfirm: () => {
-                    setShowAlert(false);
-                    onClose();
-                    // Optional: navigate to login
-                }
-            });
-            setShowAlert(true);
-            return;
-        }
-
-        console.log('[EarnToCashModal] Starting transfer', {
-            amount: amountValue,
-            gstPercent,
-            debitTotal,
-        });
+        console.log('[EarnToCashModal] Starting transfer', { amount: amountValue });
 
         setIsSubmitting(true);
         try {
-            const res = await api.post(
-                '/api/wallet-transfer/earnings-to-cash',
-                { amount: amountValue },
-                {
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                },
-            );
+            // Updated API Call
+            const { userAPI } = require('@/api/services'); // dynamic import or ensuring it's available
+            // Note: In this file stricture, better to import at top, but to avoid replacing whole file I will use api instance or correct import if available.
+            // The file imports 'api' from '@/api'. But I added the method to 'userAPI' in services.js.
+            // I should verify imports. 'api' default export is axios instance usually. 
+            // Better to use the direct path if I can't see the top imports easily in this context, 
+            // but I see `import api from '@/api';` at line 22.
+            // And I see `import { useApp } from '@/context/AppContext';`
+            // I'll assume I need to use the endpoint directly or import userAPI.
+            // Let's rely on the `api` instance which is likely the axios instance, and call post directly to be safe 
+            // OR strictly correct it. 
+            // Actually, I just added `transferMainToFund` to `userAPI` in `services.js`.
+            // Let's use `api.post('/user/main-to-fund-transfer', ...)` directly to avoid import issues or add the import.
+            // Adding import is cleaner but risky with `replace_file_content` if I miss exact lines.
+            // I'll use the direct path `api.post('/user/main-to-fund-transfer', ...)` as `api` is already imported.
+
+            const res = await api.post('/user/main-to-fund-transfer', { amount: amountValue });
 
             console.log('[EarnToCashModal] Transfer success', res?.data);
+
             setAlertConfig({
                 title: 'Success',
-                message: 'Transfer completed successfully!',
+                message: res?.data?.message || 'Funds successfully transferred',
                 onConfirm: () => {
                     setShowAlert(false);
                     onClose();
+                    onTransfer?.(res?.data); // Callback to refresh wallets
                 }
             });
             setShowAlert(true);
             setAmount('');
             setSelectedPreset(null);
-            onTransfer?.(res?.data);
+
         } catch (err) {
-            console.log('[EarnToCashModal] Transfer failed', {
-                status: err?.response?.status,
-                message: err?.response?.data?.message || err?.message,
-            });
-            const apiMessage =
-                err?.response?.data?.message ||
-                err?.response?.data?.error?.message ||
-                err?.message;
-            const title = err?.response?.status === 400 ? 'Transfer Failed' : 'Error';
+            console.log('[EarnToCashModal] Transfer failed', err);
+            const apiMessage = err?.response?.data?.message || err?.message || 'Transfer failed';
+
             setAlertConfig({
-                title: title,
-                message: apiMessage || 'Unable to complete transfer.',
+                title: 'Transfer Failed',
+                message: apiMessage,
                 onConfirm: () => setShowAlert(false)
             });
             setShowAlert(true);
@@ -243,7 +215,7 @@ const EarnToCashModal = ({
         }
     };
 
-    return (
+    return (<>
         <Modal
             isVisible={visible}
             onBackdropPress={onClose}
@@ -332,8 +304,8 @@ const EarnToCashModal = ({
                                 </TouchableOpacity>
                             </View>
 
-                            <CText style={[styles.helperText, { color: colors.textSecondary }]}>
-                                We'll debit Earnings by amount + GST and credit Cash by amount.
+                            <CText style={[styles.infoText, { color: colors.textSecondary }]}>
+                                We'll debit Earnings and credit Cash by amount.
                             </CText>
 
                             <View style={[styles.summaryCard, { borderColor: colors.border, backgroundColor: colors.background }]}>
@@ -346,13 +318,7 @@ const EarnToCashModal = ({
                                 <View style={styles.summaryRow}>
                                     <CText style={[styles.summaryLabel, { color: colors.textPrimary }]}>GST ({gstPercent}%)</CText>
                                     <CText style={[styles.summaryValue, { color: colors.textPrimary }]}>
-                                        {amountNumber > 0 ? `₹${formatCurrency(gstAmount, 2)}` : '—'}
-                                    </CText>
-                                </View>
-                                <View style={styles.summaryRow}>
-                                    <CText style={[styles.summaryLabel, { color: colors.textPrimary }]}>Debit from Earnings</CText>
-                                    <CText style={[styles.summaryValue, { color: colors.textPrimary }]}>
-                                        {amountNumber > 0 ? `₹${formatCurrency(debitTotal, 2)}` : '—'}
+                                        {amountNumber > 0 ? `₹${formatCurrency(amountNumber, 2)}` : '—'}
                                     </CText>
                                 </View>
                             </View>
@@ -397,7 +363,8 @@ const EarnToCashModal = ({
                 onConfirm={alertConfig.onConfirm}
                 onClose={() => setShowAlert(false)}
             />
-        </Modal>
+        </Modal >
+        </>
     );
 };
 

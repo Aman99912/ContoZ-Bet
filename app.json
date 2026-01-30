@@ -46,7 +46,8 @@
             "useFrameworks": "static"
           }
         }
-      ]
+      ],
+      "./plugins/withRazorpay"
     ]
   }
 }

@@ -69,6 +69,8 @@ export const userAPI = {
 
     getProjectConfig: () => api.get('/user/project-config'),
 
+    transferMainToFund: (data) => api.post('/user/main-to-fund-transfer', data),
+
     getWallets: () => api.get('/user/get_wallets'),
 };
 

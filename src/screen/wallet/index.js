@@ -11,9 +11,12 @@ import api from '@/api';
 import { initiateRazorpayPayment } from '@/features/payments/Razorpay';
 import { useApp } from '@/context/AppContext';
 
+
+import PaymentSuccessModal from '@/components/common/PaymentSuccessModal';
+
 export default function WalletScreen() {
     const { colors } = useTheme();
-    const { wallets, totalBalance, refreshWallets } = useApp();
+    const { wallets, totalBalance, refreshWallets, user } = useApp();
     const [activeTab, setActiveTab] = useState('All');
     const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
     const [amount, setAmount] = useState('');
@@ -21,6 +24,13 @@ export default function WalletScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [buttonLoading, setButtonLoading] = useState(false);
+
+    // Success/Failure Modal State
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentStatus, setPaymentStatus] = useState('success');
+    const [paymentMessage, setPaymentMessage] = useState('');
+    const [paymentTitle, setPaymentTitle] = useState('');
+    const [txnId, setTxnId] = useState('');
 
     // const [buttonLoading, setButtonLoading] = useState(false);
 
@@ -54,15 +64,52 @@ export default function WalletScreen() {
     };
 
     const handleAddMoney = () => {
+        const amountNum = Number(amount);
+        if (!amountNum || amountNum <= 0) {
+            Alert.alert('Invalid Amount', 'Please enter a valid amount');
+            return;
+        }
+
+        // Calculate total amount including GST
+        const { total } = calculateGST(amountNum);
+
         setButtonLoading(true);
-        setTimeout(() => {
-            setButtonLoading(false);
-            setShowAddMoneyModal(false);
-            setAmount('');
-            setSelectedPreset(null);
-            console.log('Money added successfully');
-            refreshWallets(); // Refresh balances after add
-        }, 2000);
+
+        initiateRazorpayPayment({
+            amount: total, // Passing total amount in INR
+            prefill: {
+                name: user?.name || 'User',
+                contact: user?.mobile || '9999999999',
+                email: user?.email || 'user@example.com'
+            },
+            onSuccess: (data) => {
+                console.log('Recharge Successful:', data);
+                setButtonLoading(false);
+                setShowAddMoneyModal(false);
+                setAmount('');
+                setSelectedPreset(null);
+
+                // Show Success Modal
+                setPaymentStatus('success');
+                setPaymentTitle('Payment Successful');
+                setPaymentMessage('Your wallet has been updated successfully.');
+                setTxnId(data.razorpay_payment_id || '');
+                setShowPaymentModal(true);
+
+                refreshWallets();
+            },
+            onError: (error) => {
+                console.log('Recharge Failed:', error);
+                setButtonLoading(false);
+
+                // Show Failure Modal
+                setPaymentStatus('failure');
+                setPaymentTitle('Payment Failed');
+                setPaymentMessage(error.message || 'Unable to process payment');
+                setTxnId('');
+                setShowPaymentModal(true);
+            }
+        });
     };
 
     const handleTransfer = () => {
@@ -131,6 +178,15 @@ export default function WalletScreen() {
                 onAddMoney={handleAddMoney}
                 isAddDisabled={isAddDisabled}
                 buttonLoading={buttonLoading}
+            />
+
+            <PaymentSuccessModal
+                visible={showPaymentModal}
+                onClose={() => setShowPaymentModal(false)}
+                status={paymentStatus}
+                title={paymentTitle}
+                message={paymentMessage}
+                transactionId={txnId}
             />
         </SafeAreaView>
     );

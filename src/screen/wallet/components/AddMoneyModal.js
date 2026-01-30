@@ -16,6 +16,7 @@ import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
+
 const AddMoneyModal = ({
     visible,
     onClose,
@@ -127,27 +128,16 @@ const AddMoneyModal = ({
                             {(amount || selectedPreset) &&
                                 (() => {
                                     const baseAmount = Number(amount) || selectedPreset || 0;
-                                    const { base, gst, total } = calculateGST
-                                        ? calculateGST(baseAmount)
-                                        : { base: baseAmount, gst: 0, total: baseAmount };
-                                    if (base <= 0) return null;
+                                    if (baseAmount <= 0) return null;
 
                                     return (
                                         <View style={[styles.gstBreakdownContainer, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                                             <View style={styles.gstBreakdownRow}>
                                                 <CText style={[styles.gstBreakdownLabel, { color: colors.textSecondary }]}>Recharge Amount</CText>
-                                                <CText style={[styles.gstBreakdownValue, { color: colors.textPrimary }]}>₹{base.toFixed(2)}</CText>
-                                            </View>
-                                            <View style={styles.gstBreakdownRow}>
-                                                <CText style={[styles.gstBreakdownLabel, { color: colors.textSecondary }]}>GST ({gstPercentage}%)</CText>
-                                                <CText style={[styles.gstBreakdownValue, { color: colors.textPrimary }]}>₹{gst.toFixed(2)}</CText>
-                                            </View>
-                                            <View style={[styles.gstBreakdownRow, styles.gstBreakdownTotal, { borderTopColor: colors.border }]}>
-                                                <CText style={[styles.gstBreakdownTotalLabel, { color: colors.textPrimary }]}>Total Payable</CText>
-                                                <CText style={[styles.gstBreakdownTotalValue, { color: colors.primary }]}>₹{total.toFixed(2)}</CText>
+                                                <CText style={[styles.gstBreakdownValue, { color: colors.textPrimary }]}>₹{baseAmount.toFixed(2)}</CText>
                                             </View>
                                             <CText style={[styles.gstInfoText, { color: colors.textSecondary }]}>
-                                                ₹{base.toFixed(2)} will be added to your wallet
+                                                ₹{baseAmount.toFixed(2)} will be added to your wallet
                                             </CText>
                                         </View>
                                     );
