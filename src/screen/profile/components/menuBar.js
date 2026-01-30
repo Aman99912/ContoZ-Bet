@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
@@ -14,58 +14,88 @@ const MenuBar = ({
     onHelpPress,
     onLogoutPress
 }) => {
+    const { colors } = useTheme();
+
     return (
         <View style={styles.container}>
             {/* Rewards Section */}
-            <CText style={styles.sectionTitle}>Rewards</CText>
-            <TouchableOpacity style={styles.menuButton} onPress={onReferPress} activeOpacity={0.8}>
+            <CText style={[styles.sectionTitle, { color: colors.textSecondary }]}>Rewards</CText>
+            <TouchableOpacity
+                style={[styles.menuButton, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
+                onPress={onReferPress}
+                activeOpacity={0.8}
+            >
                 <MaterialCommunityIcons name="gift-outline" size={moderateScale(24)} color={colors.primary} />
-                <CText style={styles.menuButtonText}>Refer & Earn</CText>
-                <View style={styles.badge}>
-                    <CText style={styles.badgeText}>₹30</CText>
+                <CText style={[styles.menuButtonText, { color: colors.textPrimary }]}>Refer & Earn</CText>
+                <View style={[styles.badge, { backgroundColor: colors.primary }]}>
+                    <CText style={[styles.badgeText, { color: colors.black }]}>₹30</CText>
                 </View>
                 <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
             </TouchableOpacity>
 
             {/* Activity Section */}
-            <CText style={styles.sectionTitle}>Activity</CText>
-            <TouchableOpacity style={styles.menuButton} onPress={onMyGamesPress} activeOpacity={0.8}>
+            <CText style={[styles.sectionTitle, { color: colors.textSecondary }]}>Activity</CText>
+            <TouchableOpacity
+                style={[styles.menuButton, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
+                onPress={onMyGamesPress}
+                activeOpacity={0.8}
+            >
                 <MaterialCommunityIcons name="gamepad-variant-outline" size={moderateScale(24)} color={colors.textPrimary} />
-                <CText style={styles.menuButtonText}>My Games</CText>
+                <CText style={[styles.menuButtonText, { color: colors.textPrimary }]}>My Games</CText>
                 <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuButton} onPress={onNotificationsPress} activeOpacity={0.8}>
+            <TouchableOpacity
+                style={[styles.menuButton, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
+                onPress={onNotificationsPress}
+                activeOpacity={0.8}
+            >
                 <MaterialCommunityIcons name="bell-outline" size={moderateScale(24)} color={colors.textPrimary} />
-                <CText style={styles.menuButtonText}>Notifications</CText>
+                <CText style={[styles.menuButtonText, { color: colors.textPrimary }]}>Notifications</CText>
                 <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
             </TouchableOpacity>
 
             {/* Legal Section */}
-            <CText style={styles.sectionTitle}>Legal</CText>
-            <TouchableOpacity style={styles.menuButton} onPress={onTermsPress} activeOpacity={0.8}>
+            <CText style={[styles.sectionTitle, { color: colors.textSecondary }]}>Legal</CText>
+            <TouchableOpacity
+                style={[styles.menuButton, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
+                onPress={onTermsPress}
+                activeOpacity={0.8}
+            >
                 <MaterialCommunityIcons name="file-document-outline" size={moderateScale(24)} color={colors.textPrimary} />
-                <CText style={styles.menuButtonText}>Terms & Conditions</CText>
+                <CText style={[styles.menuButtonText, { color: colors.textPrimary }]}>Terms & Conditions</CText>
                 <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuButton} onPress={onPrivacyPress} activeOpacity={0.8}>
+            <TouchableOpacity
+                style={[styles.menuButton, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
+                onPress={onPrivacyPress}
+                activeOpacity={0.8}
+            >
                 <MaterialCommunityIcons name="shield-lock-outline" size={moderateScale(24)} color={colors.textPrimary} />
-                <CText style={styles.menuButtonText}>Privacy Policy</CText>
+                <CText style={[styles.menuButtonText, { color: colors.textPrimary }]}>Privacy Policy</CText>
                 <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
             </TouchableOpacity>
 
             {/* Support Section */}
-            <CText style={styles.sectionTitle}>Support</CText>
-            <TouchableOpacity style={styles.menuButton} onPress={onHelpPress} activeOpacity={0.8}>
+            <CText style={[styles.sectionTitle, { color: colors.textSecondary }]}>Support</CText>
+            <TouchableOpacity
+                style={[styles.menuButton, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
+                onPress={onHelpPress}
+                activeOpacity={0.8}
+            >
                 <MaterialCommunityIcons name="help-circle-outline" size={moderateScale(24)} color={colors.textPrimary} />
-                <CText style={styles.menuButtonText}>Help & Support</CText>
+                <CText style={[styles.menuButtonText, { color: colors.textPrimary }]}>Help & Support</CText>
                 <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.logoutButton} onPress={onLogoutPress} activeOpacity={0.8}>
+            <TouchableOpacity
+                style={[styles.logoutButton, { backgroundColor: colors.surface, borderColor: colors.error, shadowColor: colors.error }]}
+                onPress={onLogoutPress}
+                activeOpacity={0.8}
+            >
                 <MaterialCommunityIcons name="logout" size={moderateScale(24)} color={colors.error} />
-                <CText style={styles.logoutButtonText}>Logout</CText>
+                <CText style={[styles.logoutButtonText, { color: colors.error }]}>Logout</CText>
             </TouchableOpacity>
         </View>
     );

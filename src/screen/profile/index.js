@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CText from '@/components/common/CText';
@@ -15,6 +15,7 @@ import CustomAlert from '@/components/common/CustomAlert';
 export default function UserScreen() {
     const navigation = useNavigation();
     const { user, logout } = useApp();
+    const { colors, theme } = useTheme();
     const [showLogoutAlert, setShowLogoutAlert] = React.useState(false);
 
     const handleEditProfile = () => {
@@ -61,14 +62,18 @@ export default function UserScreen() {
     // Check if user is verified (0 = not verified, 1 = verified)
     const isVerified = user?.isverified === 1;
 
+    // Define dynamic styles or colors based on theme
+    const withdrawalBg = theme === 'dark' ? 'rgba(26, 26, 26, 0.95)' : colors.surface;
+    const withdrawalBorder = theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : colors.border;
+
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <ProfileHeader name={userName} username={userUsername} onEditPress={handleEditProfile} />
 
                 {/* Withdrawal Button */}
                 <TouchableOpacity
-                    style={styles.withdrawalButton}
+                    style={[styles.withdrawalButton, { backgroundColor: withdrawalBg, borderColor: withdrawalBorder, shadowColor: colors.primary }]}
                     onPress={() => navigation.navigate('Withdrawal')}
                     activeOpacity={0.8}
                 >
@@ -76,7 +81,7 @@ export default function UserScreen() {
                         <View style={styles.withdrawalIconContainer}>
                             <MaterialCommunityIcons name="bank-transfer" size={moderateScale(24)} color={colors.primary} />
                         </View>
-                        <CText style={styles.withdrawalText}>Withdraw Funds</CText>
+                        <CText style={[styles.withdrawalText, { color: colors.textPrimary }]}>Withdraw Funds</CText>
                     </View>
                     <MaterialCommunityIcons name="chevron-right" size={moderateScale(20)} color={colors.textSecondary} />
                 </TouchableOpacity>

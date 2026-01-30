@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing, Modal } fro
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale, scale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import api from '@/api';
 
 
 const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, onTransfer, onRefresh }) => {
+    const { colors } = useTheme();
     const navigation = useNavigation();
     const { user, isLoggedIn } = useApp();
     const rotation = useRef(new Animated.Value(0)).current;
@@ -109,29 +110,29 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
     return (
         <>
             <View>
-                <View style={styles.headerContainer}>
+                <View style={[styles.headerContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <View style={styles.balanceRow}>
                         <View>
-                            <CText style={styles.totalBalanceLabel}>Total balance</CText>
-                            <CText style={styles.totalBalanceAmount}>₹{balance}</CText>
+                            <CText style={[styles.totalBalanceLabel, { color: colors.textSecondary }]}>Total balance</CText>
+                            <CText style={[styles.totalBalanceAmount, { color: colors.textPrimary }]}>₹{balance}</CText>
                         </View>
-                        <TouchableOpacity style={styles.addMoneyPill} onPress={handleAddMoney}>
+                        <TouchableOpacity style={[styles.addMoneyPill, { backgroundColor: colors.primary }]} onPress={handleAddMoney}>
                             <MaterialCommunityIcons name="plus" size={moderateScale(16)} color={colors.black} />
-                            <CText style={styles.addMoneyPillText} numberOfLines={1}>Add Money</CText>
+                            <CText style={[styles.addMoneyPillText, { color: colors.black }]} numberOfLines={1}>Add Money</CText>
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.divider} />
+                    <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
                     <View style={styles.walletCardsRow}>
                         <View style={[styles.walletCard, { marginRight: 8 }]}>
-                            <CText style={styles.walletCardLabel}>Cash Wallet</CText>
-                            <CText style={styles.walletCardAmount}>₹{cashBalance}</CText>
-                            <CText style={styles.walletCardFooter}>Used for games</CText>
+                            <CText style={[styles.walletCardLabel, { color: colors.textSecondary }]}>Cash Wallet</CText>
+                            <CText style={[styles.walletCardAmount, { color: colors.textPrimary }]}>₹{cashBalance}</CText>
+                            <CText style={[styles.walletCardFooter, { color: colors.textSecondary }]}>Used for games</CText>
                         </View>
 
                         <View style={styles.transferContainer}>
-                            <View style={styles.animationWrapper}>
+                            <View style={[styles.animationWrapper, { backgroundColor: colors.inputBackground }]}>
                                 <Animated.View
                                     style={[
                                         styles.gradientRotation,
@@ -148,7 +149,7 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
 
                                 <TouchableOpacity
                                     ref={buttonRef}
-                                    style={styles.arrowButtonInside}
+                                    style={[styles.arrowButtonInside, { backgroundColor: colors.surface }]}
                                     onPress={handleTransferPress}
                                     activeOpacity={0.8}
                                 >
@@ -160,9 +161,9 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
                         </View>
 
                         <View style={[styles.walletCard, { marginLeft: 8 }]}>
-                            <CText style={styles.walletCardLabel}>Earnings Wallet</CText>
-                            <CText style={styles.walletCardAmount}>₹{earningsBalance}</CText>
-                            <CText style={styles.walletCardFooter}>Withdraw / Transfer</CText>
+                            <CText style={[styles.walletCardLabel, { color: colors.textSecondary }]}>Earnings Wallet</CText>
+                            <CText style={[styles.walletCardAmount, { color: colors.textPrimary }]}>₹{earningsBalance}</CText>
+                            <CText style={[styles.walletCardFooter, { color: colors.textSecondary }]}>Withdraw / Transfer</CText>
                         </View>
                     </View>
                 </View>
@@ -177,9 +178,9 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
                             }
                         ]}>
                             <View style={styles.tooltipContentWrapper}>
-                                <View style={styles.tooltipArrow} />
-                                <View style={styles.tooltipBubble}>
-                                    <CText style={styles.tooltipText}>Transfer Earnings to cash wallet</CText>
+                                <View style={[styles.tooltipArrow, { borderBottomColor: colors.primary }]} />
+                                <View style={[styles.tooltipBubble, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
+                                    <CText style={[styles.tooltipText, { color: colors.primary }]}>Transfer Earnings to cash wallet</CText>
                                 </View>
                             </View>
                         </View>
@@ -213,7 +214,7 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
 const styles = StyleSheet.create({
     headerContainer: {
         backgroundColor: colors.surface,
-      
+
         margin: moderateScale(16),
         padding: moderateScale(20),
         borderRadius: moderateScale(16),

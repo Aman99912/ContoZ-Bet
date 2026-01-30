@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import TransactionItem from './transactionitem';
@@ -15,6 +15,8 @@ const Transactions = ({
     onLoadMore,
     onItemPress,
 }) => {
+    const { colors } = useTheme();
+
     const defaultRenderItem = ({ item }) => (
         <TransactionItem
             transaction={item}
@@ -36,13 +38,13 @@ const Transactions = ({
                         <ActivityIndicator size="small" color={colors.primary} />
                     </View>
                 ) : !hasMore && transactions && transactions.length > 0 ? (
-                    <CText style={styles.noMoreTransactionsText}>No more transactions</CText>
+                    <CText style={[styles.noMoreTransactionsText, { color: colors.textSecondary }]}>No more transactions</CText>
                 ) : null
             }
             ListEmptyComponent={
                 !loading && !refreshing ? (
                     <View style={styles.noTransactionsContainer}>
-                        <CText style={styles.noTransactionsText}>No transactions found</CText>
+                        <CText style={[styles.noTransactionsText, { color: colors.textSecondary }]}>No transactions found</CText>
                     </View>
                 ) : null
             }

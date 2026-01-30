@@ -3,11 +3,12 @@ import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
 export default function MyGames() {
+    const { colors } = useTheme();
     const navigation = useNavigation();
 
     const games = [
@@ -18,48 +19,48 @@ export default function MyGames() {
     ];
 
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <MaterialCommunityIcons name="chevron-left" size={moderateScale(28)} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <CText style={styles.headerTitle}>My Games</CText>
+                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>My Games</CText>
                 <View style={styles.headerPlaceholder} />
             </View>
 
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
                     <View style={styles.statsContainer}>
-                        <View style={styles.statCard}>
-                            <CText style={styles.statValue}>56</CText>
-                            <CText style={styles.statLabel}>Total Games</CText>
+                        <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}>
+                            <CText style={[styles.statValue, { color: colors.primary }]}>56</CText>
+                            <CText style={[styles.statLabel, { color: colors.textSecondary }]}>Total Games</CText>
                         </View>
-                        <View style={styles.statCard}>
-                            <CText style={styles.statValue}>31</CText>
-                            <CText style={styles.statLabel}>Games Won</CText>
+                        <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}>
+                            <CText style={[styles.statValue, { color: colors.primary }]}>31</CText>
+                            <CText style={[styles.statLabel, { color: colors.textSecondary }]}>Games Won</CText>
                         </View>
-                        <View style={styles.statCard}>
-                            <CText style={styles.statValue}>55%</CText>
-                            <CText style={styles.statLabel}>Win Rate</CText>
+                        <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}>
+                            <CText style={[styles.statValue, { color: colors.primary }]}>55%</CText>
+                            <CText style={[styles.statLabel, { color: colors.textSecondary }]}>Win Rate</CText>
                         </View>
                     </View>
 
-                    <CText style={styles.sectionTitle}>Game History</CText>
+                    <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>Game History</CText>
                     {games.map((game) => (
-                        <View key={game.id} style={styles.gameCard}>
-                            <View style={styles.gameIcon}>
+                        <View key={game.id} style={[styles.gameCard, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.black }]}>
+                            <View style={[styles.gameIcon, { backgroundColor: colors.inputBackground }]}>
                                 <MaterialCommunityIcons name="gamepad-variant" size={moderateScale(28)} color={colors.primary} />
                             </View>
                             <View style={styles.gameInfo}>
-                                <CText style={styles.gameName}>{game.name}</CText>
-                                <CText style={styles.gameStats}>
+                                <CText style={[styles.gameName, { color: colors.textPrimary }]}>{game.name}</CText>
+                                <CText style={[styles.gameStats, { color: colors.textSecondary }]}>
                                     Played: {game.played} | Won: {game.won}
                                 </CText>
                             </View>
                             <View style={styles.earningsBox}>
-                                <CText style={styles.earningsAmount}>₹{game.earnings}</CText>
-                                <CText style={styles.earningsLabel}>Earned</CText>
+                                <CText style={[styles.earningsAmount, { color: colors.primary }]}>₹{game.earnings}</CText>
+                                <CText style={[styles.earningsLabel, { color: colors.textSecondary }]}>Earned</CText>
                             </View>
                         </View>
                     ))}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CustomAlert from '@/components/common/CustomAlert';
@@ -12,6 +12,7 @@ const { width } = Dimensions.get('window');
 const cardWidth = (width - moderateScale(48)) / 2; // 2 cards per row with padding
 
 const GameCard = ({ title, entryFee, prize, image, onPress, icon }) => {
+    const { colors } = useTheme();
     const navigation = useNavigation();
     const { user, isLoggedIn } = useApp();
     const handlePress = () => {
@@ -19,17 +20,21 @@ const GameCard = ({ title, entryFee, prize, image, onPress, icon }) => {
     };
 
     return (
-        <TouchableOpacity style={[styles.card, { width: cardWidth }]} onPress={handlePress} activeOpacity={0.8}>
+        <TouchableOpacity
+            style={[styles.card, { width: cardWidth, backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
+            onPress={handlePress}
+            activeOpacity={0.8}
+        >
             {image ? (
                 <Image source={image} style={styles.image} />
             ) : (
-                <View style={styles.iconContainer}>
+                <View style={[styles.iconContainer, { backgroundColor: colors.inputBackground }]}>
                     <MaterialCommunityIcons name={icon || 'gamepad-variant'} size={60} color={colors.primary} />
                 </View>
             )}
 
-            <View style={styles.footer}>
-                <CText style={styles.entryFee}>Entry Fee: ₹{entryFee}</CText>
+            <View style={[styles.footer, { backgroundColor: colors.primary, borderTopColor: colors.border }]}>
+                <CText style={[styles.entryFee, { color: colors.black }]}>Entry Fee: ₹{entryFee}</CText>
             </View>
         </TouchableOpacity>
     );

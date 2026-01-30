@@ -11,7 +11,7 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { useApp } from '@/context/AppContext';
@@ -19,6 +19,7 @@ import api from '@/api';
 import CustomAlert from '@/components/common/CustomAlert';
 
 const EmailVerify = () => {
+    const { colors } = useTheme();
     const navigation = useNavigation();
     const { user, updateVerificationStatus } = useApp();
     const [otpSent, setOtpSent] = useState(false);
@@ -126,24 +127,24 @@ const EmailVerify = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <MaterialCommunityIcons name="chevron-left" size={moderateScale(28)} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <CText style={styles.headerTitle}>Email Verification</CText>
+                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Email Verification</CText>
                 <View style={styles.headerPlaceholder} />
             </View>
 
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
-                    <View style={styles.iconCircle}>
+                    <View style={[styles.iconCircle, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
                         <MaterialCommunityIcons name="email-check" size={moderateScale(48)} color={colors.primary} />
                     </View>
 
-                    <CText style={styles.title}>Verify Your Email</CText>
-                    <CText style={styles.subtitle}>
+                    <CText style={[styles.title, { color: colors.textPrimary }]}>Verify Your Email</CText>
+                    <CText style={[styles.subtitle, { color: colors.textSecondary }]}>
                         {otpSent
                             ? 'Enter the 4-digit OTP sent to your email'
                             : 'We will send a verification code to your email address'
@@ -151,15 +152,15 @@ const EmailVerify = () => {
                     </CText>
 
                     {/* Email Display */}
-                    <View style={styles.emailContainer}>
+                    <View style={[styles.emailContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                         <MaterialCommunityIcons name="email-outline" size={moderateScale(20)} color={colors.textSecondary} />
-                        <CText style={styles.emailText}>{user?.email}</CText>
+                        <CText style={[styles.emailText, { color: colors.textPrimary }]}>{user?.email}</CText>
                     </View>
 
                     {!otpSent ? (
                         /* Send OTP Button */
                         <TouchableOpacity
-                            style={[styles.sendButton, isLoading && styles.buttonDisabled]}
+                            style={[styles.sendButton, { backgroundColor: colors.primary }, isLoading && styles.buttonDisabled]}
                             onPress={handleSendOTP}
                             disabled={isLoading}
                         >
@@ -168,7 +169,7 @@ const EmailVerify = () => {
                             ) : (
                                 <>
                                     <MaterialCommunityIcons name="send" size={moderateScale(20)} color={colors.black} />
-                                    <CText style={styles.sendButtonText}>Send OTP</CText>
+                                    <CText style={[styles.sendButtonText, { color: colors.black }]}>Send OTP</CText>
                                 </>
                             )}
                         </TouchableOpacity>
@@ -180,7 +181,14 @@ const EmailVerify = () => {
                                     <TextInput
                                         key={index}
                                         ref={otpRefs[index]}
-                                        style={styles.otpBox}
+                                        style={[
+                                            styles.otpBox,
+                                            {
+                                                backgroundColor: colors.surface,
+                                                borderColor: colors.border,
+                                                color: colors.textPrimary
+                                            }
+                                        ]}
                                         value={digit}
                                         onChangeText={(value) => handleOtpChange(value, index)}
                                         onKeyPress={(e) => handleKeyPress(e, index)}
@@ -193,20 +201,20 @@ const EmailVerify = () => {
 
                             {/* Verify Button */}
                             <TouchableOpacity
-                                style={[styles.verifyButton, isLoading && styles.buttonDisabled]}
+                                style={[styles.verifyButton, { backgroundColor: colors.primary }, isLoading && styles.buttonDisabled]}
                                 onPress={handleVerifyOTP}
                                 disabled={isLoading}
                             >
                                 {isLoading ? (
                                     <ActivityIndicator color={colors.white} size="small" />
                                 ) : (
-                                    <CText style={styles.verifyButtonText}>Verify OTP</CText>
+                                    <CText style={[styles.verifyButtonText, { color: colors.black }]}>Verify OTP</CText>
                                 )}
                             </TouchableOpacity>
 
                             {/* Resend OTP */}
                             <TouchableOpacity onPress={handleSendOTP} style={styles.resendButton}>
-                                <CText style={styles.resendText}>Didn't receive code? Resend</CText>
+                                <CText style={[styles.resendText, { color: colors.primary }]}>Didn't receive code? Resend</CText>
                             </TouchableOpacity>
                         </>
                     )}

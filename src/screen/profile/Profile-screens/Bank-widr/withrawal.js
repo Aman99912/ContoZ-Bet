@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CCard from '@/components/common/CCard';
@@ -16,11 +16,13 @@ import CCard from '@/components/common/CCard';
 const { width } = Dimensions.get('window');
 
 const WithdrawalScreen = ({ navigation }) => {
+    const { colors } = useTheme();
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Background Blobs */}
-            <View style={styles.blobTop} />
-            <View style={styles.blobBottom} />
+            <View style={[styles.blobTop, { backgroundColor: colors.primary }]} />
+            <View style={[styles.blobBottom, { backgroundColor: colors.primary }]} />
 
             <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
                 {/* Header */}
@@ -32,7 +34,7 @@ const WithdrawalScreen = ({ navigation }) => {
                     >
                         <MaterialCommunityIcons name="arrow-left" size={moderateScale(28)} color={colors.textPrimary} />
                     </TouchableOpacity>
-                    <CText style={styles.headerTitle}>Withdrawal</CText>
+                    <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Withdrawal</CText>
                     <View style={styles.headerPlaceholder} />
                 </View>
 
@@ -41,8 +43,8 @@ const WithdrawalScreen = ({ navigation }) => {
                     showsVerticalScrollIndicator={false}
                 >
                     <View style={styles.contentWrapper}>
-                        <CText style={styles.subtitle}>Choose Method</CText>
-                        <CText style={styles.description}>
+                        <CText style={[styles.subtitle, { color: colors.textPrimary }]}>Choose Method</CText>
+                        <CText style={[styles.description, { color: colors.textSecondary }]}>
                             Select how you want to receive your funds.
                         </CText>
 
@@ -52,13 +54,19 @@ const WithdrawalScreen = ({ navigation }) => {
                             onPress={() => navigation.navigate('BankDetails')}
                             style={styles.optionButton}
                         >
-                            <CCard style={styles.optionCard}>
-                                <View style={styles.iconContainer}>
+                            <CCard style={[styles.optionCard, {
+                                backgroundColor: colors.surface,
+                                borderColor: colors.border
+                            }]}>
+                                <View style={[styles.iconContainer, {
+                                    backgroundColor: colors.inputBackground,
+                                    borderColor: colors.border
+                                }]}>
                                     <MaterialCommunityIcons name="bank-outline" size={moderateScale(32)} color={colors.primary} />
                                 </View>
                                 <View style={styles.optionTextContainer}>
-                                    <CText style={styles.optionTitle}>Bank Transfer</CText>
-                                    <CText style={styles.optionSubtitle}>Withdraw directly to your bank account</CText>
+                                    <CText style={[styles.optionTitle, { color: colors.textPrimary }]}>Bank Transfer</CText>
+                                    <CText style={[styles.optionSubtitle, { color: colors.textSecondary }]}>Withdraw directly to your bank account</CText>
                                 </View>
                                 <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
                             </CCard>
@@ -70,13 +78,19 @@ const WithdrawalScreen = ({ navigation }) => {
                             onPress={() => navigation.navigate('UPIDetails')}
                             style={styles.optionButton}
                         >
-                            <CCard style={styles.optionCard}>
-                                <View style={styles.iconContainer}>
+                            <CCard style={[styles.optionCard, {
+                                backgroundColor: colors.surface,
+                                borderColor: colors.border
+                            }]}>
+                                <View style={[styles.iconContainer, {
+                                    backgroundColor: colors.inputBackground,
+                                    borderColor: colors.border
+                                }]}>
                                     <MaterialCommunityIcons name="qrcode-scan" size={moderateScale(32)} color={colors.primary} />
                                 </View>
                                 <View style={styles.optionTextContainer}>
-                                    <CText style={styles.optionTitle}>UPI Transfer</CText>
-                                    <CText style={styles.optionSubtitle}>Instant withdrawal via UPI ID</CText>
+                                    <CText style={[styles.optionTitle, { color: colors.textPrimary }]}>UPI Transfer</CText>
+                                    <CText style={[styles.optionSubtitle, { color: colors.textSecondary }]}>Instant withdrawal via UPI ID</CText>
                                 </View>
                                 <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
                             </CCard>
@@ -167,20 +181,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: moderateScale(20),
-        backgroundColor: 'rgba(26, 26, 26, 0.95)',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
+        borderColor: colors.border,
     },
     iconContainer: {
         width: moderateScale(50),
         height: moderateScale(50),
         borderRadius: moderateScale(25),
-        backgroundColor: 'rgba(44, 182, 125, 0.1)',
+        backgroundColor: colors.inputBackground,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: moderateScale(16),
         borderWidth: 1,
-        borderColor: 'rgba(44, 182, 125, 0.2)',
+        borderColor: colors.border,
     },
     optionTextContainer: {
         flex: 1,

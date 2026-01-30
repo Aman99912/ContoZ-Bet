@@ -3,87 +3,88 @@ import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
 export default function TermsAndConditions() {
+    const { colors } = useTheme();
     const navigation = useNavigation();
 
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <MaterialCommunityIcons name="chevron-left" size={moderateScale(28)} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <CText style={styles.headerTitle}>Terms & Conditions</CText>
+                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Terms & Conditions</CText>
                 <View style={styles.headerPlaceholder} />
             </View>
 
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
-                    <CText style={styles.lastUpdated}>Last updated: January 28, 2026</CText>
+                    <CText style={[styles.lastUpdated, { color: colors.textSecondary }]}>Last updated: January 28, 2026</CText>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>1. Acceptance of Terms</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>1. Acceptance of Terms</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             By accessing and using Conto-Z Bet, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>2. Eligibility</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>2. Eligibility</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             You must be at least 18 years old to use this platform. By using our services, you represent and warrant that you meet this age requirement and have the legal capacity to enter into this agreement.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>3. User Account</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>3. User Account</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>4. Fair Play Policy</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>4. Fair Play Policy</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             All users must play fairly. Any form of cheating, hacking, or unfair advantage will result in immediate account suspension and forfeiture of winnings.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>5. Payments & Withdrawals</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>5. Payments & Withdrawals</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             All transactions are processed securely. Withdrawal requests are processed within 24-48 hours. Minimum withdrawal amount is ₹100. GST and other applicable taxes will be deducted as per government regulations.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>6. Prohibited Activities</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>6. Prohibited Activities</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             Users are prohibited from: using bots or automated systems, creating multiple accounts, engaging in money laundering, or any illegal activities on the platform.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>7. Limitation of Liability</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>7. Limitation of Liability</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             Conto-Z Bet shall not be liable for any indirect, incidental, special, consequential or punitive damages resulting from your use of the service.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>8. Changes to Terms</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>8. Changes to Terms</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             We reserve the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the new terms.
                         </CText>
                     </View>
 
-                    <View style={styles.contactBox}>
-                        <CText style={styles.contactTitle}>Questions?</CText>
-                        <CText style={styles.contactText}>
+                    <View style={[styles.contactBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                        <CText style={[styles.contactTitle, { color: colors.primary }]}>Questions?</CText>
+                        <CText style={[styles.contactText, { color: colors.textSecondary }]}>
                             If you have any questions about these Terms & Conditions, please contact us at support@contoz-bet.com
                         </CText>
                     </View>

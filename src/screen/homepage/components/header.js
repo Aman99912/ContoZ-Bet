@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,18 +9,19 @@ import LoginWarn from './LoginWarn';
 
 const HomeHeader = ({ balance = 1212, isLoggedIn = false }) => {
     const navigation = useNavigation();
+    const { colors } = useTheme();
 
     return (
-        <SafeAreaView style={styles.headerContainer}>
-            <CText style={styles.appName}>Conto-Z</CText>
+        <SafeAreaView style={[styles.headerContainer, { backgroundColor: colors.background }]}>
+            <CText style={[styles.appName, { color: colors.textPrimary }]}>Conto-Z</CText>
 
             {isLoggedIn ? (
                 <TouchableOpacity
-                    style={styles.balanceCard}
+                    style={[styles.balanceCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
                     onPress={() => navigation.navigate('Wallet')}
                     activeOpacity={0.8}
                 >
-                    <CText style={styles.balanceAmount}>₹{balance}</CText>
+                    <CText style={[styles.balanceAmount, { color: colors.textPrimary }]}>₹{balance}</CText>
                 </TouchableOpacity>
             ) : (
                 <LoginWarn />

@@ -1,30 +1,35 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const HistoryItem = ({ game, entryFee, result, amount, date, icon, onPress }) => {
+    const { colors } = useTheme();
     const isWon = result === 'WON';
     const resultColor = isWon ? colors.primary : colors.error;
 
     return (
-        <TouchableOpacity style={styles.item} onPress={onPress} activeOpacity={0.8}>
-            <View style={styles.iconBox}>
+        <TouchableOpacity
+            style={[styles.item, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
+            onPress={onPress}
+            activeOpacity={0.8}
+        >
+            <View style={[styles.iconBox, { backgroundColor: colors.inputBackground, shadowColor: colors.primary }]}>
                 <MaterialCommunityIcons name={icon || 'gamepad-variant'} size={24} color={colors.primary} />
             </View>
 
             <View style={styles.content}>
-                <CText style={styles.gameName}>{game}</CText>
-                <CText style={styles.entryFee}>Entry Fee: ₹{entryFee}</CText>
+                <CText style={[styles.gameName, { color: colors.textPrimary }]}>{game}</CText>
+                <CText style={[styles.entryFee, { color: colors.textSecondary }]}>Entry Fee: ₹{entryFee}</CText>
             </View>
 
             <View style={styles.right}>
                 <CText style={[styles.amount, { color: resultColor }]}>
                     ₹{amount} {result}
                 </CText>
-                <CText style={styles.date}>{date}</CText>
+                <CText style={[styles.date, { color: colors.textSecondary }]}>{date}</CText>
             </View>
         </TouchableOpacity>
     );
@@ -54,7 +59,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: moderateScale(12),
-          shadowColor: colors.primary,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.2,
         shadowRadius: 5,

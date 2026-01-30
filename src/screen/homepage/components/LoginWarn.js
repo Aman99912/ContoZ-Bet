@@ -1,20 +1,21 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
 const LoginWarn = () => {
     const navigation = useNavigation();
+    const { colors } = useTheme();
 
     return (
         <TouchableOpacity
-            style={styles.loginButton}
+            style={[styles.loginButton, { backgroundColor: colors.primary, borderColor: colors.primary }]}
             onPress={() => navigation.navigate('Login')}
             activeOpacity={0.8}
         >
-            <CText style={styles.loginText}>Login</CText>
+            <CText style={[styles.loginText, { color: colors.black }]}>Login</CText>
         </TouchableOpacity>
     );
 };

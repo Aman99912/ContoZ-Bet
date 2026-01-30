@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { GameCard, BannerCard, GameTabSelector } from '@/Games';
@@ -10,6 +10,7 @@ import { useApp } from '@/context/AppContext';
 
 export default function HomeScreen() {
     const navigation = useNavigation();
+    const { colors } = useTheme();
     const { user, isLoggedIn, totalBalance } = useApp();
     const [activeTab, setActiveTab] = useState('All');
 
@@ -28,7 +29,7 @@ export default function HomeScreen() {
     const balance = totalBalance || 0;
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <HomeHeader balance={balance} isLoggedIn={isLoggedIn} />
                 <View style={styles.content}>
@@ -56,8 +57,8 @@ export default function HomeScreen() {
                         ))}
                     </View>
 
-                    <TouchableOpacity style={styles.button}>
-                        <CText style={styles.buttonText} numberOfLines={1}>View All Games</CText>
+                    <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]}>
+                        <CText style={[styles.buttonText, { color: colors.black }]} numberOfLines={1}>View All Games</CText>
                     </TouchableOpacity>
                 </View>
             </ScrollView>

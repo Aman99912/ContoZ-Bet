@@ -2,16 +2,17 @@ import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
 const VerificationWarning = () => {
+    const { colors } = useTheme();
     const navigation = useNavigation();
 
     return (
         <TouchableOpacity
-            style={styles.container}
+            style={[styles.container, { backgroundColor: colors.surface }]}
             onPress={() => navigation.navigate('EmailVerify')}
             activeOpacity={0.8}
         >
@@ -19,8 +20,8 @@ const VerificationWarning = () => {
                 <MaterialCommunityIcons name="alert-circle" size={moderateScale(24)} color={colors.error} />
             </View>
             <View style={styles.textContainer}>
-                <CText style={styles.title}>Verify Your Email</CText>
-                <CText style={styles.subtitle}>Click here to verify your profile</CText>
+                <CText style={[styles.title, { color: colors.textPrimary }]}>Verify Your Email</CText>
+                <CText style={[styles.subtitle, { color: colors.textSecondary }]}>Click here to verify your profile</CText>
             </View>
             <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
         </TouchableOpacity>

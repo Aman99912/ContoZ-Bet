@@ -3,97 +3,98 @@ import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
 export default function PrivacyPolicy() {
+    const { colors } = useTheme();
     const navigation = useNavigation();
 
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <MaterialCommunityIcons name="chevron-left" size={moderateScale(28)} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <CText style={styles.headerTitle}>Privacy Policy</CText>
+                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Privacy Policy</CText>
                 <View style={styles.headerPlaceholder} />
             </View>
 
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
-                    <CText style={styles.lastUpdated}>Last updated: January 28, 2026</CText>
+                    <CText style={[styles.lastUpdated, { color: colors.textSecondary }]}>Last updated: January 28, 2026</CText>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>1. Information We Collect</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>1. Information We Collect</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             We collect information you provide directly to us, including your name, email address, phone number, payment information, and gameplay data. We also collect device information and usage data to improve our services.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>2. How We Use Your Information</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>2. How We Use Your Information</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             We use the information we collect to provide, maintain, and improve our services, process transactions, send you technical notices and support messages, and communicate with you about products, services, and events.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>3. Information Sharing</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>3. Information Sharing</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             We do not sell your personal information. We may share your information with service providers who perform services on our behalf, such as payment processing and data analysis.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>4. Data Security</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>4. Data Security</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>5. Payment Information</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>5. Payment Information</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             All payment transactions are processed through secure payment gateways. We do not store your complete card details on our servers. Payment information is encrypted and handled in compliance with PCI-DSS standards.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>6. Cookies and Tracking</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>6. Cookies and Tracking</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             We use cookies and similar tracking technologies to track activity on our service and hold certain information to improve and analyze our service.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>7. Your Rights</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>7. Your Rights</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             You have the right to access, update, or delete your personal information. You can also object to processing of your personal information and request data portability.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>8. Children's Privacy</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>8. Children's Privacy</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             Our service is not intended for users under the age of 18. We do not knowingly collect personal information from children under 18.
                         </CText>
                     </View>
 
                     <View style={styles.section}>
-                        <CText style={styles.sectionTitle}>9. Changes to Privacy Policy</CText>
-                        <CText style={styles.sectionText}>
+                        <CText style={[styles.sectionTitle, { color: colors.textPrimary }]}>9. Changes to Privacy Policy</CText>
+                        <CText style={[styles.sectionText, { color: colors.textSecondary }]}>
                             We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.
                         </CText>
                     </View>
 
-                    <View style={styles.contactBox}>
-                        <CText style={styles.contactTitle}>Contact Us</CText>
-                        <CText style={styles.contactText}>
+                    <View style={[styles.contactBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                        <CText style={[styles.contactTitle, { color: colors.primary }]}>Contact Us</CText>
+                        <CText style={[styles.contactText, { color: colors.textSecondary }]}>
                             If you have any questions about this Privacy Policy, please contact us at:
                         </CText>
-                        <CText style={styles.contactEmail}>privacy@contoz-bet.com</CText>
+                        <CText style={[styles.contactEmail, { color: colors.primary }]}>privacy@contoz-bet.com</CText>
                     </View>
                 </View>
             </ScrollView>

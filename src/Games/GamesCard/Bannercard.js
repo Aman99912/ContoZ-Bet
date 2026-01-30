@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CustomAlert from '@/components/common/CustomAlert';
 import { useApp } from '@/context/AppContext';
 
 const BannerCard = ({ title, subtitle, image, onPress }) => {
+    const { colors } = useTheme();
     const navigation = useNavigation();
     const { user, isLoggedIn } = useApp();
     const handlePress = () => {
@@ -15,11 +16,15 @@ const BannerCard = ({ title, subtitle, image, onPress }) => {
     };
 
     return (
-        <TouchableOpacity style={styles.banner} onPress={handlePress} activeOpacity={0.9}>
+        <TouchableOpacity
+            style={[styles.banner, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
+            onPress={handlePress}
+            activeOpacity={0.9}
+        >
             {image && <Image source={image} style={styles.bgImage} />}
             <View style={styles.overlay}>
                 <CText style={styles.title}>{title}</CText>
-                {subtitle && <CText style={styles.subtitle}>{subtitle}</CText>}
+                {subtitle && <CText style={[styles.subtitle, { color: colors.primary }]}>{subtitle}</CText>}
             </View>
         </TouchableOpacity>
     );

@@ -3,12 +3,13 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Clipboard, Alert } from
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReferAndEarn() {
+    const { colors } = useTheme();
     const navigation = useNavigation();
     const referralLink = 'https://contoz-bet.com/ref/USER123';
     const [copied, setCopied] = useState(false);
@@ -30,26 +31,26 @@ export default function ReferAndEarn() {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <MaterialCommunityIcons name="chevron-left" size={moderateScale(28)} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <CText style={styles.headerTitle}>Refer & Earn</CText>
+                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Refer & Earn</CText>
                 <View style={styles.headerPlaceholder} />
             </View>
 
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
                     <View style={styles.subtitleContainer}>
-                        <CText style={styles.subtitle}>Invite Friends & Earn Rewards!</CText>
-                        <CText style={styles.rewardText}>Get ₹30 for Every Referral 🎁</CText>
+                        <CText style={[styles.subtitle, { color: colors.textPrimary }]}>Invite Friends & Earn Rewards!</CText>
+                        <CText style={[styles.rewardText, { color: colors.primary }]}>Get ₹30 for Every Referral 🎁</CText>
                     </View>
 
                     {/* QR Code Section */}
                     <View style={styles.qrSection}>
-                        <View style={styles.qrContainer}>
+                        <View style={[styles.qrContainer, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}>
                             <QRCode
                                 value={referralLink}
                                 size={moderateScale(180)}
@@ -57,23 +58,23 @@ export default function ReferAndEarn() {
                                 color={colors.textPrimary}
                             />
                         </View>
-                        <CText style={styles.qrLabel}>Or</CText>
+                        <CText style={[styles.qrLabel, { color: colors.textSecondary }]}>Or</CText>
                     </View>
 
                     {/* Referral Link Section */}
                     <View style={styles.linkSection}>
                         {/* <CText style={styles.sectionTitle}>Share Your  Link</CText> */}
                         <View style={styles.linkContainer}>
-                            <View style={styles.linkBox}>
-                                <CText style={styles.linkText} numberOfLines={1}>{referralLink}</CText>
+                            <View style={[styles.linkBox, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.black }]}>
+                                <CText style={[styles.linkText, { color: colors.textPrimary }]} numberOfLines={1}>{referralLink}</CText>
                             </View>
-                            <TouchableOpacity style={styles.copyButton} onPress={handleCopy} activeOpacity={0.8}>
+                            <TouchableOpacity style={[styles.copyButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]} onPress={handleCopy} activeOpacity={0.8}>
                                 <MaterialCommunityIcons
                                     name={copied ? 'check' : 'content-copy'}
                                     size={moderateScale(20)}
                                     color={colors.black}
                                 />
-                                <CText style={styles.copyButtonText}>{copied ? 'Copied' : 'Copy'}</CText>
+                                <CText style={[styles.copyButtonText, { color: colors.black }]}>{copied ? 'Copied' : 'Copy'}</CText>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -81,20 +82,20 @@ export default function ReferAndEarn() {
                     {/* Joined Users Section */}
                     <View style={styles.usersSection}>
                         <View style={styles.usersSectionHeader}>
-                            <CText style={styles.sectionTitle} numberOfLines={1}>Joined Users</CText>
-                            <View style={styles.countBadge}>
-                                <CText style={styles.countText}>{joinedUsers.length}</CText>
+                            <CText style={[styles.sectionTitle, { color: colors.textPrimary }]} numberOfLines={1}>Joined Users</CText>
+                            <View style={[styles.countBadge, { backgroundColor: colors.primary }]}>
+                                <CText style={[styles.countText, { color: colors.black }]}>{joinedUsers.length}</CText>
                             </View>
                         </View>
 
                         {joinedUsers.map((user) => (
-                            <View key={user.id} style={styles.userCard}>
-                                <View style={styles.userAvatar}>
+                            <View key={user.id} style={[styles.userCard, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.black }]}>
+                                <View style={[styles.userAvatar, { backgroundColor: colors.inputBackground }]}>
                                     <MaterialCommunityIcons name="account" size={moderateScale(24)} color={colors.primary} />
                                 </View>
                                 <View style={styles.userInfo}>
-                                    <CText style={styles.userName}>{user.name}</CText>
-                                    <CText style={styles.userDate}>Joined: {user.joinedDate}</CText>
+                                    <CText style={[styles.userName, { color: colors.textPrimary }]}>{user.name}</CText>
+                                    <CText style={[styles.userDate, { color: colors.textSecondary }]}>Joined: {user.joinedDate}</CText>
                                 </View>
                                 <MaterialCommunityIcons name="check-circle" size={moderateScale(24)} color={colors.primary} />
                             </View>

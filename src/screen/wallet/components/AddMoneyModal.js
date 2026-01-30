@@ -12,7 +12,7 @@ import {
     Platform,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
@@ -30,14 +30,16 @@ const AddMoneyModal = ({
     isAddDisabled,
     buttonLoading,
 }) => {
+    const { colors } = useTheme();
+
     if (!visible) return null;
 
     return (
         <>
 
             <Modal visible={visible} presentationStyle="fullScreen" onRequestClose={onClose}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalHeader}>
+                <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+                    <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
                         <TouchableOpacity
                             onPress={() => {
                                 Keyboard.dismiss();
@@ -47,7 +49,7 @@ const AddMoneyModal = ({
                         >
                             <MaterialCommunityIcons name="close" size={moderateScale(24)} color={colors.textPrimary} />
                         </TouchableOpacity>
-                        <CText style={styles.modalTitle}>Add Money to Cash Wallet</CText>
+                        <CText style={[styles.modalTitle, { color: colors.textPrimary }]}>Add Money to Cash Wallet</CText>
                         <View style={styles.modalPlaceholder} />
                     </View>
 
@@ -58,9 +60,9 @@ const AddMoneyModal = ({
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}
                         >
-                            <CText style={styles.modalInputLabel}>Enter Amount</CText>
+                            <CText style={[styles.modalInputLabel, { color: colors.textPrimary }]}>Enter Amount</CText>
                             <TextInput
-                                style={styles.modalInput}
+                                style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.textPrimary, borderColor: colors.border }]}
                                 placeholder="₹0.00"
                                 placeholderTextColor={colors.textSecondary}
                                 keyboardType="numeric"
@@ -85,7 +87,7 @@ const AddMoneyModal = ({
                                 }}
                             />
 
-                            <CText style={styles.modalQuickLabel}>Quick Select</CText>
+                            <CText style={[styles.modalQuickLabel, { color: colors.textPrimary }]}>Quick Select</CText>
                             <View style={styles.modalQuickContainer}>
                                 {presetAmounts.map((val) => {
                                     const selected = selectedPreset === val;
@@ -94,7 +96,8 @@ const AddMoneyModal = ({
                                             key={val}
                                             style={[
                                                 styles.modalQuickBtn,
-                                                selected && styles.modalQuickBtnSelected,
+                                                { backgroundColor: colors.inputBackground, borderColor: colors.border },
+                                                selected && [styles.modalQuickBtnSelected, { backgroundColor: colors.primary, borderColor: colors.primary }],
                                             ]}
                                             onPress={() => {
                                                 if (selected) {
@@ -110,7 +113,8 @@ const AddMoneyModal = ({
                                             <CText
                                                 style={[
                                                     styles.modalQuickBtnText,
-                                                    selected && styles.modalQuickBtnTextSelected,
+                                                    { color: colors.textSecondary },
+                                                    selected && [styles.modalQuickBtnTextSelected, { color: colors.black }],
                                                 ]}
                                             >
                                                 ₹{val.toLocaleString('en-IN')}
@@ -129,20 +133,20 @@ const AddMoneyModal = ({
                                     if (base <= 0) return null;
 
                                     return (
-                                        <View style={styles.gstBreakdownContainer}>
+                                        <View style={[styles.gstBreakdownContainer, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                                             <View style={styles.gstBreakdownRow}>
-                                                <CText style={styles.gstBreakdownLabel}>Recharge Amount</CText>
-                                                <CText style={styles.gstBreakdownValue}>₹{base.toFixed(2)}</CText>
+                                                <CText style={[styles.gstBreakdownLabel, { color: colors.textSecondary }]}>Recharge Amount</CText>
+                                                <CText style={[styles.gstBreakdownValue, { color: colors.textPrimary }]}>₹{base.toFixed(2)}</CText>
                                             </View>
                                             <View style={styles.gstBreakdownRow}>
-                                                <CText style={styles.gstBreakdownLabel}>GST ({gstPercentage}%)</CText>
-                                                <CText style={styles.gstBreakdownValue}>₹{gst.toFixed(2)}</CText>
+                                                <CText style={[styles.gstBreakdownLabel, { color: colors.textSecondary }]}>GST ({gstPercentage}%)</CText>
+                                                <CText style={[styles.gstBreakdownValue, { color: colors.textPrimary }]}>₹{gst.toFixed(2)}</CText>
                                             </View>
-                                            <View style={[styles.gstBreakdownRow, styles.gstBreakdownTotal]}>
-                                                <CText style={styles.gstBreakdownTotalLabel}>Total Payable</CText>
-                                                <CText style={styles.gstBreakdownTotalValue}>₹{total.toFixed(2)}</CText>
+                                            <View style={[styles.gstBreakdownRow, styles.gstBreakdownTotal, { borderTopColor: colors.border }]}>
+                                                <CText style={[styles.gstBreakdownTotalLabel, { color: colors.textPrimary }]}>Total Payable</CText>
+                                                <CText style={[styles.gstBreakdownTotalValue, { color: colors.primary }]}>₹{total.toFixed(2)}</CText>
                                             </View>
-                                            <CText style={styles.gstInfoText}>
+                                            <CText style={[styles.gstInfoText, { color: colors.textSecondary }]}>
                                                 ₹{base.toFixed(2)} will be added to your wallet
                                             </CText>
                                         </View>
@@ -152,6 +156,7 @@ const AddMoneyModal = ({
                             <TouchableOpacity
                                 style={[
                                     styles.modalAddBtn,
+                                    { backgroundColor: colors.primary },
                                     (isAddDisabled || buttonLoading) && styles.modalAddBtnDisabled,
                                 ]}
                                 onPress={() => onAddMoney()}
@@ -160,7 +165,7 @@ const AddMoneyModal = ({
                                 {buttonLoading ? (
                                     <ActivityIndicator color={colors.black} size="small" />
                                 ) : (
-                                    <CText style={styles.modalAddBtnText} numberOfLines={1}>Add Money</CText>
+                                    <CText style={[styles.modalAddBtnText, { color: colors.black }]} numberOfLines={1}>Add Money</CText>
                                 )}
                             </TouchableOpacity>
 

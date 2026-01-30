@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import { GameTabSelector } from '@/Games';
 import HistoryItem from './components/historyItem';
@@ -10,6 +10,7 @@ import { useApp } from '@/context/AppContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HistoryScreen() {
+    const { colors } = useTheme();
     const { totalBalance } = useApp();
     const [activeTab, setActiveTab] = useState('All');
 
@@ -26,7 +27,7 @@ export default function HistoryScreen() {
     ];
 
     return (<>
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <HistoryHeader balance={totalBalance || 0} />
             <View style={styles.tabWrapper}>
                 <GameTabSelector
@@ -62,7 +63,7 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-     
+
         backgroundColor: colors.background,
     },
     tabWrapper: {

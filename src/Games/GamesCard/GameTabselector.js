@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
 const GameTabSelector = ({ tabs, activeTab, onTabChange }) => {
+    const { colors } = useTheme();
     return (
         <ScrollView
             horizontal
@@ -14,11 +15,19 @@ const GameTabSelector = ({ tabs, activeTab, onTabChange }) => {
             {tabs.map((tab, index) => (
                 <TouchableOpacity
                     key={index}
-                    style={[styles.tab, activeTab === tab && styles.activeTab]}
+                    style={[
+                        styles.tab,
+                        { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary },
+                        activeTab === tab && [styles.activeTab, { backgroundColor: colors.primary, borderColor: colors.primary }]
+                    ]}
                     onPress={() => onTabChange(tab)}
                     activeOpacity={0.7}
                 >
-                    <CText style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+                    <CText style={[
+                        styles.tabText,
+                        { color: colors.textSecondary },
+                        activeTab === tab && [styles.activeTabText, { color: colors.black }]
+                    ]}>
                         {tab}
                     </CText>
                 </TouchableOpacity>
@@ -32,7 +41,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingVertical: verticalScale(4),
         gap: moderateScale(8),
-        
+
     },
     tab: {
         paddingHorizontal: moderateScale(16),
@@ -41,7 +50,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.surface,
         borderWidth: 1,
         borderColor: colors.border,
-          shadowColor: colors.primary,
+        shadowColor: colors.primary,
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.2,
         shadowRadius: 5,

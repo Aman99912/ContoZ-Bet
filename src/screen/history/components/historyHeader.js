@@ -1,24 +1,25 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HistoryHeader = ({ balance = 1212 }) => {
+    const { colors } = useTheme();
     const navigation = useNavigation();
 
     return (
-        <View style={styles.headerContainer}>
-            <CText style={styles.appName}>History</CText>
+        <View style={[styles.headerContainer, { backgroundColor: colors.background }]}>
+            <CText style={[styles.appName, { color: colors.textPrimary }]}>History</CText>
 
             <TouchableOpacity
-                style={styles.balanceCard}
+                style={[styles.balanceCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
                 onPress={() => navigation.navigate('Wallet')}
                 activeOpacity={0.8}
             >
-                <CText style={styles.balanceAmount}>₹{balance}</CText>
+                <CText style={[styles.balanceAmount, { color: colors.textPrimary }]}>₹{balance}</CText>
             </TouchableOpacity>
         </View>
     );

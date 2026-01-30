@@ -1,30 +1,48 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProfileHeader = ({ name = 'User', username = '', onEditPress }) => {
+    const { colors, theme, toggleTheme } = useTheme();
+
     // Get first letter of name for avatar
     const getInitial = () => {
         return name ? name.charAt(0).toUpperCase() : 'U';
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.avatarCircle}>
-                <CText style={styles.avatarLetter}>{getInitial()}</CText>
+        <View style={[styles.container, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={[styles.avatarCircle, { backgroundColor: colors.primary, borderColor: colors.border }]}>
+                <CText style={[styles.avatarLetter, { color: colors.black }]}>{getInitial()}</CText>
             </View>
 
             <View style={styles.infoContainer}>
-                <CText style={styles.name}>{name}</CText>
-                {username && <CText style={styles.username}>@{username}</CText>}
-                <TouchableOpacity style={styles.editButton} onPress={onEditPress} activeOpacity={0.8}>
-                    <CText style={styles.editButtonText}>Edit Profile</CText>
+                <CText style={[styles.name, { color: colors.textPrimary }]}>{name}</CText>
+                {username && <CText style={[styles.username, { color: colors.textSecondary }]}>@{username}</CText>}
+                <TouchableOpacity
+                    style={[styles.editButton, { borderColor: colors.primary, backgroundColor: colors.background }]}
+                    onPress={onEditPress}
+                    activeOpacity={0.8}
+                >
+                    <CText style={[styles.editButtonText, { color: colors.primary }]}>Edit Profile</CText>
                 </TouchableOpacity>
             </View>
+
+            {/* Theme Toggle */}
+            <TouchableOpacity
+                onPress={toggleTheme}
+                style={styles.themeToggle}
+            >
+                <MaterialCommunityIcons
+                    name={theme === 'dark' ? 'white-balance-sunny' : 'moon-waning-crescent'}
+                    size={moderateScale(24)}
+                    color={theme === 'dark' ? '#FFD700' : colors.textPrimary}
+                />
+            </TouchableOpacity>
         </View>
     );
 };
@@ -97,6 +115,10 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: colors.primary,
         marginLeft: moderateScale(6),
+    },
+    themeToggle: {
+        padding: moderateScale(8),
+        marginLeft: moderateScale(8),
     },
 });
 

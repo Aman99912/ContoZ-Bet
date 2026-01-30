@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors, ThemeProvider } from '@/core/theme/colors';
 
 // Screens
 import { LoginScreen, RegisterScreen } from '@/screen/auth';
@@ -36,6 +36,7 @@ import CustomAlert from '@/components/common/CustomAlert';
 import { useNavigation } from '@react-navigation/native';
 
 const TabNavigator = () => {
+    const { colors } = useTheme();
     const insets = useSafeAreaInsets();
     const navigation = useNavigation();
     const { isLoggedIn } = useApp();
@@ -83,9 +84,9 @@ const TabNavigator = () => {
                     }
                 })}
             >
-                <Tab.Screen 
-                name="Home"
-                component={HomeScreen}
+                <Tab.Screen
+                    name="Home"
+                    component={HomeScreen}
                 />
                 <Tab.Screen
                     name="History"
@@ -117,26 +118,28 @@ const TabNavigator = () => {
 
 const Navigation = () => {
     return (
-        <NavigationContainer>
-            <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="MainApp">
-                <Stack.Screen name="MainApp" component={TabNavigator} />
-                <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen name="Register" component={RegisterScreen} />
-                <Stack.Screen name="EditProfile" component={EditProfile} />
-                <Stack.Screen name="EmailVerify" component={EmailVerify} />
-                <Stack.Screen name="HelpAndSupport" component={HelpAndSupport} />
-                <Stack.Screen name="ReferAndEarn" component={ReferAndEarn} />
-                <Stack.Screen name="MyGames" component={MyGames} />
-                <Stack.Screen name="Notifications" component={Notifications} />
-                <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
-                <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
-                <Stack.Screen name="Withdrawal" component={WithdrawalScreen} />
-                <Stack.Screen name="BankDetails" component={BankDetailsScreen} />
-                <Stack.Screen name="UPIDetails" component={UPIDetailsScreen} />
-                <Stack.Screen name="GameInit" component={GameInit} />
-                <Stack.Screen name="GameWaiting" component={GameWaiting} />
-            </Stack.Navigator>
-        </NavigationContainer>
+        <ThemeProvider>
+            <NavigationContainer>
+                <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="MainApp">
+                    <Stack.Screen name="MainApp" component={TabNavigator} />
+                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Register" component={RegisterScreen} />
+                    <Stack.Screen name="EditProfile" component={EditProfile} />
+                    <Stack.Screen name="EmailVerify" component={EmailVerify} />
+                    <Stack.Screen name="HelpAndSupport" component={HelpAndSupport} />
+                    <Stack.Screen name="ReferAndEarn" component={ReferAndEarn} />
+                    <Stack.Screen name="MyGames" component={MyGames} />
+                    <Stack.Screen name="Notifications" component={Notifications} />
+                    <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
+                    <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
+                    <Stack.Screen name="Withdrawal" component={WithdrawalScreen} />
+                    <Stack.Screen name="BankDetails" component={BankDetailsScreen} />
+                    <Stack.Screen name="UPIDetails" component={UPIDetailsScreen} />
+                    <Stack.Screen name="GameInit" component={GameInit} />
+                    <Stack.Screen name="GameWaiting" component={GameWaiting} />
+                </Stack.Navigator>
+            </NavigationContainer>
+        </ThemeProvider>
     );
 };
 

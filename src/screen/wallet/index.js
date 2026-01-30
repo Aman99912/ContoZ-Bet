@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale } from '@/core/utils/responsive';
 import WalletTopHeader from './components/WalletTopHeader';
 import WalletTabSelector from './components/WalletTabSelector';
@@ -12,6 +12,7 @@ import api from '@/api';
 import { useApp } from '@/context/AppContext';
 
 export default function WalletScreen() {
+    const { colors } = useTheme();
     const { wallets, totalBalance, refreshWallets } = useApp();
     const [activeTab, setActiveTab] = useState('All');
     const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
@@ -82,7 +83,7 @@ export default function WalletScreen() {
     const isAddDisabled = !amount || Number(amount) <= 0;
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <WalletTopHeader
                 balance={totalBalance}
                 cashBalance={cashBalance}

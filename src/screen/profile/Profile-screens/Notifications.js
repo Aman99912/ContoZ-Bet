@@ -3,11 +3,12 @@ import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
 export default function Notifications() {
+    const { colors } = useTheme();
     const navigation = useNavigation();
 
     const notifications = [
@@ -61,15 +62,15 @@ export default function Notifications() {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <MaterialCommunityIcons name="chevron-left" size={moderateScale(28)} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <CText style={styles.headerTitle}>Notifications</CText>
+                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Notifications</CText>
                 <TouchableOpacity style={styles.clearButton}>
-                    <CText style={styles.clearText}>Clear All</CText>
+                    <CText style={[styles.clearText, { color: colors.primary }]}>Clear All</CText>
                 </TouchableOpacity>
             </View>
 
@@ -78,10 +79,14 @@ export default function Notifications() {
                     {notifications.map((notif) => (
                         <TouchableOpacity
                             key={notif.id}
-                            style={[styles.notifCard, !notif.read && styles.unreadCard]}
+                            style={[
+                                styles.notifCard,
+                                { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.black },
+                                !notif.read && [styles.unreadCard, { borderColor: colors.primary }]
+                            ]}
                             activeOpacity={0.8}
                         >
-                            <View style={styles.iconContainer}>
+                            <View style={[styles.iconContainer, { backgroundColor: colors.inputBackground }]}>
                                 <MaterialCommunityIcons
                                     name={getIcon(notif.type)}
                                     size={moderateScale(24)}
@@ -89,11 +94,11 @@ export default function Notifications() {
                                 />
                             </View>
                             <View style={styles.notifContent}>
-                                <CText style={styles.notifTitle}>{notif.title}</CText>
-                                <CText style={styles.notifMessage}>{notif.message}</CText>
-                                <CText style={styles.notifTime}>{notif.time}</CText>
+                                <CText style={[styles.notifTitle, { color: colors.textPrimary }]}>{notif.title}</CText>
+                                <CText style={[styles.notifMessage, { color: colors.textSecondary }]}>{notif.message}</CText>
+                                <CText style={[styles.notifTime, { color: colors.textSecondary }]}>{notif.time}</CText>
                             </View>
-                            {!notif.read && <View style={styles.unreadDot} />}
+                            {!notif.read && <View style={[styles.unreadDot, { backgroundColor: colors.primary }]} />}
                         </TouchableOpacity>
                     ))}
                 </View>

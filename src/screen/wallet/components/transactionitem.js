@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
 const TransactionItem = ({ transaction, onPress, downloadingInvoiceMap = {} }) => {
+    const { colors } = useTheme();
     const tx = transaction?.attributes || transaction;
 
     const isCredit = tx?.type === 'credit' || tx?.type === 'topup';
@@ -31,7 +32,7 @@ const TransactionItem = ({ transaction, onPress, downloadingInvoiceMap = {} }) =
     };
 
     return (
-        <View style={styles.transactionCard}>
+        <View style={[styles.transactionCard, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
             <View style={styles.avatarContainer}>
                 {isTopup ? (
                     <MaterialCommunityIcons
@@ -49,11 +50,11 @@ const TransactionItem = ({ transaction, onPress, downloadingInvoiceMap = {} }) =
             </View>
 
             <View style={styles.transactionInfo}>
-                <CText style={styles.titleText}>
+                <CText style={[styles.titleText, { color: colors.textPrimary }]}>
                     {isTopup ? 'Wallet Top Up' : tx?.title || 'Game Transaction'}
                 </CText>
-                <CText style={styles.labelText}>{tx?.description || 'Transaction'}</CText>
-                <CText style={[styles.labelText, { fontSize: moderateScale(10), marginTop: 2 }]}>
+                <CText style={[styles.labelText, { color: colors.textSecondary }]}>{tx?.description || 'Transaction'}</CText>
+                <CText style={[styles.labelText, { fontSize: moderateScale(10), marginTop: 2, color: colors.textSecondary }]}>
                     {tx?.transaction_Id || 'TXN-ID'}
                 </CText>
             </View>
@@ -61,7 +62,7 @@ const TransactionItem = ({ transaction, onPress, downloadingInvoiceMap = {} }) =
             {hasInvoice && (
                 <View style={styles.invoiceDownloadContainer}>
                     <TouchableOpacity
-                        style={styles.invoiceDownloadButton}
+                        style={[styles.invoiceDownloadButton, { borderColor: colors.primary }]}
                         onPress={() => onPress && onPress(tx)}
                         disabled={!!downloadingInvoiceMap[tx.id]}
                     >
@@ -80,7 +81,7 @@ const TransactionItem = ({ transaction, onPress, downloadingInvoiceMap = {} }) =
 
             <View style={styles.amountContainer}>
                 <View style={styles.amountWithIcon}>
-                    <CText style={[styles.amountText, isCredit ? styles.green : styles.red]}>
+                    <CText style={[styles.amountText, isCredit ? { color: colors.primary } : { color: colors.error }]}>
                         {isCredit ? '+' : '-'}₹{Number(tx?.amount || 0).toFixed(2)}
                     </CText>
                     {tx?.paymentStatus && (
@@ -88,16 +89,16 @@ const TransactionItem = ({ transaction, onPress, downloadingInvoiceMap = {} }) =
                             style={[
                                 styles.paymentStatusText,
                                 tx.paymentStatus === 'success'
-                                    ? styles.paymentStatusSuccess
+                                    ? { color: colors.primary }
                                     : tx.paymentStatus === 'failure'
-                                        ? styles.paymentStatusFailure
-                                        : styles.paymentStatusPending,
+                                        ? { color: colors.error }
+                                        : { color: colors.pending },
                             ]}
                         >
                             {tx.paymentStatus.toUpperCase()}
                         </CText>
                     )}
-                    <CText style={[styles.dateText, { textAlign: 'right', marginTop: verticalScale(8) }]}>
+                    <CText style={[styles.dateText, { textAlign: 'right', marginTop: verticalScale(8), color: colors.textSecondary }]}>
                         {formatDate(tx?.createdAt)}
                     </CText>
                 </View>

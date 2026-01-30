@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '@/core/theme/colors';
+import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from './CText';
 import CInput from './CInput';
@@ -31,6 +31,7 @@ const WithdrawalModal = ({
     accountDetails,
     type, // 'bank' or 'upi'
 }) => {
+    const { colors } = useTheme();
     const navigation = useNavigation();
     const [amount, setAmount] = useState('');
     const [error, setError] = useState('');
@@ -92,31 +93,31 @@ const WithdrawalModal = ({
 
         if (type === 'bank') {
             return (
-                <View style={styles.detailsContainer}>
-                    <CText style={styles.detailLabel}>Transferring to</CText>
+                <View style={[styles.detailsContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <CText style={[styles.detailLabel, { color: colors.textSecondary }]}>Transferring to</CText>
                     <View style={styles.detailRow}>
-                        <View style={styles.iconBox}>
+                        <View style={[styles.iconBox, { backgroundColor: colors.inputBackground }]}>
                             <MaterialCommunityIcons name="bank" size={moderateScale(24)} color={colors.primary} />
                         </View>
                         <View style={styles.detailTextContent}>
-                            <CText style={styles.bankName}>{accountDetails.bankName}</CText>
-                            <CText style={styles.accountNumber}>**** {accountDetails.accountNumber.slice(-4)}</CText>
-                            <CText style={styles.holderName}>{accountDetails.holderName}</CText>
+                            <CText style={[styles.bankName, { color: colors.textPrimary }]}>{accountDetails.bankName}</CText>
+                            <CText style={[styles.accountNumber, { color: colors.textSecondary }]}>**** {accountDetails.accountNumber.slice(-4)}</CText>
+                            <CText style={[styles.holderName, { color: colors.textData }]}>{accountDetails.holderName}</CText>
                         </View>
                     </View>
                 </View>
             );
         } else {
             return (
-                <View style={styles.detailsContainer}>
-                    <CText style={styles.detailLabel}>Transferring to</CText>
+                <View style={[styles.detailsContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <CText style={[styles.detailLabel, { color: colors.textSecondary }]}>Transferring to</CText>
                     <View style={styles.detailRow}>
-                        <View style={styles.iconBox}>
+                        <View style={[styles.iconBox, { backgroundColor: colors.inputBackground }]}>
                             <MaterialCommunityIcons name="qrcode-scan" size={moderateScale(24)} color={colors.primary} />
                         </View>
                         <View style={styles.detailTextContent}>
-                            <CText style={styles.bankName}>{accountDetails.name}</CText>
-                            <CText style={styles.accountNumber}>{accountDetails.upiId}</CText>
+                            <CText style={[styles.bankName, { color: colors.textPrimary }]}>{accountDetails.name}</CText>
+                            <CText style={[styles.accountNumber, { color: colors.textSecondary }]}>{accountDetails.upiId}</CText>
                         </View>
                     </View>
                 </View>
@@ -138,27 +139,27 @@ const WithdrawalModal = ({
                         style={styles.keyboardView}
                     >
                         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                            <View style={styles.modalContent}>
+                            <View style={[styles.modalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
                                 <View style={styles.modalInner}>
                                     <View style={styles.header}>
-                                        <CText style={styles.title}>Confirm Withdrawal</CText>
-                                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                                        <CText style={[styles.title, { color: colors.textPrimary }]}>Confirm Withdrawal</CText>
+                                        <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.surface }]}>
                                             <MaterialCommunityIcons name="close" size={moderateScale(24)} color={colors.textSecondary} />
                                         </TouchableOpacity>
                                     </View>
 
                                     {renderAccountDetails()}
 
-                                    <View style={styles.balanceContainer}>
+                                    <View style={[styles.balanceContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                                         <View style={styles.balanceRow}>
                                             <MaterialCommunityIcons name="wallet-outline" size={moderateScale(20)} color={colors.textData} />
-                                            <CText style={styles.balanceLabel}>Current Balance</CText>
+                                            <CText style={[styles.balanceLabel, { color: colors.textData }]}>Current Balance</CText>
                                         </View>
-                                        <CText style={styles.balanceValue}>₹{balance.toFixed(2)}</CText>
+                                        <CText style={[styles.balanceValue, { color: colors.primary }]}>₹{balance.toFixed(2)}</CText>
                                     </View>
 
                                     <View style={styles.inputContainer}>
-                                        <CText style={styles.inputLabel}>Withdrawal Amount</CText>
+                                        <CText style={[styles.inputLabel, { color: colors.textPrimary }]}>Withdrawal Amount</CText>
                                         <CInput
                                             placeholder="Enter Amount"
                                             value={amount}
@@ -169,8 +170,8 @@ const WithdrawalModal = ({
                                             containerStyle={styles.amountInput}
                                             textStyle={styles.amountText}
                                         />
-                                        {error ? <CText style={styles.errorText}>{error}</CText> : null}
-                                        <CText style={styles.hintText}>Minimum withdrawal: ₹{minAmount}</CText>
+                                        {error ? <CText style={[styles.errorText, { color: colors.error }]}>{error}</CText> : null}
+                                        <CText style={[styles.hintText, { color: colors.textSecondary }]}>Minimum withdrawal: ₹{minAmount}</CText>
                                     </View>
 
                                     {/* Terms Checkbox */}
@@ -187,15 +188,15 @@ const WithdrawalModal = ({
                                             />
                                         </TouchableOpacity>
                                         <View style={styles.termsTextContainer}>
-                                            <CText style={styles.termsText}>I agree to the </CText>
+                                            <CText style={[styles.termsText, { color: colors.textSecondary }]}>I agree to the </CText>
                                             <TouchableOpacity onPress={handleTermsPress}>
-                                                <CText style={styles.termsLink} numberOfLines={1}>Terms and Policy</CText>
+                                                <CText style={[styles.termsLink, { color: colors.primary }]} numberOfLines={1}>Terms and Policy</CText>
                                             </TouchableOpacity>
                                         </View>
                                     </View>
 
                                     <TouchableOpacity
-                                        style={[styles.submitButton, (loading || !isChecked) && styles.disabledButton]}
+                                        style={[styles.submitButton, { backgroundColor: colors.primary }, (loading || !isChecked) && styles.disabledButton]}
                                         onPress={handleSubmit}
                                         disabled={loading || !isChecked}
                                         activeOpacity={0.8}
@@ -204,7 +205,7 @@ const WithdrawalModal = ({
                                             <ActivityIndicator color={colors.black} size="small" />
                                         ) : (
                                             <View style={styles.btnContent}>
-                                                <CText style={styles.submitButtonText}>Proceed to Withdraw</CText>
+                                                <CText style={[styles.submitButtonText, { color: colors.black }]}>Proceed to Withdraw</CText>
                                                 <MaterialCommunityIcons name="arrow-right" size={moderateScale(20)} color={colors.black} />
                                             </View>
                                         )}
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: moderateScale(24),
         borderTopRightRadius: moderateScale(24),
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: colors.border,
         paddingBottom: verticalScale(30),
         minHeight: height * 0.65,
     },
@@ -254,16 +255,16 @@ const styles = StyleSheet.create({
     },
     closeButton: {
         padding: moderateScale(8),
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: colors.surface,
         borderRadius: moderateScale(20),
     },
     detailsContainer: {
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: colors.surface,
         borderRadius: moderateScale(16),
         padding: moderateScale(16),
         marginBottom: verticalScale(24),
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: colors.border,
     },
     detailLabel: {
         fontSize: moderateScale(12),
@@ -280,7 +281,7 @@ const styles = StyleSheet.create({
         width: moderateScale(48),
         height: moderateScale(48),
         borderRadius: moderateScale(12),
-        backgroundColor: 'rgba(44, 182, 125, 0.15)',
+        backgroundColor: colors.inputBackground,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: moderateScale(16),
@@ -309,10 +310,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: moderateScale(16),
         paddingVertical: verticalScale(12),
-        backgroundColor: 'rgba(44, 182, 125, 0.1)',
+        backgroundColor: colors.surface,
         borderRadius: moderateScale(12),
         borderWidth: 1,
-        borderColor: 'rgba(44, 182, 125, 0.2)',
+        borderColor: colors.border,
         marginBottom: verticalScale(24),
     },
     balanceRow: {
