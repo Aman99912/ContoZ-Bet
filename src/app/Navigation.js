@@ -19,6 +19,9 @@ import MyGames from '@/screen/profile/Profile-screens/MyGames';
 import Notifications from '@/screen/profile/Profile-screens/Notifications';
 import TermsAndConditions from '@/screen/profile/Profile-screens/TermsAndConditions';
 import PrivacyPolicy from '@/screen/profile/Profile-screens/PrivacyPolicy';
+import WithdrawalScreen from '@/screen/profile/Profile-screens/Bank-widr/withrawal';
+import BankDetailsScreen from '@/screen/profile/Profile-screens/Bank-widr/bankdetails';
+import UPIDetailsScreen from '@/screen/profile/Profile-screens/Bank-widr/upidetails';
 import EmailVerify from '@/screen/profile/components/emailVerfiy';
 import GameInit from '@/Games/components/Gameinit/gameinit';
 import GameWaiting from '@/Games/components/Gameinit/gamewating';
@@ -46,7 +49,7 @@ const TabNavigator = () => {
                     tabBarStyle: {
                         backgroundColor: colors.background,
                         borderTopColor: colors.border,
-                        height: 60 + insets.bottom,
+                        height: 80 + insets.bottom,
                         paddingBottom: insets.bottom + 8,
                         paddingTop: 8,
                     },
@@ -80,7 +83,10 @@ const TabNavigator = () => {
                     }
                 })}
             >
-                <Tab.Screen name="Home" component={HomeScreen} />
+                <Tab.Screen 
+                name="Home"
+                component={HomeScreen}
+                />
                 <Tab.Screen
                     name="History"
                     component={HistoryScreen}
@@ -124,6 +130,9 @@ const Navigation = () => {
                 <Stack.Screen name="Notifications" component={Notifications} />
                 <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
                 <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
+                <Stack.Screen name="Withdrawal" component={WithdrawalScreen} />
+                <Stack.Screen name="BankDetails" component={BankDetailsScreen} />
+                <Stack.Screen name="UPIDetails" component={UPIDetailsScreen} />
                 <Stack.Screen name="GameInit" component={GameInit} />
                 <Stack.Screen name="GameWaiting" component={GameWaiting} />
             </Stack.Navigator>

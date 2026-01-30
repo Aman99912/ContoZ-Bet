@@ -16,6 +16,7 @@ import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { useApp } from '@/context/AppContext';
 import api from '@/api';
+import CustomAlert from '@/components/common/CustomAlert';
 
 const EmailVerify = () => {
     const navigation = useNavigation();

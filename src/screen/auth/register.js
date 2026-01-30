@@ -9,6 +9,7 @@ import {
     ActivityIndicator,
     TouchableWithoutFeedback,
     Keyboard,
+    Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -16,9 +17,12 @@ import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CInput from '@/components/common/CInput';
+import CCard from '@/components/common/CCard';
 import CustomAlert from '@/components/common/CustomAlert';
 import { authAPI } from '@/api/services';
 import { useApp } from '@/context/AppContext';
+
+const { width } = Dimensions.get('window');
 
 const RegisterScreen = ({ navigation }) => {
     const { login } = useApp();
@@ -26,8 +30,8 @@ const RegisterScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [mobile, setMobile] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [sponsor, setSponsor] = useState('contoz');
+    // const [confirmPassword, setConfirmPassword] = useState(''); // Removed
+    const [sponsor, setSponsor] = useState('');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [showAlert, setShowAlert] = useState(false);
@@ -58,9 +62,9 @@ const RegisterScreen = ({ navigation }) => {
             newErrors.password = 'Password must be at least 6 characters';
         }
 
-        if (password !== confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match';
-        }
+        // if (password !== confirmPassword) {
+        //     newErrors.confirmPassword = 'Passwords do not match';
+        // }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -80,7 +84,7 @@ const RegisterScreen = ({ navigation }) => {
                 email: email.trim().toLowerCase(),
                 mobile: formattedMobile,
                 password: password,
-                sponsor: sponsor || 'contoz',
+                sponsor: sponsor || '',
             });
 
             console.log('Registration successful:', response);
@@ -102,129 +106,144 @@ const RegisterScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.keyboardView}
-            >
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <ScrollView
-                        contentContainerStyle={styles.scrollContent}
-                        showsVerticalScrollIndicator={false}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        {/* Header */}
-                        <View style={styles.header}>
-                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                                <MaterialCommunityIcons name="chevron-left" size={moderateScale(28)} color={colors.textPrimary} />
-                            </TouchableOpacity>
-                            <CText style={styles.headerTitle}>Create Account</CText>
-                            <View style={styles.headerPlaceholder} />
-                        </View>
+        <View style={styles.container}>
+            {/* Background Blobs */}
+            <View style={styles.blobTop} />
+            <View style={styles.blobBottom} />
 
-                        {/* Welcome Text */}
-                        <View style={styles.welcomeContainer}>
-                            <CText style={styles.welcomeText}>Join Conto-Z</CText>
-                            <CText style={styles.subtitleText}>Create your account to get started</CText>
-                        </View>
+            <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={styles.keyboardView}
+                >
+                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                        <ScrollView
+                            contentContainerStyle={styles.scrollContent}
+                            showsVerticalScrollIndicator={false}
+                            keyboardShouldPersistTaps="handled"
+                        >
+                            <View style={styles.contentWrapper}>
+                                {/* Header Section with Icon */}
+                                <View style={styles.headerContainer}>
+                                    <View style={styles.iconContainer}>
+                                        <MaterialCommunityIcons
+                                            name="shield-account-outline"
+                                            size={moderateScale(32)}
+                                            color={colors.primary}
+                                        />
+                                    </View>
+                                    <CText style={styles.welcomeText}>Create Account</CText>
+                                    <CText style={styles.subtitleText}>Join us and start your journey</CText>
+                                </View>
 
-                        {/* Form */}
-                        <View style={styles.formContainer}>
-                            {/* Name Input */}
-                            <View style={styles.inputContainer}>
+                                {/* Register Card */}
+                                <CCard style={styles.registerCard}>
+                                    {/* Name Input */}
+                                    <View style={styles.inputContainer}>
+                                        <CInput
+                                            // label="Full Name"
+                                            placeholder="Enter your name"
+                                            value={name}
+                                            onChangeText={setName}
+                                            autoCapitalize="words"
+                                            leftIcon="account-outline"
+                                        />
+                                        {errors.name && <CText style={styles.errorText}>{errors.name}</CText>}
+                                    </View>
 
-                                <CInput
-                                    placeholder="Enter your name"
-                                    value={name}
-                                    onChangeText={setName}
-                                    autoCapitalize="words"
-                                />
-                                {errors.name && <CText style={styles.errorText}>{errors.name}</CText>}
+                                    {/* Email Input */}
+                                    <View style={styles.inputContainer}>
+                                        <CInput
+                                            // label="Email Address"
+                                            placeholder="Enter your email"
+                                            value={email}
+                                            onChangeText={setEmail}
+                                            keyboardType="email-address"
+                                            autoCapitalize="none"
+                                            leftIcon="email-outline"
+                                        />
+                                        {errors.email && <CText style={styles.errorText}>{errors.email}</CText>}
+                                    </View>
+
+                                    {/* Mobile Input */}
+                                    <View style={styles.inputContainer}>
+                                        <CInput
+                                            // label="Mobile Number"
+                                            placeholder="10 digit mobile number"
+                                            value={mobile}
+                                            onChangeText={setMobile}
+                                            keyboardType="phone-pad"
+                                            maxLength={10}
+                                            leftIcon="phone-outline"
+                                        />
+                                        {errors.mobile && <CText style={styles.errorText}>{errors.mobile}</CText>}
+                                    </View>
+
+                                    {/* Password Input */}
+                                    <View style={styles.inputContainer}>
+                                        <CInput
+                                            // label="Password"
+                                            placeholder="Create password"
+                                            value={password}
+                                            onChangeText={setPassword}
+                                            showPasswordToggle={true}
+                                            leftIcon="lock-outline"
+                                        />
+                                        {errors.password && <CText style={styles.errorText}>{errors.password}</CText>}
+                                    </View>
+
+
+
+                                    {/* Sponsor Code Input */}
+                                    <View style={styles.inputContainer}>
+                                        <CInput
+                                            // label="Sponsor Code (Optional)"
+                                            placeholder="Enter sponsor code (Optional)"
+                                            value={sponsor}
+                                            onChangeText={setSponsor}
+                                            autoCapitalize="none"
+                                            leftIcon="account-star-outline"
+                                        />
+                                    </View>
+
+                                    {/* Register Button */}
+                                    <TouchableOpacity
+                                        style={[styles.registerButton, loading && styles.registerButtonDisabled]}
+                                        onPress={handleRegister}
+                                        disabled={loading}
+                                        activeOpacity={0.8}
+                                    >
+                                        {loading ? (
+                                            <ActivityIndicator color={colors.black} size="small" />
+                                        ) : (
+                                            <CText style={styles.registerButtonText}>Sign Up</CText>
+                                        )}
+                                    </TouchableOpacity>
+                                </CCard>
+
+                                {/* Login Link */}
+                                <View style={styles.loginContainer}>
+                                    <CText style={styles.loginText}>Already have an account? </CText>
+                                    <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                                        <CText style={styles.loginLink}>Login</CText>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
+                        </ScrollView>
+                    </TouchableWithoutFeedback>
+                </KeyboardAvoidingView>
 
-                            {/* Email Input */}
-                            <View style={styles.inputContainer}>
-                                <CInput
-                                    placeholder="Enter your email"
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    keyboardType="email-address"
-                                    autoCapitalize="none"
-                                />
-                                {errors.email && <CText style={styles.errorText}>{errors.email}</CText>}
-                            </View>
-
-                            {/* Mobile Input */}
-                            <View style={styles.inputContainer}>
-                                <CInput
-                                    placeholder="Enter 10 digit mobile number"
-                                    value={mobile}
-                                    onChangeText={setMobile}
-                                    keyboardType="phone-pad"
-                                    maxLength={10}
-                                />
-                                {errors.mobile && <CText style={styles.errorText}>{errors.mobile}</CText>}
-                            </View>
-
-                            {/* Password Input */}
-                            <View style={styles.inputContainer}>
-                                <CInput
-                                    placeholder="Enter password"
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    showPasswordToggle={true}
-                                />
-                                {errors.password && <CText style={styles.errorText}>{errors.password}</CText>}
-                            </View>
-
-
-
-                            {/* Sponsor Code Input (Optional) */}
-                            <View style={styles.inputContainer}>
-                                <CInput
-                                    placeholder="Enter sponsor code (Optional)"
-                                    value={sponsor}
-                                    onChangeText={setSponsor}
-                                    autoCapitalize="none"
-                                />
-                            </View>
-
-                            {/* Register Button */}
-                            <TouchableOpacity
-                                style={[styles.registerButton, loading && styles.registerButtonDisabled]}
-                                onPress={handleRegister}
-                                disabled={loading}
-                                activeOpacity={0.8}
-                            >
-                                {loading ? (
-                                    <ActivityIndicator color={colors.black} size="small" />
-                                ) : (
-                                    <CText style={styles.registerButtonText}>Create Account</CText>
-                                )}
-                            </TouchableOpacity>
-
-                            {/* Login Link */}
-                            <View style={styles.loginContainer}>
-                                <CText style={styles.loginText}>Already have an account? </CText>
-                                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                                    <CText style={styles.loginLink}>Login</CText>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </ScrollView>
-                </TouchableWithoutFeedback>
-            </KeyboardAvoidingView>
-
-            <CustomAlert
-                visible={showAlert}
-                title="Registration Error"
-                message={alertMessage}
-                showConfirm={true}
-                confirmText="OK"
-                onClose={() => setShowAlert(false)}
-                onConfirm={() => setShowAlert(false)}
-            />
-        </SafeAreaView>
+                <CustomAlert
+                    visible={showAlert}
+                    title="Registration Error"
+                    message={alertMessage}
+                    showConfirm={true}
+                    confirmText="OK"
+                    onClose={() => setShowAlert(false)}
+                    onConfirm={() => setShowAlert(false)}
+                />
+            </SafeAreaView>
+        </View>
     );
 };
 
@@ -232,87 +251,99 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.background,
+        position: 'relative',
+    },
+    safeArea: {
+        flex: 1,
+    },
+    blobTop: {
+        position: 'absolute',
+        top: -width * 0.4,
+        right: -width * 0.2,
+        width: width * 0.9,
+        height: width * 0.9,
+        borderRadius: width * 0.45,
+        backgroundColor: colors.primary,
+        opacity: 0.08,
+    },
+    blobBottom: {
+        position: 'absolute',
+        bottom: -width * 0.3,
+        left: -width * 0.2,
+        width: width * 0.8,
+        height: width * 0.8,
+        borderRadius: width * 0.4,
+        backgroundColor: colors.primary,
+        opacity: 0.05,
+        transform: [{ scaleX: 1.2 }],
     },
     keyboardView: {
         flex: 1,
     },
     scrollContent: {
         flexGrow: 1,
-        paddingBottom: verticalScale(40),
+        justifyContent: 'center',
+        padding: moderateScale(20),
+        paddingVertical: verticalScale(20),
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    contentWrapper: {
         alignItems: 'center',
-        paddingHorizontal: moderateScale(16),
-        paddingVertical: verticalScale(12),
+        width: '100%',
     },
-    backButton: {
-        padding: moderateScale(4),
+    headerContainer: {
+        alignItems: 'center',
+        marginBottom: verticalScale(16),
     },
-    headerTitle: {
-        fontSize: moderateScale(20),
-        fontWeight: 'bold',
-        color: colors.textPrimary,
-    },
-    headerPlaceholder: {
-        width: moderateScale(36),
-    },
-    welcomeContainer: {
-        paddingHorizontal: moderateScale(20),
-        marginTop: verticalScale(20),
-        marginBottom: verticalScale(32),
+    iconContainer: {
+        width: moderateScale(60),
+        height: moderateScale(60),
+        borderRadius: moderateScale(30),
+        backgroundColor: 'rgba(44, 182, 125, 0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: verticalScale(8),
+        borderWidth: 1,
+        borderColor: 'rgba(44, 182, 125, 0.2)',
     },
     welcomeText: {
-        fontSize: moderateScale(28),
+        fontSize: moderateScale(22),
         fontWeight: 'bold',
         color: colors.textPrimary,
-        marginBottom: verticalScale(8),
+        marginBottom: verticalScale(4),
     },
     subtitleText: {
-        fontSize: moderateScale(16),
+        fontSize: moderateScale(13),
         color: colors.textSecondary,
     },
-    formContainer: {
+    registerCard: {
+        width: '100%',
+        paddingVertical: verticalScale(16),
         paddingHorizontal: moderateScale(20),
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: 'rgba(26, 26, 26, 0.95)',
     },
     inputContainer: {
-        marginBottom: verticalScale(5),
-    },
-    label: {
-        fontSize: moderateScale(14),
-        fontWeight: '600',
-        color: colors.textPrimary,
-        marginBottom: verticalScale(8),
-    },
-    passwordContainer: {
-        position: 'relative',
-    },
-    passwordInput: {
-        paddingRight: moderateScale(50),
-    },
-    eyeIcon: {
-        position: 'absolute',
-        right: moderateScale(16),
-        top: '50%',
-        transform: [{ translateY: -moderateScale(11) }],
+        marginBottom: verticalScale(4),
     },
     errorText: {
         fontSize: moderateScale(12),
         color: colors.error,
-        marginTop: verticalScale(4),
+        marginTop: verticalScale(-12),
+        marginBottom: verticalScale(8),
+        marginLeft: moderateScale(4),
     },
     registerButton: {
         backgroundColor: colors.primary,
-        paddingVertical: moderateScale(16),
-        borderRadius: moderateScale(12),
+        paddingVertical: moderateScale(12),
+        borderRadius: moderateScale(14),
         alignItems: 'center',
         marginTop: verticalScale(12),
         shadowColor: colors.primary,
-        shadowOffset: { width: 0, height: 3 },
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
-        shadowRadius: 6,
-        elevation: 5,
+        shadowRadius: 8,
+        elevation: 6,
     },
     registerButtonDisabled: {
         opacity: 0.6,
@@ -321,12 +352,13 @@ const styles = StyleSheet.create({
         color: colors.black,
         fontSize: moderateScale(16),
         fontWeight: 'bold',
+        letterSpacing: 0.5,
     },
     loginContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: verticalScale(24),
+        marginTop: verticalScale(16),
     },
     loginText: {
         fontSize: moderateScale(14),
@@ -335,7 +367,7 @@ const styles = StyleSheet.create({
     loginLink: {
         fontSize: moderateScale(14),
         color: colors.primary,
-        fontWeight: '600',
+        fontWeight: '700',
     },
 });
 

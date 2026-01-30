@@ -22,7 +22,7 @@ export const userAPI = {
 export const walletAPI = {
     getBalance: () => api.get('/wallet/balance'),
     addMoney: (amount) => api.post('/wallet/add', { amount }),
-    withdraw: (amount) => api.post('/wallet/withdraw', { amount }),
+    withdraw: (data) => api.post('/wallet/withdraw', data),
     getTransactions: (page = 1, limit = 10) =>
         api.get(`/wallet/transactions?page=${page}&limit=${limit}`),
 };

@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '@/core/theme/colors';
-import { moderateScale } from '@/core/utils/responsive';
+import { moderateScale, verticalScale } from '@/core/utils/responsive';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import CText from '@/components/common/CText';
 import ProfileHeader from './components/ProfileHeader';
 import MenuBar from './components/menuBar';
 import VerificationWarning from './components/VerificationWarning';
@@ -64,6 +66,21 @@ export default function UserScreen() {
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <ProfileHeader name={userName} username={userUsername} onEditPress={handleEditProfile} />
 
+                {/* Withdrawal Button */}
+                <TouchableOpacity
+                    style={styles.withdrawalButton}
+                    onPress={() => navigation.navigate('Withdrawal')}
+                    activeOpacity={0.8}
+                >
+                    <View style={styles.withdrawalContent}>
+                        <View style={styles.withdrawalIconContainer}>
+                            <MaterialCommunityIcons name="bank-transfer" size={moderateScale(24)} color={colors.primary} />
+                        </View>
+                        <CText style={styles.withdrawalText}>Withdraw Funds</CText>
+                    </View>
+                    <MaterialCommunityIcons name="chevron-right" size={moderateScale(20)} color={colors.textSecondary} />
+                </TouchableOpacity>
+
                 {/* Show verification warning if not verified */}
                 {!isVerified && <VerificationWarning />}
 
@@ -100,5 +117,43 @@ const styles = StyleSheet.create({
     },
     scroll: {
         flex: 1,
+    },
+    withdrawalButton: {
+        marginHorizontal: moderateScale(20),
+        marginTop: verticalScale(16),
+        marginBottom: verticalScale(8),
+        padding: moderateScale(16),
+        backgroundColor: 'rgba(26, 26, 26, 0.95)',
+        borderRadius: moderateScale(16),
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    withdrawalContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    withdrawalIconContainer: {
+        width: moderateScale(40),
+        height: moderateScale(40),
+        borderRadius: moderateScale(20),
+        backgroundColor: 'rgba(44, 182, 125, 0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: moderateScale(12),
+        borderWidth: 1,
+        borderColor: 'rgba(44, 182, 125, 0.2)',
+    },
+    withdrawalText: {
+        fontSize: moderateScale(16),
+        fontWeight: 'bold',
+        color: colors.textPrimary,
     },
 });

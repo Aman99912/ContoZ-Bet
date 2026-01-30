@@ -10,9 +10,13 @@ export const AppProvider = ({ children }) => {
     const [totalBalance, setTotalBalance] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [savedBanks, setSavedBanks] = useState([]);
+    const [savedUPIs, setSavedUPIs] = useState([]);
+
     // Load user data and token from storage on app start
     useEffect(() => {
         loadUserData();
+        loadSavedMethods();
     }, []);
 
     const refreshWallets = async () => {
@@ -56,6 +60,62 @@ export const AppProvider = ({ children }) => {
             setIsLoading(false);
         }
     };
+
+    const loadSavedMethods = async () => {
+        try {
+            const storedBanks = await AsyncStorage.getItem('savedBanks');
+            const storedUPIs = await AsyncStorage.getItem('savedUPIs');
+            if (storedBanks) setSavedBanks(JSON.parse(storedBanks));
+            if (storedUPIs) setSavedUPIs(JSON.parse(storedUPIs));
+        } catch (error) {
+            console.error('Error loading saved methods:', error);
+        }
+    };
+
+    const saveBank = async (bankDetails) => {
+        try {
+            const newBanks = [...savedBanks, bankDetails];
+            setSavedBanks(newBanks);
+            await AsyncStorage.setItem('savedBanks', JSON.stringify(newBanks));
+            return true;
+        } catch (error) {
+            console.error('Error saving bank:', error);
+            return false;
+        }
+    };
+
+    const saveUPI = async (upiDetails) => {
+        try {
+            const newUPIs = [...savedUPIs, upiDetails];
+            setSavedUPIs(newUPIs);
+            await AsyncStorage.setItem('savedUPIs', JSON.stringify(newUPIs));
+            return true;
+        } catch (error) {
+            console.error('Error saving UPI:', error);
+            return false;
+        }
+    };
+
+    const removeBank = async (index) => {
+        try {
+            const newBanks = savedBanks.filter((_, i) => i !== index);
+            setSavedBanks(newBanks);
+            await AsyncStorage.setItem('savedBanks', JSON.stringify(newBanks));
+        } catch (error) {
+            console.error('Error removing bank:', error);
+        }
+    };
+
+    const removeUPI = async (index) => {
+        try {
+            const newUPIs = savedUPIs.filter((_, i) => i !== index);
+            setSavedUPIs(newUPIs);
+            await AsyncStorage.setItem('savedUPIs', JSON.stringify(newUPIs));
+        } catch (error) {
+            console.error('Error removing UPI:', error);
+        }
+    };
+
 
     const login = async (authToken, userData) => {
         try {
@@ -104,6 +164,8 @@ export const AppProvider = ({ children }) => {
         token,
         wallets,
         totalBalance,
+        savedBanks,
+        savedUPIs,
         isLoading,
         isLoggedIn: !!token,
         login,
@@ -111,6 +173,10 @@ export const AppProvider = ({ children }) => {
         updateUser,
         updateVerificationStatus,
         refreshWallets,
+        saveBank,
+        saveUPI,
+        removeBank,
+        removeUPI,
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
