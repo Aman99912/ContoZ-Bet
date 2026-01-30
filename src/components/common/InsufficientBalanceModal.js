@@ -8,6 +8,7 @@ import {
     Dimensions,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
@@ -23,6 +24,7 @@ const InsufficientBalanceModal = ({
     onAddMoney,
     onTransfer,
 }) => {
+    const insets = useSafeAreaInsets();
     const slideAnim = useRef(new Animated.Value(verticalScale(300))).current;
 
     useEffect(() => {
@@ -67,7 +69,10 @@ const InsufficientBalanceModal = ({
                 <Animated.View
                     style={[
                         styles.modalContent,
-                        { transform: [{ translateY: slideAnim }] }
+                        {
+                            transform: [{ translateY: slideAnim }],
+                            paddingBottom: Math.max(insets.bottom, verticalScale(20))
+                        },
                     ]}
                 >
                     <View style={styles.header}>
@@ -224,7 +229,8 @@ const styles = StyleSheet.create({
     },
     button: {
         flex: 1,
-        height: verticalScale(50),
+        height: verticalScale(40),
+        bottom: verticalScale(5),
         borderRadius: moderateScale(12),
         justifyContent: 'center',
         alignItems: 'center',

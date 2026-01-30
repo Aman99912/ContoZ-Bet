@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG } from './config';
 
@@ -49,13 +50,23 @@ api.interceptors.response.use(
         return response.data;
     },
     (error) => {
-        console.error('API Error:', error.response?.status, error.config?.url);
+        const errorDetails = {
+            message: error.message,
+            status: error.response?.status,
+            url: error.config?.url,
+            data: error.response?.data,
+            code: error.code, // e.g. ECONNABORTED
+        };
+
+        console.error('API Error Details:', JSON.stringify(errorDetails, null, 2));
 
         // Handle specific error codes
         if (error.response) {
-            switch (error.response.status) {
+            const status = error.response.status;
+            const message = error.response.data?.message || `Error ${status}`;
+
+            switch (status) {
                 case 401:
-                    // Handle unauthorized - redirect to login
                     console.log('Unauthorized - Please login');
                     break;
                 case 403:
@@ -68,10 +79,23 @@ api.interceptors.response.use(
                     console.log('Server error');
                     break;
                 default:
-                    console.log('Error:', error.response.data?.message || 'Something went wrong');
+                    console.log('API Error:', message);
             }
         } else if (error.request) {
-            console.log('Network error - No response received');
+            // The request was made but no response was received
+            console.log('Network error - No response received from server');
+
+            // Show alert in release mode for easier debugging of network issues
+            if (!__DEV__) {
+                Alert.alert(
+                    'Network Error',
+                    `Unable to connect to server. Please check your internet connection or try again later.\n\nURL: ${error.config?.url}\nError: ${error.message}`,
+                    [{ text: 'OK' }]
+                );
+            }
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Request Setup Error:', error.message);
         }
 
         return Promise.reject(error);

@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '@/context/AppContext';
 import CustomAlert from '@/components/common/CustomAlert';
 import InsufficientBalanceModal from '@/components/common/InsufficientBalanceModal';
@@ -18,6 +18,7 @@ const GameInit = () => {
     const route = useRoute();
     const { wallets, totalBalance, isLoggedIn, user, refreshWallets } = useApp();
     const { gameTitle, gameIcon } = route.params || { gameTitle: 'Game', gameIcon: 'gamepad-variant' };
+    const insets = useSafeAreaInsets();
 
     // Extract wallet breakdowns
     const mainWallet = wallets.find(w => w.slug === 'main_wallet')?.value || 0;
@@ -81,8 +82,24 @@ const GameInit = () => {
         });
     };
 
+    const [isTesting, setIsTesting] = useState(false);
+
+    const handleDemoBalance = () => {
+        setIsTesting(true);
+        setShowBalanceModal(true);
+    };
+
+    const handleDemoWaiting = () => {
+        navigation.navigate('GameWaiting', {
+            gameTitle,
+            gameIcon,
+            entryFee: selectedFee,
+            prizePool: selectedFee * 1.8
+        });
+    };
+
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -135,7 +152,7 @@ const GameInit = () => {
             </ScrollView>
 
             {/* Bottom Join Section */}
-            <View style={styles.bottomSection}>
+            <View style={[styles.bottomSection, { paddingBottom: Math.max(insets.bottom, moderateScale(12)) }]}>
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -160,6 +177,18 @@ const GameInit = () => {
                     ))}
                 </ScrollView>
 
+                {/* Demo Tools */}
+                <View style={styles.demoRow}>
+                    <TouchableOpacity style={styles.demoButton} onPress={handleDemoBalance} activeOpacity={0.7}>
+                        <MaterialCommunityIcons name="wallet-outline" size={moderateScale(14)} color={colors.primary} />
+                        <CText style={styles.demoText}>Demo: Balance</CText>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.demoButton} onPress={handleDemoWaiting} activeOpacity={0.7}>
+                        <MaterialCommunityIcons name="play-outline" size={moderateScale(14)} color={colors.primary} />
+                        <CText style={styles.demoText}>Demo: Waiting</CText>
+                    </TouchableOpacity>
+                </View>
+
                 <View style={styles.summaryRow}>
                     <CText style={styles.summaryLabel}>Total Payable</CText>
                     <CText style={styles.summaryAmount}>₹{selectedFee}</CText>
@@ -182,10 +211,13 @@ const GameInit = () => {
 
             <InsufficientBalanceModal
                 visible={showBalanceModal}
-                onClose={() => setShowBalanceModal(false)}
+                onClose={() => {
+                    setShowBalanceModal(false);
+                    setIsTesting(false);
+                }}
                 requiredAmount={selectedFee}
-                cashBalance={cashBalance}
-                earningsBalance={earningsBalance}
+                cashBalance={isTesting ? 0 : cashBalance}
+                earningsBalance={isTesting ? 100 : earningsBalance}
                 onAddMoney={() => navigation.navigate('MainApp', { screen: 'Wallet' })}
                 onTransfer={() => {
                     setShowBalanceModal(false);
@@ -195,10 +227,13 @@ const GameInit = () => {
 
             <EarnToCashModal
                 visible={showTransferModal}
-                onClose={() => setShowTransferModal(false)}
-                cashBalance={cashBalance}
-                earningsBalance={earningsBalance}
-                availableToConvert={earningsBalance}
+                onClose={() => {
+                    setShowTransferModal(false);
+                    setIsTesting(false);
+                }}
+                cashBalance={isTesting ? 0 : cashBalance}
+                earningsBalance={isTesting ? 100 : earningsBalance}
+                availableToConvert={isTesting ? 100 : earningsBalance}
                 onTransfer={refreshWallets}
             />
         </SafeAreaView>
@@ -356,6 +391,29 @@ const styles = StyleSheet.create({
     selectedFeeText: {
         color: colors.primary,
     },
+    demoRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: moderateScale(10),
+        marginBottom: verticalScale(14),
+    },
+    demoButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: moderateScale(12),
+        paddingVertical: verticalScale(6),
+        backgroundColor: colors.primary + '15',
+        borderRadius: moderateScale(20),
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: colors.primary,
+    },
+    demoText: {
+        fontSize: moderateScale(11),
+        fontWeight: 'bold',
+        color: colors.primary,
+        marginLeft: moderateScale(4),
+    },
     summaryRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -373,7 +431,8 @@ const styles = StyleSheet.create({
     },
     joinButton: {
         backgroundColor: colors.primary,
-        height: verticalScale(50),
+        height: verticalScale(40),
+        bottom: verticalScale(8),
         borderRadius: moderateScale(12),
         justifyContent: 'center',
         alignItems: 'center',
