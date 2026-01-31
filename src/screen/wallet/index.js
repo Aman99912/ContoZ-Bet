@@ -103,8 +103,11 @@ export default function WalletScreen() {
 
                     let title = 'Transaction';
                     switch (item.source) {
-                        case 'recharge': title = 'Wallet Top Up'; break;
-                        case 'fund_convert': title = 'Wallet Conversion'; break;
+                        case 'recharge':
+                        case 'razorpay':
+                            title = 'Top-up';
+                            break;
+                        case 'fund_convert': title = 'Wallet Transfer'; break;
                         case 'withdrawal': title = 'Withdrawal'; break;
                         case 'level_income': title = 'Level Income'; break;
                         default: title = item.source || 'Transaction';

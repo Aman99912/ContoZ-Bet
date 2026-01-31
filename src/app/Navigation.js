@@ -51,9 +51,8 @@ const TabNavigator = () => {
                     tabBarStyle: {
                         backgroundColor: colors.background,
                         borderTopColor: colors.border,
-                        height: 80 + insets.bottom,
+                        height: 70 + insets.bottom,
                         paddingBottom: insets.bottom + 8,
-                        paddingTop: 8,
                     },
                     tabBarActiveTintColor: colors.primary,
                     tabBarInactiveTintColor: colors.textSecondary,
