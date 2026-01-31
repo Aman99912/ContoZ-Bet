@@ -12,6 +12,7 @@ import InGameHeader from '@/Games/components/inGame/InGameHeader';
 import InGamePlayerCard from '@/Games/components/inGame/InGamePlayerCard';
 import InGameStatus from '@/Games/components/inGame/InGameStatus';
 import GameGrid from './components/GameGrid';
+import WinCelebration from '@/Games/components/inGame/winCelebration';
 import CText from '@/components/common/CText';
 import CustomAlert from '@/components/common/CustomAlert';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,8 +27,13 @@ const TicTacToe = ({ navigation, route }) => {
     const [isXNext, setIsXNext] = useState(true);
     const [winner, setWinner] = useState(null);
     const [winningLine, setWinningLine] = useState([]);
+
+    // Alert states
     const [showAlert, setShowAlert] = useState(false);
     const [alertConfig, setAlertConfig] = useState({});
+
+    // Celebration state
+    const [showCelebration, setShowCelebration] = useState(false);
 
     // Win patterns
     const lines = [
@@ -63,15 +69,7 @@ const TicTacToe = ({ navigation, route }) => {
             Vibration.vibrate(100);
 
             setTimeout(() => {
-                setAlertConfig({
-                    title: result.winner === 'Draw' ? "It's a Draw!" : `Player ${result.winner} Wins!`,
-                    message: "Would you like to play again?",
-                    confirmText: "New Game",
-                    cancelText: "Quit",
-                    onConfirm: resetGame,
-                    onCancel: () => navigation.goBack()
-                });
-                setShowAlert(true);
+                setShowCelebration(true);
             }, 500);
         } else {
             setIsXNext(!isXNext);
@@ -83,6 +81,7 @@ const TicTacToe = ({ navigation, route }) => {
         setIsXNext(true);
         setWinner(null);
         setWinningLine([]);
+        setShowCelebration(false);
         setShowAlert(false);
     };
 
@@ -108,12 +107,15 @@ const TicTacToe = ({ navigation, route }) => {
         return () => backHandler.remove();
     }, [winner, board, navigation]);
 
+
+    const isWin = winner === 'X' || winner === 'O';
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
                 <InGameHeader entryFee={entryFee} />
 
-                <InGameStatus winner={winner} isXNext={isXNext} prizePool={prizePool} />
+                <InGameStatus winner={null} isXNext={isXNext} prizePool={prizePool} />
 
                 <View style={styles.playersRow}>
                     <InGamePlayerCard
@@ -132,13 +134,10 @@ const TicTacToe = ({ navigation, route }) => {
 
                 <GameGrid board={board} onCellPress={handleCellPress} winningLine={winningLine} />
 
-                {winner && (
-                    <TouchableOpacity style={styles.resetButton} onPress={resetGame}>
-                        <CText style={styles.resetText}>NEW GAME</CText>
-                    </TouchableOpacity>
-                )}
+                {/* Removed the manual reset button as WinCelebration handles it */}
             </View>
 
+            {/* Back Press Alert */}
             <CustomAlert
                 visible={showAlert}
                 title={alertConfig.title}
@@ -149,6 +148,15 @@ const TicTacToe = ({ navigation, route }) => {
                 onCancel={alertConfig.onCancel}
                 showCancel={true}
                 onClose={() => setShowAlert(false)}
+            />
+
+            {/* Win/Loss Celebration */}
+            <WinCelebration
+                visible={showCelebration}
+                amount={isWin ? prizePool : entryFee} // Prize if win, entry fee if lost/draw
+                isWinner={isWin}
+                onNewGame={resetGame}
+                onQuit={() => navigation.goBack()}
             />
         </SafeAreaView>
     );

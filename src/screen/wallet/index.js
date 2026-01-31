@@ -12,7 +12,9 @@ import { initiateRazorpayPayment } from '@/features/payments/Razorpay';
 import { useApp } from '@/context/AppContext';
 
 
+
 import PaymentSuccessModal from '@/components/common/PaymentSuccessModal';
+import { Audio } from 'expo-av';
 
 export default function WalletScreen() {
     const { colors } = useTheme();
@@ -60,6 +62,17 @@ export default function WalletScreen() {
     useEffect(() => {
         refreshWallets();
     }, []);
+
+    const playWalletSound = async () => {
+        try {
+            const { sound } = await Audio.Sound.createAsync(
+                require('@/sound/wallet.mp3')
+            );
+            await sound.playAsync();
+        } catch (error) {
+            console.log("Error playing sound:", error);
+        }
+    };
 
     useEffect(() => {
         fetchTransactions();
@@ -159,6 +172,7 @@ export default function WalletScreen() {
                 setPaymentMessage('Your wallet has been updated successfully.');
                 setTxnId(data.razorpay_payment_id || '');
                 setShowPaymentModal(true);
+                playWalletSound();
 
                 refreshWallets();
                 fetchTransactions();

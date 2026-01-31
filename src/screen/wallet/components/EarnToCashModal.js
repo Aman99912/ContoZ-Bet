@@ -20,6 +20,7 @@ import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import CustomAlert from '@/components/common/CustomAlert';
 import api from '@/api';
+import { Audio } from 'expo-av';
 
 const formatCurrency = (value, decimals = 2) =>
     Number(value || 0).toLocaleString('en-IN', {
@@ -60,6 +61,17 @@ const EarnToCashModal = ({
         message: '',
         onConfirm: () => setShowAlert(false)
     });
+
+    const playWalletSound = async () => {
+        try {
+            const { sound } = await Audio.Sound.createAsync(
+                require('@/sound/wallet.mp3')
+            );
+            await sound.playAsync();
+        } catch (error) {
+            console.log("Error playing wallet sound:", error);
+        }
+    };
 
     // ... existing useEffects ...
     useEffect(() => {
@@ -186,6 +198,7 @@ const EarnToCashModal = ({
             const res = await api.post('/user/main-to-fund-transfer', { amount: amountValue });
 
             console.log('[EarnToCashModal] Transfer success', res?.data);
+            playWalletSound();
 
             setAlertConfig({
                 title: 'Success',
@@ -364,7 +377,7 @@ const EarnToCashModal = ({
                 onClose={() => setShowAlert(false)}
             />
         </Modal >
-        </>
+    </>
     );
 };
 
