@@ -18,12 +18,15 @@ import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '@/context/AppContext';
 import CustomAlert from '@/components/common/CustomAlert';
+import { authAPI, userAPI } from '@/api/services';
+import { Modal, FlatList } from 'react-native';
+import countryCodes from '../../auth/countycode.json';
 import api from '@/api';
 
 export default function EditProfile() {
     const { colors } = useTheme();
     const navigation = useNavigation();
-    const { user, updateUser } = useApp();
+    const { user, refreshProfile } = useApp();
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -39,30 +42,47 @@ export default function EditProfile() {
     });
     const otpRefs = useRef([...Array(6)].map(() => React.createRef()));
 
+    // Country Code State
+    const [selectedCountry, setSelectedCountry] = useState(countryCodes.find(c => c.dial_code === '+91') || countryCodes[0]);
+    const [showCountryPicker, setShowCountryPicker] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredCountries = countryCodes.filter(c =>
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.dial_code.includes(searchQuery)
+    );
+
     useEffect(() => {
         if (user) {
             setName(user.name || '');
             setEmail(user.email || '');
-            setMobile(user.mobile || '');
+            // Extract dial code if possible, or default to +91
+            const mobileVal = user.mobile || '';
+            const match = countryCodes.find(c => mobileVal.startsWith(c.dial_code));
+            if (match) {
+                setSelectedCountry(match);
+                setMobile(mobileVal.replace(match.dial_code, '').trim());
+            } else {
+                setMobile(mobileVal);
+            }
         }
     }, [user]);
 
     const handleSendOTP = async () => {
         setIsLoading(true);
         try {
-            const res = await api.post('/send-otp', {
+            const res = await authAPI.sendOtp({
                 username: user?.username,
                 action: 'profile_update',
             });
-            if (res.data.status === 200) {
-                setAlertConfig({
-                    title: 'Success',
-                    message: 'OTP sent successfully!',
-                    onConfirm: () => setShowAlert(false)
-                });
-                setShowAlert(true);
-                setOtpSent(true);
-            }
+
+            setAlertConfig({
+                title: 'Success',
+                message: res.message || 'OTP sent successfully!',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
+            setOtpSent(true);
         } catch (error) {
             setAlertConfig({
                 title: 'Error',
@@ -103,24 +123,28 @@ export default function EditProfile() {
 
         setIsLoading(true);
         try {
-            const payload = { otp: otpCode, action: 'profile_update' };
-            if (name !== user?.name) payload.name = name;
-            if (email !== user?.email) payload.email = email;
-            if (mobile !== user?.mobile) payload.mobile = mobile;
+            const payload = {
+                otp: otpCode,
+                action: 'profile_update',
+                name: name,
+                email: email,
+                mobile: `${selectedCountry.dial_code} ${mobile.trim()}`
+            };
 
-            const res = await api.post('/update-profile', payload);
-            if (res.data.status === 200) {
-                await updateUser({ name, email, mobile });
-                setAlertConfig({
-                    title: 'Success',
-                    message: 'Profile updated successfully!',
-                    onConfirm: () => {
-                        setShowAlert(false);
-                        navigation.goBack();
-                    }
-                });
-                setShowAlert(true);
-            }
+            const res = await userAPI.updateProfile(payload);
+
+            // Re-fetch profile or update context with the new data
+            await refreshProfile();
+
+            setAlertConfig({
+                title: 'Success',
+                message: res.message || 'Profile updated successfully!',
+                onConfirm: () => {
+                    setShowAlert(false);
+                    navigation.goBack();
+                }
+            });
+            setShowAlert(true);
         } catch (error) {
             setAlertConfig({
                 title: 'Error',
@@ -182,15 +206,25 @@ export default function EditProfile() {
 
                         <View style={styles.inputWrapper}>
                             <CText style={[styles.label, { color: colors.textPrimary }]}>Mobile</CText>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: colors.surface, color: colors.textPrimary, borderColor: colors.border }]}
-                                placeholder="Enter your mobile"
-                                placeholderTextColor={colors.textSecondary}
-                                value={mobile}
-                                onChangeText={setMobile}
-                                keyboardType="phone-pad"
-                                editable={!otpSent}
-                            />
+                            <View style={styles.mobileInputRow}>
+                                <TouchableOpacity
+                                    style={[styles.countryPickerButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                                    onPress={() => !otpSent && setShowCountryPicker(true)}
+                                    disabled={otpSent}
+                                >
+                                    <CText style={[styles.countryDialCode, { color: colors.textPrimary }]}>{selectedCountry.dial_code}</CText>
+                                    <MaterialCommunityIcons name="chevron-down" size={16} color={colors.textSecondary} />
+                                </TouchableOpacity>
+                                <TextInput
+                                    style={[styles.input, styles.mobileInput, { backgroundColor: colors.surface, color: colors.textPrimary, borderColor: colors.border }]}
+                                    placeholder="Enter your mobile"
+                                    placeholderTextColor={colors.textSecondary}
+                                    value={mobile}
+                                    onChangeText={setMobile}
+                                    keyboardType="phone-pad"
+                                    editable={!otpSent}
+                                />
+                            </View>
                         </View>
 
                         {!otpSent ? (
@@ -264,6 +298,51 @@ export default function EditProfile() {
                 onConfirm={alertConfig.onConfirm}
                 onClose={() => setShowAlert(false)}
             />
+
+            {/* Country Picker Modal */}
+            <Modal
+                visible={showCountryPicker}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setShowCountryPicker(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+                        <View style={styles.modalHeader}>
+                            <CText style={[styles.modalTitle, { color: colors.textPrimary }]}>Select Country</CText>
+                            <TouchableOpacity onPress={() => setShowCountryPicker(false)}>
+                                <MaterialCommunityIcons name="close" size={24} color={colors.textPrimary} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <TextInput
+                            style={[styles.input, { backgroundColor: colors.surface, color: colors.textPrimary, borderColor: colors.border, marginBottom: verticalScale(16) }]}
+                            placeholder="Search country or code"
+                            placeholderTextColor={colors.textSecondary}
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                        />
+
+                        <FlatList
+                            data={filteredCountries}
+                            keyExtractor={(item) => item.code + item.dial_code}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={[styles.countryItem, { borderBottomColor: colors.border }]}
+                                    onPress={() => {
+                                        setSelectedCountry(item);
+                                        setShowCountryPicker(false);
+                                        setSearchQuery('');
+                                    }}
+                                >
+                                    <CText style={[styles.countryName, { color: colors.textPrimary }]}>{item.name}</CText>
+                                    <CText style={[styles.countryCodeText, { color: colors.primary }]}>{item.dial_code}</CText>
+                                </TouchableOpacity>
+                            )}
+                        />
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -371,5 +450,66 @@ const styles = StyleSheet.create({
         fontSize: moderateScale(14),
         color: colors.primary,
         fontWeight: '500',
+    },
+    // Country Picker Styles
+    mobileInputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: moderateScale(10),
+    },
+    countryPickerButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: verticalScale(50),
+        paddingHorizontal: moderateScale(12),
+        borderRadius: moderateScale(12),
+        borderWidth: 1,
+        minWidth: moderateScale(85),
+    },
+    countryDialCode: {
+        fontSize: moderateScale(15),
+        fontWeight: 'bold',
+        marginRight: moderateScale(4),
+    },
+    mobileInput: {
+        flex: 1,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        height: '80%',
+        borderTopLeftRadius: moderateScale(24),
+        borderTopRightRadius: moderateScale(24),
+        padding: moderateScale(20),
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: verticalScale(16),
+    },
+    modalTitle: {
+        fontSize: moderateScale(20),
+        fontWeight: 'bold',
+    },
+    countryItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: verticalScale(16),
+        borderBottomWidth: 1,
+    },
+    countryName: {
+        fontSize: moderateScale(16),
+        flex: 1,
+    },
+    countryCodeText: {
+        fontSize: moderateScale(16),
+        fontWeight: 'bold',
+        marginLeft: moderateScale(10),
     },
 });

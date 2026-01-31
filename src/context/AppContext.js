@@ -205,13 +205,17 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    const updateVerificationStatus = async (isVerified) => {
+    const refreshProfile = async () => {
+        if (!token) return;
         try {
-            const updatedUser = { ...user, isverified: isVerified ? 1 : 0 };
-            await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
-            setUser(updatedUser);
+            const api = require('@/api').default;
+            const res = await api.get('/user/get_profile');
+            if (res) {
+                await AsyncStorage.setItem('userData', JSON.stringify(res));
+                setUser(res);
+            }
         } catch (error) {
-            console.error('Error updating verification status:', error);
+            console.error('Error refreshing profile:', error);
         }
     };
 
@@ -228,7 +232,7 @@ export const AppProvider = ({ children }) => {
         login,
         logout,
         updateUser,
-        updateVerificationStatus,
+        refreshProfile,
         refreshWallets,
         refreshPaymentDetails,
         refreshConfig,

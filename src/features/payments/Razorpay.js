@@ -11,18 +11,19 @@ import { userAPI } from '@/api/services';
  * 3. Verify Payment (Server)
  */
 export const initiateRazorpayPayment = async ({
-    amount, // Amount in INR (e.g. 150) - function converts to paise if needed checking backend response
+    amount,
     name = 'Conto-Z Bet',
     description = 'Add Money to Wallet',
     prefill = {},
     onSuccess,
     onError,
 }) => {
+    let order_id = null; // Store order_id for failure reporting
+
     try {
         console.log('[Razorpay] Initiating Recharge:', amount);
 
         // 1. Create Order
-        // Helper to ensure we catch API errors before opening checkout
         const orderResponse = await userAPI.createRechargeOrder({ amount });
         console.log('[Razorpay] Order Created:', orderResponse);
 
@@ -30,12 +31,13 @@ export const initiateRazorpayPayment = async ({
             throw new Error(orderResponse?.message || 'Failed to create order');
         }
 
-        const { id: order_id, amount: order_amount, key, currency } = orderResponse.order;
+        const { id, amount: order_amount, key, currency } = orderResponse.order;
+        order_id = id;
 
         // 2. Open Checkout
         const options = {
             key: key || RAZORPAY_CONFIG.KEY_ID,
-            amount: order_amount, // Amount in paise from backend
+            amount: order_amount,
             currency: currency || 'INR',
             name: name,
             description: description,
@@ -46,7 +48,7 @@ export const initiateRazorpayPayment = async ({
                 contact: prefill.contact || '',
             },
             theme: {
-                color: '#28a745', // Brand color
+                color: '#28a745',
             },
         };
 
@@ -54,15 +56,11 @@ export const initiateRazorpayPayment = async ({
         console.log('[Razorpay] Payment Success (Client):', data);
 
         // 3. Verify Payment
-        // data contains: razorpay_payment_id, razorpay_order_id, razorpay_signature
         const verifyPayload = {
             razorpay_order_id: data.razorpay_order_id,
             razorpay_payment_id: data.razorpay_payment_id,
             razorpay_signature: data.razorpay_signature,
         };
-
-        // Note: You might want to show a "Verifying..." spinner here if UI allows, 
-        // but since this is a helper function, we just await.
 
         try {
             const verifyResponse = await userAPI.verifyRechargePayment(verifyPayload);
@@ -76,20 +74,32 @@ export const initiateRazorpayPayment = async ({
             }
         } catch (verifyError) {
             console.error('[Razorpay] Verification Failed:', verifyError);
-            // Even if client payment succeeded, verification failed. 
-            // Usually we treat this as error or "pending" state.
-            if (onError) {
-                onError({
-                    message: 'Payment verification failed',
-                    details: verifyError
-                });
-            }
+            if (onError) onError({ message: 'Payment verification failed', details: verifyError });
         }
 
     } catch (error) {
         console.log('[Razorpay] Error:', error);
 
-        // Handle Razorpay cancellation or API errors
+        // Report Failure to Backend if order_id exists
+        if (order_id) {
+            try {
+                const reason = error.description || error.reason || error.message || 'Payment Terminated';
+                // User requested format: payment_status: 'failed', reason: ...
+                // Sending to same verify endpoint or update endpoint? User said "read one api to confim payment". 
+                // Assuming verifyRechargePayment handles this or we just send it.
+                // However, usually verify requires signature. If failed, no signature.
+                // But user insisted "agar payment failed a jaye to dena".
+                await userAPI.verifyRechargePayment({
+                    razorpay_order_id: order_id,
+                    payment_status: 'failed',
+                    reason: reason
+                });
+                console.log('[Razorpay] Failure reported to backend');
+            } catch (reportError) {
+                console.log('[Razorpay] Failed to report failure:', reportError);
+            }
+        }
+
         if (onError) {
             onError(error);
         }

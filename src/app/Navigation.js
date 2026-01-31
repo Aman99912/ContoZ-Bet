@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme, colors, ThemeProvider } from '@/core/theme/colors';
 
 // Screens
-import { LoginScreen, RegisterScreen } from '@/screen/auth';
+import { LoginScreen, RegisterScreen, ForgotPasswordScreen } from '@/screen/auth';
 import HomeScreen from '@/screen/homepage';
 import HistoryScreen from '@/screen/history';
 import WalletScreen from '@/screen/wallet';
@@ -124,6 +124,7 @@ const Navigation = () => {
                     <Stack.Screen name="MainApp" component={TabNavigator} />
                     <Stack.Screen name="Login" component={LoginScreen} />
                     <Stack.Screen name="Register" component={RegisterScreen} />
+                    <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
                     <Stack.Screen name="EditProfile" component={EditProfile} />
                     <Stack.Screen name="EmailVerify" component={EmailVerify} />
                     <Stack.Screen name="HelpAndSupport" component={HelpAndSupport} />

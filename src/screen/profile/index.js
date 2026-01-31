@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -14,9 +14,15 @@ import CustomAlert from '@/components/common/CustomAlert';
 
 export default function UserScreen() {
     const navigation = useNavigation();
-    const { user, logout } = useApp();
+    const { user, logout, refreshProfile } = useApp();
     const { colors, theme } = useTheme();
     const [showLogoutAlert, setShowLogoutAlert] = React.useState(false);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            refreshProfile();
+        }, [])
+    );
 
     const handleEditProfile = () => {
         navigation.navigate('EditProfile');

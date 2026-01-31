@@ -20,6 +20,8 @@ export const authAPI = {
     login: (credentials) => api.post('/user/login', credentials),
     register: (userData) => api.post('/user/register', userData),
     logout: () => api.post('/auth/logout'),
+    sendOtp: (data) => api.post('/user/send-otp', data),
+    forgotPassword: (data) => api.post('/user/forgot-password', data),
 };
 
 // User APIs
@@ -45,7 +47,7 @@ export const userAPI = {
      */
     getProfile: () => api.get('/user/get_profile'),
 
-    updateProfile: (data) => api.put('/user/profile', data),
+    updateProfile: (data) => api.post('/user/update-profile', data),
 
     /**
      * Add Bank Details

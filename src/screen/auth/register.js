@@ -21,6 +21,8 @@ import CCard from '@/components/common/CCard';
 import CustomAlert from '@/components/common/CustomAlert';
 import { authAPI } from '@/api/services';
 import { useApp } from '@/context/AppContext';
+import { Modal, FlatList } from 'react-native';
+import countryCodes from './countycode.json';
 
 const { width } = Dimensions.get('window');
 
@@ -37,6 +39,16 @@ const RegisterScreen = ({ navigation }) => {
     const [errors, setErrors] = useState({});
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
+
+    // Country Code State
+    const [selectedCountry, setSelectedCountry] = useState(countryCodes.find(c => c.dial_code === '+91') || countryCodes[0]);
+    const [showCountryPicker, setShowCountryPicker] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredCountries = countryCodes.filter(c =>
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.dial_code.includes(searchQuery)
+    );
 
     const validateForm = () => {
         const newErrors = {};
@@ -78,7 +90,7 @@ const RegisterScreen = ({ navigation }) => {
 
         setLoading(true);
         try {
-            const formattedMobile = mobile.startsWith('+91') ? mobile : `+91 ${mobile}`;
+            const formattedMobile = `${selectedCountry.dial_code} ${mobile.trim()}`;
 
             const response = await authAPI.register({
                 name: name.trim(),
@@ -168,16 +180,23 @@ const RegisterScreen = ({ navigation }) => {
 
                                     {/* Mobile Input */}
                                     <View style={styles.inputContainer}>
-                                        <CInput
-                                            // label="Mobile Number"
-                                            placeholder="10 digit mobile number"
-                                            value={mobile}
-                                            onChangeText={setMobile}
-                                            keyboardType="phone-pad"
-                                            maxLength={10}
-                                            leftIcon="phone-outline"
-                                            prefix="+91 "
-                                        />
+                                        <View style={styles.mobileInputRow}>
+                                            <TouchableOpacity
+                                                style={[styles.countryPickerButton, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}
+                                                onPress={() => setShowCountryPicker(true)}
+                                            >
+                                                <CText style={[styles.countryDialCode, { color: colors.textPrimary }]}>{selectedCountry.dial_code}</CText>
+                                                <MaterialCommunityIcons name="chevron-down" size={16} color={colors.textSecondary} />
+                                            </TouchableOpacity>
+                                            <CInput
+                                                style={styles.mobileInput}
+                                                placeholder="Mobile number"
+                                                value={mobile}
+                                                onChangeText={setMobile}
+                                                keyboardType="phone-pad"
+                                                leftIcon="phone-outline"
+                                            />
+                                        </View>
                                         {errors.mobile && <CText style={[styles.errorText, { color: colors.error }]}>{errors.mobile}</CText>}
                                     </View>
 
@@ -242,6 +261,51 @@ const RegisterScreen = ({ navigation }) => {
                     onClose={() => setShowAlert(false)}
                     onConfirm={() => setShowAlert(false)}
                 />
+
+                {/* Country Picker Modal */}
+                <Modal
+                    visible={showCountryPicker}
+                    animationType="slide"
+                    transparent={true}
+                    onRequestClose={() => setShowCountryPicker(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+                            <View style={styles.modalHeader}>
+                                <CText style={[styles.modalTitle, { color: colors.textPrimary }]}>Select Country</CText>
+                                <TouchableOpacity onPress={() => setShowCountryPicker(false)}>
+                                    <MaterialCommunityIcons name="close" size={24} color={colors.textPrimary} />
+                                </TouchableOpacity>
+                            </View>
+
+                            <CInput
+                                placeholder="Search country or code"
+                                value={searchQuery}
+                                onChangeText={setSearchQuery}
+                                leftIcon="magnify"
+                                style={styles.modalSearch}
+                            />
+
+                            <FlatList
+                                data={filteredCountries}
+                                keyExtractor={(item) => item.code + item.dial_code}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity
+                                        style={[styles.countryItem, { borderBottomColor: colors.border }]}
+                                        onPress={() => {
+                                            setSelectedCountry(item);
+                                            setShowCountryPicker(false);
+                                            setSearchQuery('');
+                                        }}
+                                    >
+                                        <CText style={[styles.countryName, { color: colors.textPrimary }]}>{item.name}</CText>
+                                        <CText style={[styles.countryCodeText, { color: colors.primary }]}>{item.dial_code}</CText>
+                                    </TouchableOpacity>
+                                )}
+                            />
+                        </View>
+                    </View>
+                </Modal>
             </SafeAreaView>
         </View>
     );
@@ -353,6 +417,71 @@ const styles = StyleSheet.create({
     loginLink: {
         fontSize: moderateScale(14),
         fontWeight: '700',
+    },
+    // Country Picker Styles
+    mobileInputRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: moderateScale(8),
+    },
+    countryPickerButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: verticalScale(54), // Matching CInput height roughly
+        paddingHorizontal: moderateScale(12),
+        borderRadius: moderateScale(12),
+        borderWidth: 2,
+        minWidth: moderateScale(80),
+        marginTop: verticalScale(0),
+    },
+    countryDialCode: {
+        fontSize: moderateScale(16),
+        fontWeight: 'bold',
+        marginRight: moderateScale(4),
+    },
+    mobileInput: {
+        flex: 1,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        height: '80%',
+        borderTopLeftRadius: moderateScale(24),
+        borderTopRightRadius: moderateScale(24),
+        padding: moderateScale(20),
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: verticalScale(16),
+    },
+    modalTitle: {
+        fontSize: moderateScale(20),
+        fontWeight: 'bold',
+    },
+    modalSearch: {
+        marginBottom: verticalScale(10),
+    },
+    countryItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: verticalScale(16),
+        borderBottomWidth: 1,
+    },
+    countryName: {
+        fontSize: moderateScale(16),
+        flex: 1,
+    },
+    countryCodeText: {
+        fontSize: moderateScale(16),
+        fontWeight: 'bold',
+        marginLeft: moderateScale(10),
     },
 });
 

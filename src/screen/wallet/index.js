@@ -59,8 +59,11 @@ export default function WalletScreen() {
 
     useEffect(() => {
         refreshWallets();
+    }, []);
+
+    useEffect(() => {
         fetchTransactions();
-    }, [activeTab]); // Fetch when tab changes
+    }, [activeTab]);
 
     const fetchTransactions = async () => {
         try {
@@ -73,17 +76,20 @@ export default function WalletScreen() {
             console.log('Fetching transactions for source:', sourceParam);
             const res = await walletAPI.getPaymentTransactions(sourceParam);
 
-            if (res?.data?.success && Array.isArray(res?.data?.data)) {
-                const mappedData = res.data.data.map(item => {
+            // Handle potential response unwrapping by interceptors
+            const dataList = res?.data?.data || res?.data || [];
+
+            if (Array.isArray(dataList)) {
+                const mappedData = dataList.map(item => {
                     let type = item.debit_credit;
                     if (item.source === 'recharge' && item.debit_credit === 'credit') {
-                        type = 'topup'; 
+                        type = 'topup';
                     } else if (item.source === 'recharge' && item.debit_credit === 'debit') {
-                         type = 'debit';
+                        type = 'debit';
                     }
 
                     let title = 'Transaction';
-                    switch(item.source) {
+                    switch (item.source) {
                         case 'recharge': title = 'Wallet Top Up'; break;
                         case 'fund_convert': title = 'Wallet Conversion'; break;
                         case 'withdrawal': title = 'Withdrawal'; break;
@@ -109,7 +115,7 @@ export default function WalletScreen() {
             }
         } catch (error) {
             console.error('Failed to fetch transactions:', error);
-            // Optional: Handle error state
+            setTransactions([]);
         } finally {
             setLoading(false);
         }

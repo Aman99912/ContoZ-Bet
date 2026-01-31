@@ -15,15 +15,15 @@ import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { useApp } from '@/context/AppContext';
-import api from '@/api';
+import { authAPI, userAPI } from '@/api/services';
 import CustomAlert from '@/components/common/CustomAlert';
 
 const EmailVerify = () => {
     const { colors } = useTheme();
     const navigation = useNavigation();
-    const { user, updateVerificationStatus } = useApp();
+    const { user, refreshProfile } = useApp();
     const [otpSent, setOtpSent] = useState(false);
-    const [otp, setOtp] = useState(['', '', '', '']);
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [isLoading, setIsLoading] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [alertConfig, setAlertConfig] = useState({
@@ -31,24 +31,23 @@ const EmailVerify = () => {
         message: '',
         onConfirm: () => setShowAlert(false)
     });
-    const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+    const otpRefs = useRef([...Array(6)].map(() => React.createRef()));
 
     const handleSendOTP = async () => {
         setIsLoading(true);
         try {
-            const response = await api.post('/api/send-otp', {
-                email: user?.email,
+            const response = await authAPI.sendOtp({
+                username: user?.username,
+                action: 'profile_update', // Using profile_update as action must be same and update-profile example used it
             });
 
-            if (response.data.status === 200) {
-                setAlertConfig({
-                    title: 'Success',
-                    message: 'OTP sent to your email!',
-                    onConfirm: () => setShowAlert(false)
-                });
-                setShowAlert(true);
-                setOtpSent(true);
-            }
+            setAlertConfig({
+                title: 'Success',
+                message: response.message || 'OTP sent to your email!',
+                onConfirm: () => setShowAlert(false)
+            });
+            setShowAlert(true);
+            setOtpSent(true);
         } catch (error) {
             setAlertConfig({
                 title: 'Error',
@@ -70,25 +69,25 @@ const EmailVerify = () => {
         setOtp(newOtp);
 
         // Auto-focus next input
-        if (value && index < 3) {
-            otpRefs[index + 1].current?.focus();
+        if (value && index < 5) {
+            otpRefs.current[index + 1]?.current?.focus();
         }
     };
 
     const handleKeyPress = (e, index) => {
         // Handle backspace
         if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
-            otpRefs[index - 1].current?.focus();
+            otpRefs.current[index - 1]?.current?.focus();
         }
     };
 
     const handleVerifyOTP = async () => {
         const otpCode = otp.join('');
 
-        if (otpCode.length !== 4) {
+        if (otpCode.length !== 6) {
             setAlertConfig({
                 title: 'Invalid OTP',
-                message: 'Please enter the 4-digit OTP',
+                message: 'Please enter the 6-digit OTP',
                 onConfirm: () => setShowAlert(false)
             });
             setShowAlert(true);
@@ -97,23 +96,24 @@ const EmailVerify = () => {
 
         setIsLoading(true);
         try {
-            const response = await api.post('/api/verify-otp', {
-                email: user?.email,
+            const response = await userAPI.updateProfile({
                 otp: otpCode,
+                action: 'profile_update',
+                name: user?.name,
+                email: user?.email,
+                mobile: user?.mobile,
             });
 
-            if (response.data.status === 200) {
-                await updateVerificationStatus(true);
-                setAlertConfig({
-                    title: 'Success',
-                    message: 'Email verified successfully!',
-                    onConfirm: () => {
-                        setShowAlert(false);
-                        navigation.goBack();
-                    }
-                });
-                setShowAlert(true);
-            }
+            await refreshProfile(); // Re-fetch or update context
+            setAlertConfig({
+                title: 'Success',
+                message: response.message || 'Email verified and profile updated successfully!',
+                onConfirm: () => {
+                    setShowAlert(false);
+                    navigation.goBack();
+                }
+            });
+            setShowAlert(true);
         } catch (error) {
             setAlertConfig({
                 title: 'Error',
@@ -146,7 +146,7 @@ const EmailVerify = () => {
                     <CText style={[styles.title, { color: colors.textPrimary }]}>Verify Your Email</CText>
                     <CText style={[styles.subtitle, { color: colors.textSecondary }]}>
                         {otpSent
-                            ? 'Enter the 4-digit OTP sent to your email'
+                            ? 'Enter the 6-digit OTP sent to your email'
                             : 'We will send a verification code to your email address'
                         }
                     </CText>
@@ -180,7 +180,7 @@ const EmailVerify = () => {
                                 {otp.map((digit, index) => (
                                     <TextInput
                                         key={index}
-                                        ref={otpRefs[index]}
+                                        ref={otpRefs.current[index]}
                                         style={[
                                             styles.otpBox,
                                             {
@@ -333,12 +333,12 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     otpBox: {
-        width: moderateScale(60),
-        height: moderateScale(60),
+        width: moderateScale(45),
+        height: moderateScale(50),
         borderWidth: 2,
         borderColor: colors.border,
-        borderRadius: moderateScale(12),
-        fontSize: moderateScale(24),
+        borderRadius: moderateScale(10),
+        fontSize: moderateScale(20),
         fontWeight: 'bold',
         textAlign: 'center',
         color: colors.textPrimary,

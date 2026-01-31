@@ -106,8 +106,8 @@ const LoginScreen = ({ navigation }) => {
                                             color={colors.primary}
                                         />
                                     </View>
-                                    <CText style={[styles.welcomeText, { color: colors.textPrimary }]}>Welcome Back</CText>
-                                    <CText style={[styles.subtitleText, { color: colors.textSecondary }]}>Sign in to continue</CText>
+                                    <CText style={[styles.welcomeText, { color: colors.textPrimary }]} numberOfLines={1}>Welcome Back</CText>
+                                    <CText style={[styles.subtitleText, { color: colors.textSecondary }]} numberOfLines={1}>Sign in to continue</CText>
                                 </View>
 
                                 {/* Login Card */}
@@ -140,7 +140,10 @@ const LoginScreen = ({ navigation }) => {
                                     </View>
 
                                     {/* Forgot Password */}
-                                    <TouchableOpacity style={styles.forgotPassword}>
+                                    <TouchableOpacity
+                                        style={styles.forgotPassword}
+                                        onPress={() => navigation.navigate('ForgotPassword')}
+                                    >
                                         <CText style={[styles.forgotPasswordText, { color: colors.primary }]}>Forgot Password?</CText>
                                     </TouchableOpacity>
 
