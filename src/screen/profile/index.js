@@ -73,7 +73,7 @@ export default function UserScreen() {
     const withdrawalBorder = theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : colors.border;
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView edges={['top', 'left', 'right']} style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
                 <ProfileHeader name={userName} username={userUsername} onEditPress={handleEditProfile} />
 

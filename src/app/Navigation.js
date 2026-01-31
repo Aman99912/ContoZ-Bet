@@ -35,6 +35,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '@/context/AppContext';
 import CustomAlert from '@/components/common/CustomAlert';
 import { useNavigation } from '@react-navigation/native';
+import { moderateScale } from '@/core/utils/responsive';
 
 const TabNavigator = () => {
     const { colors } = useTheme();
@@ -51,13 +52,14 @@ const TabNavigator = () => {
                     tabBarStyle: {
                         backgroundColor: colors.background,
                         borderTopColor: colors.border,
-                        height: 70 + insets.bottom,
-                        paddingBottom: insets.bottom + 8,
+                        height: moderateScale(70) + insets.bottom,
+                        paddingBottom: insets.bottom + moderateScale(8),
+                        paddingTop:moderateScale(8),
                     },
                     tabBarActiveTintColor: colors.primary,
                     tabBarInactiveTintColor: colors.textSecondary,
                     tabBarLabelStyle: {
-                        fontSize: 12,
+                        fontSize: moderateScale(12),
                         fontWeight: '600',
                     },
                     tabBarIcon: ({ color, size, focused }) => {

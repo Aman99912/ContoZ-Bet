@@ -219,7 +219,7 @@ export default function WalletScreen() {
     const isAddDisabled = !amount || Number(amount) <= 0;
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView edges={['top', 'left', 'right']} style={[styles.container, { backgroundColor: colors.background }]}>
             <WalletTopHeader
                 balance={totalBalance}
                 cashBalance={cashBalance}

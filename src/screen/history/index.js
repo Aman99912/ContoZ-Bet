@@ -27,7 +27,7 @@ export default function HistoryScreen() {
     ];
 
     return (<>
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView edges={['top', 'left', 'right']} style={[styles.container, { backgroundColor: colors.background }]}>
             <HistoryHeader balance={totalBalance || 0} />
             <View style={styles.tabWrapper}>
                 <GameTabSelector
