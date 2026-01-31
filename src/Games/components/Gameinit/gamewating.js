@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Animated, Dimensions, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme, colors } from '@/core/theme/colors';
@@ -48,7 +48,21 @@ const GameWaiting = () => {
                 useNativeDriver: true,
             })
         ).start();
-    }, []);
+
+        // Auto-navigate to game after 3 seconds
+        const timer = setTimeout(() => {
+            if (gameTitle === 'Tic Tac Toe') {
+                navigation.replace('TicTacToe', {
+                    gameTitle,
+                    entryFee,
+                    prizePool
+                });
+            }
+            // Add other games here as they become real
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [gameTitle, navigation]);
 
     const rotation = rotateAnim.interpolate({
         inputRange: [0, 1],
@@ -122,6 +136,22 @@ const GameWaiting = () => {
                 <View style={styles.statusContainer}>
                     <CText style={[styles.statusText, { color: colors.textPrimary }]}>Finding a suitable opponent for you</CText>
                     <CText style={[styles.subStatusText, { color: colors.textSecondary }]}>Please do not close the app</CText>
+                </View>
+
+                {/* Demo Tools */}
+                <View style={[styles.demoContainer]}>
+                    <TouchableOpacity
+                        style={[styles.demoButton, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}
+                        onPress={() => {
+                            if (gameTitle === 'Tic Tac Toe') {
+                                navigation.replace('TicTacToe', { gameTitle, entryFee, prizePool });
+                            }
+                        }}
+                        activeOpacity={0.7}
+                    >
+                        <MaterialCommunityIcons name="fast-forward-outline" size={moderateScale(16)} color={colors.primary} />
+                        <CText style={[styles.demoText, { color: colors.primary }]}>Demo: Skip Waiting</CText>
+                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -284,6 +314,25 @@ const styles = StyleSheet.create({
     subStatusText: {
         fontSize: moderateScale(12),
         textAlign: 'center',
+    },
+    demoContainer: {
+        marginTop: verticalScale(40),
+        width: '100%',
+        alignItems: 'center',
+    },
+    demoButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: moderateScale(20),
+        paddingVertical: verticalScale(10),
+        borderRadius: moderateScale(25),
+        borderWidth: 1.5,
+        borderStyle: 'dashed',
+    },
+    demoText: {
+        fontSize: moderateScale(13),
+        fontWeight: 'bold',
+        marginLeft: moderateScale(8),
     },
     footer: {
         flexDirection: 'row',

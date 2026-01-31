@@ -17,11 +17,6 @@ export default function HomeScreen() {
     const tabs = ['All', 'Popular', 'New', '2 Player'];
 
     const games = [
-        { title: '8 Ball Pool', entryFee: 50, icon: 'billiards' },
-        { title: 'Fruit Chop', entryFee: 50, icon: 'fruit-cherries' },
-        { title: 'Ludo', entryFee: 50, icon: 'dice-multiple' },
-        { title: 'Carrom', entryFee: 50, icon: 'checkerboard' },
-        { title: 'Chess', entryFee: 50, icon: 'chess-knight' },
         { title: 'Tic Tac Toe', entryFee: 50, icon: 'grid' },
     ];
 

@@ -25,6 +25,7 @@ import UPIDetailsScreen from '@/screen/profile/Profile-screens/Bank-widr/upideta
 import EmailVerify from '@/screen/profile/components/emailVerfiy';
 import GameInit from '@/Games/components/Gameinit/gameinit';
 import GameWaiting from '@/Games/components/Gameinit/gamewating';
+import TicTacToe from '@/Games/Games/tic-tac';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -138,6 +139,7 @@ const Navigation = () => {
                     <Stack.Screen name="UPIDetails" component={UPIDetailsScreen} />
                     <Stack.Screen name="GameInit" component={GameInit} />
                     <Stack.Screen name="GameWaiting" component={GameWaiting} />
+                    <Stack.Screen name="TicTacToe" component={TicTacToe} />
                 </Stack.Navigator>
             </NavigationContainer>
         </ThemeProvider>
