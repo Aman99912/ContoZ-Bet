@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { gamesColor } from '@/core/theme/GamesColor';
-import { moderateScale } from '@/core/utils/responsive';
+import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const GameGrid = ({ board, onCellPress, winningLine = [] }) => {

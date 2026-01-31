@@ -16,7 +16,12 @@ import CustomAlert from '@/components/common/CustomAlert';
 import GameStatus from './components/GameStatus';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const TicTacToe = ({ navigation }) => {
+const TicTacToe = ({ navigation, route }) => {
+    const {
+        entryFee = 50,
+        prizePool = 90
+    } = route.params || {};
+
     const [board, setBoard] = useState(Array(9).fill(null));
     const [isXNext, setIsXNext] = useState(true);
     const [winner, setWinner] = useState(null);
@@ -106,7 +111,9 @@ const TicTacToe = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
-                <GameHeader />
+                <GameHeader entryFee={entryFee} />
+
+                <GameStatus winner={winner} isXNext={isXNext} prizePool={prizePool} />
 
                 <View style={styles.playersRow}>
                     <PlayerCard
@@ -122,8 +129,6 @@ const TicTacToe = ({ navigation }) => {
                         isTurn={!isXNext && !winner}
                     />
                 </View>
-
-                <GameStatus winner={winner} isXNext={isXNext} />
 
                 <GameGrid board={board} onCellPress={handleCellPress} winningLine={winningLine} />
 

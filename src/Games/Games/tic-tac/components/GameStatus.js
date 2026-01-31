@@ -4,7 +4,7 @@ import { gamesColor } from '@/core/theme/GamesColor';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
-const GameStatus = ({ winner, isXNext }) => {
+const GameStatus = ({ winner, isXNext, prizePool }) => {
     if (winner) {
         return (
             <View style={styles.container}>
@@ -16,10 +16,13 @@ const GameStatus = ({ winner, isXNext }) => {
     }
 
     return (
-        <View style={styles.container}>
-            <CText style={styles.turnText}>
-                TURN: <CText style={{ color: isXNext ? gamesColor.player1 : gamesColor.player2 }}>PLAYER {isXNext ? 'X' : 'O'}</CText>
-            </CText>
+        <View style={styles.prizeContainer}>
+            <View style={styles.prizeLabelBox}>
+                <CText style={styles.prizeLabel}>WINNING AMOUNT</CText>
+            </View>
+            <View style={styles.prizeValueBox}>
+                <CText style={styles.prizeValue}>₹{prizePool}</CText>
+            </View>
         </View>
     );
 };
@@ -34,11 +37,33 @@ const styles = StyleSheet.create({
         fontWeight: '900',
         letterSpacing: 2,
     },
-    turnText: {
-        fontSize: moderateScale(18),
-        fontWeight: '800',
-        color: gamesColor.textPrimary,
+    prizeContainer: {
+        marginTop: verticalScale(10),
+        marginBottom: verticalScale(10),
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    prizeLabelBox: {
+        marginBottom: verticalScale(2),
+    },
+    prizeLabel: {
+        fontSize: moderateScale(10),
+        fontWeight: 'bold',
+        color: gamesColor.textPrimary + '80',
         letterSpacing: 1,
+    },
+    prizeValueBox: {
+        backgroundColor: gamesColor.primary + '15',
+        paddingHorizontal: moderateScale(20),
+        paddingVertical: verticalScale(4),
+        borderRadius: moderateScale(20),
+        borderWidth: 1,
+        borderColor: gamesColor.primary + '40',
+    },
+    prizeValue: {
+        fontSize: moderateScale(20),
+        fontWeight: '900',
+        color: gamesColor.primary,
     },
 });
 
