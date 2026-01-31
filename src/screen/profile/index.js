@@ -32,13 +32,7 @@ export default function UserScreen() {
         navigation.navigate('ReferAndEarn');
     };
 
-    const handleMyGames = () => {
-        navigation.navigate('MyGames');
-    };
 
-    const handleNotifications = () => {
-        navigation.navigate('Notifications');
-    };
 
     const handleTerms = () => {
         navigation.navigate('TermsAndConditions');
@@ -97,8 +91,6 @@ export default function UserScreen() {
 
                 <MenuBar
                     onReferPress={handleReferEarn}
-                    onMyGamesPress={handleMyGames}
-                    onNotificationsPress={handleNotifications}
                     onTermsPress={handleTerms}
                     onPrivacyPress={handlePrivacy}
                     onHelpPress={handleHelpSupport}

@@ -7,8 +7,6 @@ import CText from '@/components/common/CText';
 
 const MenuBar = ({
     onReferPress,
-    onMyGamesPress,
-    onNotificationsPress,
     onTermsPress,
     onPrivacyPress,
     onHelpPress,
@@ -33,27 +31,7 @@ const MenuBar = ({
                 <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
             </TouchableOpacity>
 
-            {/* Activity Section */}
-            <CText style={[styles.sectionTitle, { color: colors.textSecondary }]}>Activity</CText>
-            <TouchableOpacity
-                style={[styles.menuButton, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
-                onPress={onMyGamesPress}
-                activeOpacity={0.8}
-            >
-                <MaterialCommunityIcons name="gamepad-variant-outline" size={moderateScale(24)} color={colors.textPrimary} />
-                <CText style={[styles.menuButtonText, { color: colors.textPrimary }]}>My Games</CText>
-                <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
-            </TouchableOpacity>
 
-            <TouchableOpacity
-                style={[styles.menuButton, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}
-                onPress={onNotificationsPress}
-                activeOpacity={0.8}
-            >
-                <MaterialCommunityIcons name="bell-outline" size={moderateScale(24)} color={colors.textPrimary} />
-                <CText style={[styles.menuButtonText, { color: colors.textPrimary }]}>Notifications</CText>
-                <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
-            </TouchableOpacity>
 
             {/* Legal Section */}
             <CText style={[styles.sectionTitle, { color: colors.textSecondary }]}>Legal</CText>
