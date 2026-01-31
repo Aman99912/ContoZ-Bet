@@ -127,7 +127,7 @@ const WithdrawalModal = ({
                         </View>
                         <View style={styles.detailTextContent}>
                             <CText style={[styles.bankName, { color: colors.textPrimary }]}>{accountDetails.bankName}</CText>
-                            <CText style={[styles.accountNumber, { color: colors.textSecondary }]}>**** {accountDetails.accountNumber.slice(-4)}</CText>
+                            <CText style={[styles.accountNumber, { color: colors.textPrimary, opacity: 0.8 }]}>**** {accountDetails.accountNumber.slice(-4)}</CText>
                             <CText style={[styles.holderName, { color: colors.textData }]}>{accountDetails.holderName}</CText>
                         </View>
                     </View>
@@ -143,7 +143,7 @@ const WithdrawalModal = ({
                         </View>
                         <View style={styles.detailTextContent}>
                             <CText style={[styles.bankName, { color: colors.textPrimary }]}>{accountDetails.name}</CText>
-                            <CText style={[styles.accountNumber, { color: colors.textSecondary }]}>{accountDetails.upiId}</CText>
+                            <CText style={[styles.accountNumber, { color: colors.textPrimary, opacity: 0.8 }]}>{accountDetails.upiId}</CText>
                         </View>
                     </View>
                 </View>
@@ -197,7 +197,7 @@ const WithdrawalModal = ({
                                             textStyle={styles.amountText}
                                         />
                                         {error ? <CText style={[styles.errorText, { color: colors.error }]}>{error}</CText> : null}
-                                        <CText style={[styles.hintText, { color: colors.textSecondary }]}>
+                                        <CText style={[styles.hintText, { color: colors.textPrimary, opacity: 0.7 }]}>
                                             Min: ₹{dynamicMin} {txCharge > 0 ? `| Charge: ${txCharge}%` : ''}
                                         </CText>
                                     </View>
@@ -216,7 +216,7 @@ const WithdrawalModal = ({
                                             />
                                         </TouchableOpacity>
                                         <View style={styles.termsTextContainer}>
-                                            <CText style={[styles.termsText, { color: colors.textSecondary }]}>I agree to the </CText>
+                                            <CText style={[styles.termsText, { color: colors.textPrimary }]}>I agree to the </CText>
                                             <TouchableOpacity onPress={handleTermsPress}>
                                                 <CText style={[styles.termsLink, { color: colors.primary }]} numberOfLines={1}>Terms and Policy</CText>
                                             </TouchableOpacity>
@@ -424,8 +424,8 @@ const styles = StyleSheet.create({
         elevation: 6,
     },
     disabledButton: {
-        opacity: 0.6,
-        backgroundColor: '#444',
+        opacity: 0.5,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
     btnContent: {
         flexDirection: 'row',

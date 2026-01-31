@@ -192,20 +192,39 @@ const BankDetailsScreen = ({ navigation }) => {
                                 key={index}
                                 activeOpacity={0.9}
                                 onPress={() => handleCardPress(item)}
+                                style={styles.cardWrapper}
                             >
-                                <CCard style={[styles.savedCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                                    <View style={styles.cardContent}>
-                                        <View style={[styles.iconContainer, { backgroundColor: colors.inputBackground }]}>
-                                            <MaterialCommunityIcons name="bank-outline" size={moderateScale(24)} color={colors.primary} />
+                                <CCard style={[styles.premiumCard, { backgroundColor: colors.surface }]}>
+                                    <View style={[styles.cardBgOverlay, { backgroundColor: colors.primary }]} />
+
+                                    <View style={styles.cardHeader}>
+                                        <View style={styles.chipContainer}>
+                                            <View style={[styles.cardChip, { backgroundColor: colors.primary + '40' }]} />
+                                            <View style={styles.contactlessIcon}>
+                                                <MaterialCommunityIcons name="wifi" size={moderateScale(16)} color={colors.textSecondary} style={{ transform: [{ rotate: '90deg' }] }} />
+                                            </View>
                                         </View>
-                                        <View style={styles.textContainer}>
-                                            <CText style={[styles.cardTitle, { color: colors.textPrimary }]}>{item.bankName}</CText>
-                                            <CText style={[styles.cardSubtitle, { color: colors.textSecondary }]}>**** {item.accountNumber.slice(-4)}</CText>
-                                            <CText style={[styles.cardSubtitle, { fontSize: moderateScale(10), marginTop: 2, color: colors.textSecondary }]}>{item.holderName}</CText>
+                                        <CText style={[styles.cardBankName, { color: colors.textPrimary }]} numberOfLines={1}>
+                                            {item.bankName?.toUpperCase()}
+                                        </CText>
+                                    </View>
+
+                                    <View style={styles.cardNumberContainer}>
+                                        <CText style={[styles.premiumCardNumber, { color: colors.textPrimary }]}>
+                                            {`****  ****  ****  ${item.accountNumber.slice(-4)}`}
+                                        </CText>
+                                    </View>
+
+                                    <View style={styles.cardFooter}>
+                                        <View style={styles.cardInfoItem}>
+                                            <CText style={[styles.cardInfoLabel, { color: colors.textSecondary }]}>CARD HOLDER</CText>
+                                            <CText style={[styles.cardInfoValue, { color: colors.textPrimary }]} numberOfLines={1}>
+                                                {item.holderName?.toUpperCase()}
+                                            </CText>
                                         </View>
-                                        <TouchableOpacity onPress={() => handleDelete(index)} style={styles.deleteButton}>
-                                            <MaterialCommunityIcons name="trash-can-outline" size={moderateScale(20)} color={colors.error} />
-                                        </TouchableOpacity>
+                                        <View style={styles.cardTypeIcon}>
+                                            <MaterialCommunityIcons name="credit-card-chip-outline" size={moderateScale(32)} color={colors.primary} />
+                                        </View>
                                     </View>
                                 </CCard>
                             </TouchableOpacity>
@@ -491,6 +510,132 @@ const styles = StyleSheet.create({
     },
     typeText: {
         fontSize: moderateScale(12),
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: verticalScale(10),
+        gap: moderateScale(12),
+    },
+    cancelButton: {
+        flex: 1,
+        paddingVertical: moderateScale(16),
+        borderRadius: moderateScale(14),
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    cancelButtonText: {
+        color: colors.textPrimary,
+        fontSize: moderateScale(16),
+        fontWeight: 'bold',
+    },
+    // Premium Card Styles
+    cardWrapper: {
+        marginBottom: verticalScale(20),
+        width: '100%',
+    },
+    premiumCard: {
+        height: verticalScale(190),
+        borderRadius: moderateScale(20),
+        padding: moderateScale(24),
+        overflow: 'hidden',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        justifyContent: 'space-between',
+        shadowColor: colors.black,
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.5,
+        shadowRadius: 16,
+        elevation: 12,
+    },
+    cardBgOverlay: {
+        position: 'absolute',
+        top: -verticalScale(60),
+        right: -moderateScale(60),
+        width: moderateScale(220),
+        height: moderateScale(220),
+        borderRadius: moderateScale(110),
+        opacity: 0.08,
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    chipContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: moderateScale(12),
+    },
+    cardChip: {
+        width: moderateScale(45),
+        height: moderateScale(32),
+        borderRadius: moderateScale(6),
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    contactlessIcon: {
+        opacity: 0.6,
+    },
+    cardBankName: {
+        fontSize: moderateScale(16),
+        fontWeight: '800',
+        letterSpacing: 1.5,
+        flex: 1,
+        textAlign: 'right',
+        marginLeft: moderateScale(15),
+    },
+    cardNumberContainer: {
+        marginVertical: verticalScale(25),
+        alignItems: 'center',
+    },
+    premiumCardNumber: {
+        fontSize: moderateScale(22),
+        fontWeight: 'bold',
+        letterSpacing: 4,
+        fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
+    },
+    cardFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+    },
+    cardInfoItem: {
+        flex: 1,
+    },
+    cardInfoLabel: {
+        fontSize: moderateScale(8),
+        fontWeight: '700',
+        letterSpacing: 1.5,
+        marginBottom: 6,
+        opacity: 0.7,
+    },
+    cardInfoValue: {
+        fontSize: moderateScale(15),
+        fontWeight: '800',
+        letterSpacing: 1,
+    },
+    cardTypeIcon: {
+        opacity: 0.8,
+    },
+    addButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: moderateScale(16),
+        borderRadius: moderateScale(16),
+        marginTop: verticalScale(10),
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    addButtonText: {
+        marginLeft: moderateScale(8),
+        fontSize: moderateScale(16),
+        fontWeight: '700',
     },
 });
 

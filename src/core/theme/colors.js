@@ -15,6 +15,7 @@ const darkColors = {
     black: '#000000',
     transparent: 'transparent',
     pending: '#ff9800',
+    textData: '#FFFFFF',
     // Header/Nav specific
     headerBackground: '#0D0D0D',
     tabBarBackground: '#0D0D0D',
@@ -33,6 +34,7 @@ const lightColors = {
     black: '#000000',
     transparent: 'transparent',
     pending: '#F59E0B',
+    textData: '#374151',
     // Header/Nav specific
     headerBackground: '#FFFFFF',
     tabBarBackground: '#FFFFFF',

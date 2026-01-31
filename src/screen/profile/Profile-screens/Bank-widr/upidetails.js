@@ -162,19 +162,34 @@ const UPIDetailsScreen = ({ navigation }) => {
                                 key={index}
                                 activeOpacity={0.9}
                                 onPress={() => handleCardPress(item)}
+                                style={styles.cardWrapper}
                             >
-                                <CCard style={[styles.savedCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                                    <View style={styles.cardContent}>
-                                        <View style={[styles.iconContainer, { backgroundColor: colors.inputBackground }]}>
-                                            <MaterialCommunityIcons name="qrcode-scan" size={moderateScale(24)} color={colors.primary} />
+                                <CCard style={[styles.premiumCard, { backgroundColor: colors.surface }]}>
+                                    <View style={[styles.cardBgOverlay, { backgroundColor: colors.primary }]} />
+
+                                    <View style={styles.cardHeader}>
+                                        <View style={styles.iconContainer}>
+                                            <MaterialCommunityIcons name="qrcode-scan" size={moderateScale(28)} color={colors.primary} />
                                         </View>
-                                        <View style={styles.textContainer}>
-                                            <CText style={[styles.cardTitle, { color: colors.textPrimary }]}>{item.name}</CText>
-                                            <CText style={[styles.cardSubtitle, { color: colors.textSecondary }]}>{item.upiId}</CText>
+                                        <CText style={[styles.cardType, { color: colors.textSecondary }]}>UPI ID</CText>
+                                    </View>
+
+                                    <View style={styles.cardInfoContainer}>
+                                        <CText style={[styles.premiumUPIId, { color: colors.textPrimary }]} numberOfLines={1}>
+                                            {item.upiId}
+                                        </CText>
+                                    </View>
+
+                                    <View style={styles.cardFooter}>
+                                        <View style={styles.cardInfoItem}>
+                                            <CText style={[styles.cardInfoLabel, { color: colors.textSecondary }]}>ACCOUNT HOLDER</CText>
+                                            <CText style={[styles.cardInfoValue, { color: colors.textPrimary }]} numberOfLines={1}>
+                                                {item.name?.toUpperCase()}
+                                            </CText>
                                         </View>
-                                        <TouchableOpacity onPress={() => handleDelete(index)} style={styles.deleteButton}>
-                                            <MaterialCommunityIcons name="trash-can-outline" size={moderateScale(20)} color={colors.error} />
-                                        </TouchableOpacity>
+                                        <View style={styles.verifiedBadge}>
+                                            <MaterialCommunityIcons name="check-decagram" size={moderateScale(24)} color={colors.primary} />
+                                        </View>
                                     </View>
                                 </CCard>
                             </TouchableOpacity>
@@ -390,57 +405,98 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         letterSpacing: 0.5,
     },
-    // List Styles
-    savedCard: {
-        marginBottom: verticalScale(12),
-        padding: moderateScale(16),
-        backgroundColor: 'rgba(26, 26, 26, 0.95)',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
+    // Premium Card Styles
+    cardWrapper: {
+        marginBottom: verticalScale(20),
+        width: '100%',
     },
-    cardContent: {
+    premiumCard: {
+        height: verticalScale(170),
+        borderRadius: moderateScale(20),
+        padding: moderateScale(24),
+        overflow: 'hidden',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        justifyContent: 'space-between',
+        shadowColor: colors.black,
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.5,
+        shadowRadius: 16,
+        elevation: 12,
+    },
+    cardBgOverlay: {
+        position: 'absolute',
+        top: -verticalScale(60),
+        right: -moderateScale(60),
+        width: moderateScale(200),
+        height: moderateScale(200),
+        borderRadius: moderateScale(100),
+        opacity: 0.08,
+    },
+    cardHeader: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
     },
     iconContainer: {
-        width: moderateScale(40),
-        height: moderateScale(40),
-        borderRadius: moderateScale(20),
-        backgroundColor: 'rgba(44, 182, 125, 0.1)',
+        width: moderateScale(45),
+        height: moderateScale(45),
+        borderRadius: moderateScale(12),
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: moderateScale(12),
     },
-    textContainer: {
+    cardType: {
+        fontSize: moderateScale(12),
+        fontWeight: '700',
+        letterSpacing: 2,
+    },
+    cardInfoContainer: {
+        marginVertical: verticalScale(15),
+    },
+    premiumUPIId: {
+        fontSize: moderateScale(18),
+        fontWeight: 'bold',
+        letterSpacing: 0.5,
+    },
+    cardFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+    },
+    cardInfoItem: {
         flex: 1,
     },
-    cardTitle: {
-        fontSize: moderateScale(16),
-        fontWeight: 'bold',
-        color: colors.textPrimary,
-        marginBottom: verticalScale(2),
+    cardInfoLabel: {
+        fontSize: moderateScale(8),
+        fontWeight: '700',
+        letterSpacing: 1.5,
+        marginBottom: 6,
+        opacity: 0.7,
     },
-    cardSubtitle: {
-        fontSize: moderateScale(12),
-        color: colors.textSecondary,
+    cardInfoValue: {
+        fontSize: moderateScale(15),
+        fontWeight: '800',
+        letterSpacing: 1,
     },
-    deleteButton: {
-        padding: moderateScale(8),
+    verifiedBadge: {
+        opacity: 0.9,
     },
     addButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: colors.primary,
-        paddingVertical: moderateScale(12),
-        borderRadius: moderateScale(12),
-        marginTop: verticalScale(12),
+        paddingVertical: moderateScale(16),
+        borderRadius: moderateScale(16),
+        marginTop: verticalScale(10),
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
     },
     addButtonText: {
         marginLeft: moderateScale(8),
-        color: colors.black,
-        fontSize: moderateScale(14),
-        fontWeight: 'bold',
+        fontSize: moderateScale(16),
+        fontWeight: '700',
     },
 });
 
