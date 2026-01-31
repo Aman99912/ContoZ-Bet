@@ -19,7 +19,7 @@ const HistoryHeader = ({ balance = 1212 }) => {
                 onPress={() => navigation.navigate('Wallet')}
                 activeOpacity={0.8}
             >
-                <CText style={[styles.balanceAmount, { color: colors.textPrimary }]}>₹{balance}</CText>
+                <CText style={[styles.balanceAmount, { color: colors.textPrimary }]}>₹{Number(balance).toFixed(1)}</CText>
             </TouchableOpacity>
         </View>
     );
@@ -45,11 +45,13 @@ const styles = StyleSheet.create({
         borderRadius: moderateScale(24),
         borderWidth: 2,
         borderColor: colors.border,
-        minWidth: moderateScale(120),
+        minWidth: moderateScale(100),
+        height: moderateScale(40),
         alignItems: 'center',
+        justifyContent: 'center',
     },
     balanceAmount: {
-        fontSize: moderateScale(20),
+        fontSize: moderateScale(16),
         fontWeight: 'bold',
         color: colors.textPrimary,
     },

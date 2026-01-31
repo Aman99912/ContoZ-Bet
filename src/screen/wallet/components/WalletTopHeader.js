@@ -114,7 +114,7 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
                     <View style={styles.balanceRow}>
                         <View>
                             <CText style={[styles.totalBalanceLabel, { color: colors.textSecondary }]}>Total balance</CText>
-                            <CText style={[styles.totalBalanceAmount, { color: colors.textPrimary }]}>₹{balance}</CText>
+                            <CText style={[styles.totalBalanceAmount, { color: colors.textPrimary }]}>₹{Number(balance).toFixed(1)}</CText>
                         </View>
                         <TouchableOpacity style={[styles.addMoneyPill, { backgroundColor: colors.primary }]} onPress={handleAddMoney}>
                             <MaterialCommunityIcons name="plus" size={moderateScale(16)} color={colors.black} />
@@ -126,9 +126,9 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
 
                     <View style={styles.walletCardsRow}>
                         <View style={[styles.walletCard, { marginRight: 8 }]}>
-                            <CText style={[styles.walletCardLabel, { color: colors.textSecondary }]}>Cash Wallet</CText>
-                            <CText style={[styles.walletCardAmount, { color: colors.textPrimary }]}>₹{cashBalance}</CText>
-                            <CText style={[styles.walletCardFooter, { color: colors.textSecondary }]}>Used for games</CText>
+                            <CText style={[styles.walletCardLabel, { color: colors.textSecondary }]} numberOfLines={1}>Fund Wallet</CText>
+                            <CText style={[styles.walletCardAmount, { color: colors.textPrimary }]}>₹{Number(cashBalance).toFixed(1)}</CText>
+                            <CText style={[styles.walletCardFooter, { color: colors.textSecondary }]} numberOfLines={1}>Used for games</CText>
                         </View>
 
                         <View style={styles.transferContainer}>
@@ -161,9 +161,9 @@ const WalletTopHeader = ({ balance, cashBalance, earningsBalance, onAddMoney, on
                         </View>
 
                         <View style={[styles.walletCard, { marginLeft: 8 }]}>
-                            <CText style={[styles.walletCardLabel, { color: colors.textSecondary }]}>Earnings Wallet</CText>
-                            <CText style={[styles.walletCardAmount, { color: colors.textPrimary }]}>₹{earningsBalance}</CText>
-                            <CText style={[styles.walletCardFooter, { color: colors.textSecondary }]}>Withdraw / Transfer</CText>
+                            <CText style={[styles.walletCardLabel, { color: colors.textSecondary }]} numberOfLines={1}>Main Wallet</CText>
+                            <CText style={[styles.walletCardAmount, { color: colors.textPrimary }]}>₹{Number(earningsBalance).toFixed(1)}</CText>
+                            <CText style={[styles.walletCardFooter, { color: colors.textSecondary }]} numberOfLines={1}>Withdraw / Transfer</CText>
                         </View>
                     </View>
                 </View>
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: verticalScale(16),
+        
     },
     totalBalanceLabel: {
         fontSize: moderateScale(14),
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     totalBalanceAmount: {
-        fontSize: moderateScale(32),
+        fontSize: moderateScale(26),
         fontWeight: 'bold',
         color: colors.textPrimary,
     },
@@ -253,13 +253,13 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     divider: {
-        height: 1,
+        height: 1.5,
         backgroundColor: colors.border,
-        marginBottom: verticalScale(16),
+        marginVertical: verticalScale(10),
     },
     walletCardsRow: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'space-between',
     },
     walletCard: {
@@ -267,25 +267,28 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     walletCardLabel: {
-        fontSize: moderateScale(14),
+        fontSize: moderateScale(11),
         color: colors.textSecondary,
         marginBottom: 4,
         textAlign: 'center',
+        minHeight: verticalScale(16),
     },
     walletCardAmount: {
-        fontSize: moderateScale(20),
+        fontSize: moderateScale(18),
         fontWeight: 'bold',
         color: colors.textPrimary,
         marginBottom: 2,
         textAlign: 'center',
+        minHeight: verticalScale(24),
     },
     walletCardFooter: {
-        fontSize: moderateScale(12),
+        fontSize: moderateScale(10),
         color: colors.textSecondary,
         textAlign: 'center',
     },
     transferContainer: {
         alignItems: 'center',
+        top: verticalScale(8),
         marginHorizontal: moderateScale(10),
         justifyContent: 'center',
     },
@@ -305,10 +308,12 @@ const styles = StyleSheet.create({
     },
     fullSize: {
         flex: 1,
+        // top: verticalScale(5),
     },
     arrowButtonInside: {
         width: moderateScale(38),
         height: moderateScale(38),
+        
         borderRadius: moderateScale(19),
         backgroundColor: colors.surface,
         justifyContent: 'center',
