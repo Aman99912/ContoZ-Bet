@@ -1,10 +1,11 @@
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { gamesColor } from '@/core/theme/GamesColor';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const PlayerCard = ({ name, symbol, isActive, isTurn }) => {
+const InGamePlayerCard = ({ name, symbol, isActive, isTurn }) => {
     return (
         <View style={styles.container}>
             <View style={[
@@ -127,4 +128,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PlayerCard;
+export default InGamePlayerCard;

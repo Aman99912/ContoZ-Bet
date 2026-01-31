@@ -5,7 +5,7 @@ import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const GameHeader = ({ entryFee }) => {
+const InGameHeader = ({ entryFee }) => {
     return (
         <View style={styles.header}>
             <View style={styles.badge}>
@@ -63,4 +63,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default GameHeader;
+export default InGameHeader;

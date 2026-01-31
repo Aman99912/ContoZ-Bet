@@ -8,12 +8,12 @@ import {
 } from 'react-native';
 import { gamesColor } from '@/core/theme/GamesColor';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
-import GameHeader from './components/GameHeader';
-import PlayerCard from './components/PlayerCard';
+import InGameHeader from '@/Games/components/inGame/InGameHeader';
+import InGamePlayerCard from '@/Games/components/inGame/InGamePlayerCard';
+import InGameStatus from '@/Games/components/inGame/InGameStatus';
 import GameGrid from './components/GameGrid';
 import CText from '@/components/common/CText';
 import CustomAlert from '@/components/common/CustomAlert';
-import GameStatus from './components/GameStatus';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TicTacToe = ({ navigation, route }) => {
@@ -111,18 +111,18 @@ const TicTacToe = ({ navigation, route }) => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
-                <GameHeader entryFee={entryFee} />
+                <InGameHeader entryFee={entryFee} />
 
-                <GameStatus winner={winner} isXNext={isXNext} prizePool={prizePool} />
+                <InGameStatus winner={winner} isXNext={isXNext} prizePool={prizePool} />
 
                 <View style={styles.playersRow}>
-                    <PlayerCard
+                    <InGamePlayerCard
                         name="PLAYER X"
                         symbol="X"
                         isActive={isXNext}
                         isTurn={isXNext && !winner}
                     />
-                    <PlayerCard
+                    <InGamePlayerCard
                         name="PLAYER O"
                         symbol="O"
                         isActive={!isXNext}

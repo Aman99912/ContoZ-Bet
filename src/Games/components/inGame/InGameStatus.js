@@ -4,7 +4,7 @@ import { gamesColor } from '@/core/theme/GamesColor';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
-const GameStatus = ({ winner, isXNext, prizePool }) => {
+const InGameStatus = ({ winner, isXNext, prizePool }) => {
     if (winner) {
         return (
             <View style={styles.container}>
@@ -67,4 +67,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default GameStatus;
+export default InGameStatus;
