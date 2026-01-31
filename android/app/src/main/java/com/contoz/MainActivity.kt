@@ -1,4 +1,4 @@
-package com.amandeep_saroha.ContoZ
+package com.contoz
 
 import android.os.Build
 import android.os.Bundle

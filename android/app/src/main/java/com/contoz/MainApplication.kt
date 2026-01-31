@@ -1,4 +1,4 @@
-package com.amandeep_saroha.ContoZ
+package com.contoz
 
 import android.app.Application
 import android.content.res.Configuration
