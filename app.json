@@ -3,6 +3,7 @@
     "name": "Conto-Z",
     "slug": "Conto-Z",
     "version": "1.0.0",
+    "icon": "./src/images/appicon.png",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -23,6 +24,10 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "package": "com.amandeep_saroha.ContoZ",
+      "adaptiveIcon": {
+        "foregroundImage": "./src/images/appicon.png",
+        "backgroundColor": "#FFFFFF"
+      },
       "enableProguardInReleaseBuilds": true,
       "enableShrinkResourcesInReleaseBuilds": true,
       "usesCleartextTraffic": true,

@@ -9,6 +9,11 @@ const withRazorpay = (config) => {
         // It's possible the SDK adds it automatically in newer versions via merger, 
         // but explicit addition ensures it works.
 
+        // Ensure 'tools' namespace exists on the manifest
+        if (!androidManifest.manifest.$['xmlns:tools']) {
+            androidManifest.manifest.$['xmlns:tools'] = 'http://schemas.android.com/tools';
+        }
+
         // Add CheckoutActivity
         const checkoutActivity = {
             $: {
@@ -16,6 +21,7 @@ const withRazorpay = (config) => {
                 'android:configChanges': 'keyboard|keyboardHidden|orientation|screenSize',
                 'android:theme': '@style/CheckoutTheme',
                 'android:exported': 'true',
+                'tools:replace': 'android:exported',
             }
         };
 

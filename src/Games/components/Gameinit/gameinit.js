@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme, colors } from '@/core/theme/colors';
@@ -18,7 +18,7 @@ const GameInit = () => {
     const navigation = useNavigation();
     const route = useRoute();
     const { wallets, totalBalance, isLoggedIn, user, refreshWallets } = useApp();
-    const { gameTitle, gameIcon } = route.params || { gameTitle: 'Game', gameIcon: 'gamepad-variant' };
+    const { gameTitle, gameIcon, gameImage } = route.params || { gameTitle: 'Game', gameIcon: 'gamepad-variant' };
     const insets = useSafeAreaInsets();
 
     // Extract wallet breakdowns
@@ -111,11 +111,15 @@ const GameInit = () => {
                 <View style={styles.empty} />
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Game Info Card */}
                 <View style={[styles.gameInfoCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <View style={[styles.iconWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.primary }]}>
-                        <MaterialCommunityIcons name={gameIcon} size={moderateScale(60)} color={colors.primary} />
+                        {gameImage ? (
+                            <Image source={gameImage} style={styles.gameImage} />
+                        ) : (
+                            <MaterialCommunityIcons name={gameIcon} size={moderateScale(60)} color={colors.primary} />
+                        )}
                     </View>
                     <View style={styles.gameTextInfo}>
                         <CText style={[styles.gameName, { color: colors.textPrimary }]}>{gameTitle}</CText>
@@ -148,7 +152,7 @@ const GameInit = () => {
 
                 {/* Balance Info */}
                 <View style={[styles.balanceInfo, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    <CText style={[styles.balanceLabel, { color: colors.textSecondary }]}>Deposit Balance</CText>
+                    <CText style={[styles.balanceLabel, { color: colors.textSecondary }]}>Fund Balance</CText>
                     <CText style={[styles.balanceAmount, { color: colors.primary }]}>₹{cashBalance}</CText>
                 </View>
             </ScrollView>
@@ -258,6 +262,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    scroll: {
+        flex: 1,
+    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -295,6 +302,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
+        overflow: 'hidden',
+    },
+    gameImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
     },
     gameTextInfo: {
         flex: 1,
@@ -338,6 +351,7 @@ const styles = StyleSheet.create({
         padding: moderateScale(12),
         borderRadius: moderateScale(12),
         borderWidth: 1,
+        marginBottom: verticalScale(10)
     },
     balanceLabel: {
         fontSize: moderateScale(13),

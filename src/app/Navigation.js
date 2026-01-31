@@ -26,6 +26,7 @@ import EmailVerify from '@/screen/profile/components/emailVerfiy';
 import GameInit from '@/Games/components/Gameinit/gameinit';
 import GameWaiting from '@/Games/components/Gameinit/gamewating';
 import TicTacToe from '@/Games/Games/tic-tac';
+import SplashScreen from '@/screen/splash/SplashScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -54,7 +55,10 @@ const TabNavigator = () => {
                         borderTopColor: colors.border,
                         height: moderateScale(70) + insets.bottom,
                         paddingBottom: insets.bottom + moderateScale(8),
-                        paddingTop:moderateScale(8),
+                        paddingTop: moderateScale(8),
+                        elevation: 0,
+                        shadowOpacity: 0,
+                        borderTopWidth: 1,
                     },
                     tabBarActiveTintColor: colors.primary,
                     tabBarInactiveTintColor: colors.textSecondary,
@@ -122,7 +126,8 @@ const Navigation = () => {
     return (
         <ThemeProvider>
             <NavigationContainer>
-                <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="MainApp">
+                <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
+                    <Stack.Screen name="Splash" component={SplashScreen} />
                     <Stack.Screen name="MainApp" component={TabNavigator} />
                     <Stack.Screen name="Login" component={LoginScreen} />
                     <Stack.Screen name="Register" component={RegisterScreen} />

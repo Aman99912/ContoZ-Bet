@@ -12,12 +12,3 @@
 -keep class com.facebook.react.turbomodule.** { *; }
 
 # Add any project specific keep options here:
-
-# Keep networking classes for Axios and other libraries
--keep class com.facebook.react.modules.network.** { *; }
--keep class okhttp3.** { *; }
--keep class okio.** { *; }
--keep interface okhttp3.** { *; }
--keep interface okio.** { *; }
--dontwarn okhttp3.**
--dontwarn okio.**

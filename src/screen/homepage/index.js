@@ -17,7 +17,7 @@ export default function HomeScreen() {
     const tabs = ['All', 'Popular', 'New', '2 Player'];
 
     const games = [
-        { title: 'Tic Tac Toe', entryFee: 50, icon: 'grid' },
+        { title: 'Tic Tac Toe', entryFee: 50, image: require('@/images/Cardimage/tic-tac-toe.png') },
     ];
 
     // Get wallet balance from AppContext
@@ -31,6 +31,7 @@ export default function HomeScreen() {
                     <BannerCard
                         title="Play Games &"
                         subtitle="Win Real Money"
+                        image={require('@/images/Cardimage/carm.png')}
                         onPress={() => console.log('Banner pressed')}
                     />
 
@@ -46,8 +47,9 @@ export default function HomeScreen() {
                                 key={index}
                                 title={game.title}
                                 entryFee={game.entryFee}
+                                image={game.image}
                                 icon={game.icon}
-                                onPress={() => navigation.navigate('GameInit', { gameTitle: game.title, gameIcon: game.icon })}
+                                onPress={() => navigation.navigate('GameInit', { gameTitle: game.title, gameIcon: game.icon, gameImage: game.image })}
                             />
                         ))}
                     </View>
