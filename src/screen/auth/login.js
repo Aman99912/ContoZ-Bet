@@ -19,8 +19,9 @@ import CText from '@/components/common/CText';
 import CInput from '@/components/common/CInput';
 import CCard from '@/components/common/CCard';
 import CustomAlert from '@/components/common/CustomAlert';
-import { authAPI } from '@/api/services';
+import { authAPI, userAPI } from '@/api/services';
 import { useApp } from '@/context/AppContext';
+import NotificationService from '@/services/notificationService';
 
 const { width } = Dimensions.get('window');
 
@@ -65,6 +66,22 @@ const LoginScreen = ({ navigation }) => {
 
             // Store token and user data using AppContext
             await login(response.token, response.user);
+
+            // FCM Token Logic
+            try {
+                const permissionGranted = await NotificationService.requestUserPermission();
+                if (permissionGranted) {
+                    const fcmToken = await NotificationService.getFCMToken();
+                    if (fcmToken) {
+                        console.log('Syncing FCM Token:', fcmToken);
+                        // Attempt to update profile with token
+                        await userAPI.updateProfile({ fcm_token: fcmToken });
+                    }
+                }
+            } catch (fcmError) {
+                console.log('FCM Sync Error:', fcmError);
+                // Don't block login if FCM fails
+            }
 
             // Navigate to main app
             navigation.replace('MainApp');

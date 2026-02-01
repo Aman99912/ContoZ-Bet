@@ -74,6 +74,23 @@ export const userAPI = {
     transferMainToFund: (data) => api.post('/user/main-to-fund-transfer', data),
 
     getWallets: () => api.get('/user/get_wallets'),
+
+    /**
+     * Create Support Ticket
+     * Endpoint: /user/create-ticket
+     * Payload: FormData { subject, description, attachments (file) }
+     */
+    createTicket: (formData) => api.post('/user/create-ticket', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    }),
+
+    /**
+     * Get Support Tickets
+     * Endpoint: /user/get-ticket
+     */
+    getTickets: () => api.get('/user/get-ticket'),
 };
 
 // Wallet APIs
