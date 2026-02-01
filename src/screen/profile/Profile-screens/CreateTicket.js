@@ -27,11 +27,13 @@ export default function CreateTicket() {
                 return;
             }
 
+            const remainingSlots = 5 - attachments.length;
+
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: 'images',
                 allowsMultipleSelection: true,
                 quality: 0.8,
-                selectionLimit: 5,
+                selectionLimit: remainingSlots,
             });
 
             if (!result.canceled) {
@@ -40,7 +42,14 @@ export default function CreateTicket() {
                     type: asset.mimeType || 'image/jpeg',
                     name: asset.fileName || `image_${Date.now()}.jpg`,
                 }));
-                setAttachments([...attachments, ...newImages]);
+                // Ensure we never exceed 5 total images
+                const combined = [...attachments, ...newImages];
+                setAttachments(combined.slice(0, 5));
+
+                // Show alert if user tried to add more than allowed
+                if (combined.length > 5) {
+                    Alert.alert('Limit Reached', 'Maximum 5 images allowed. Only first 5 images were added.');
+                }
             }
         } catch (error) {
             console.error('Error picking images:', error);

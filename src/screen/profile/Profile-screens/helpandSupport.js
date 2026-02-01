@@ -50,7 +50,7 @@ export default function HelpAndSupport() {
                             activeOpacity={0.8}
                         >
                             <View style={[styles.iconContainer, { backgroundColor: colors.primary + '20' }]}>
-                                <MaterialCommunityIcons name="ticket-plus-outline" size={moderateScale(28)} color={colors.primary} />
+                                <MaterialCommunityIcons name="ticket" size={moderateScale(28)} color={colors.primary} />
                             </View>
                             <CText style={[styles.ticketCardTitle, { color: colors.textPrimary }]}>Create Ticket</CText>
                             <CText style={[styles.ticketCardSubtitle, { color: colors.textSecondary }]}>Submit a new support request</CText>
