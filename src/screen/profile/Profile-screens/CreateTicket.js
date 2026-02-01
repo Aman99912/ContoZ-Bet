@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, ActivityIndicator, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
@@ -28,7 +28,7 @@ export default function CreateTicket() {
             }
 
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                mediaTypes: 'images',
                 allowsMultipleSelection: true,
                 quality: 0.8,
                 selectionLimit: 5,
@@ -37,7 +37,7 @@ export default function CreateTicket() {
             if (!result.canceled) {
                 const newImages = result.assets.map(asset => ({
                     uri: asset.uri,
-                    type: asset.type || 'image/jpeg',
+                    type: asset.mimeType || 'image/jpeg',
                     name: asset.fileName || `image_${Date.now()}.jpg`,
                 }));
                 setAttachments([...attachments, ...newImages]);
@@ -72,21 +72,28 @@ export default function CreateTicket() {
             formData.append('subject', subject);
             formData.append('description', description);
 
-            // Append attachments - React Native FormData format
+            // Append attachments
             attachments.forEach((attachment, index) => {
-                // For React Native, we need to append the file object directly
-                const file = {
+                formData.append('attachments', {
                     uri: attachment.uri,
-                    type: attachment.type || 'image/jpeg',
-                    name: attachment.name || `attachment_${index}.jpg`,
-                };
-                formData.append('attachments', file);
+                    name: attachment.name,
+                    type: attachment.type,
+                });
             });
 
             console.log('FormData created with:', {
                 subject,
                 description,
                 attachmentsCount: attachments.length,
+            });
+
+            // Log attachment details for debugging
+            attachments.forEach((att, idx) => {
+                console.log(`Attachment ${idx}:`, {
+                    uri: att.uri.substring(0, 50) + '...',
+                    name: att.name,
+                    type: att.type,
+                });
             });
 
             // Call API
