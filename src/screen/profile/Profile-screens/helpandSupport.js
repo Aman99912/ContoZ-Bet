@@ -20,13 +20,11 @@ export default function HelpAndSupport() {
     };
 
     const handleCreateTicket = () => {
-        // TODO: Navigate to Create Ticket screen
-        console.log('Navigate to Create Ticket');
+        navigation.navigate('CreateTicket');
     };
 
     const handleTrackTicket = () => {
-        // TODO: Navigate to Track Ticket screen
-        console.log('Navigate to Track Ticket');
+        navigation.navigate('TrackTicket');
     };
 
     return (

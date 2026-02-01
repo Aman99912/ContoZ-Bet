@@ -37,6 +37,8 @@ import { useApp } from '@/context/AppContext';
 import CustomAlert from '@/components/common/CustomAlert';
 import { useNavigation } from '@react-navigation/native';
 import { moderateScale } from '@/core/utils/responsive';
+import CreateTicket from '@/screen/profile/Profile-screens/CreateTicket';
+import TrackTicket from '@/screen/profile/Profile-screens/TrackTicket';
 
 const TabNavigator = () => {
     const { colors } = useTheme();
@@ -135,6 +137,8 @@ const Navigation = () => {
                     <Stack.Screen name="EditProfile" component={EditProfile} />
                     <Stack.Screen name="EmailVerify" component={EmailVerify} />
                     <Stack.Screen name="HelpAndSupport" component={HelpAndSupport} />
+                    <Stack.Screen name="CreateTicket" component={CreateTicket} />
+                    <Stack.Screen name="TrackTicket" component={TrackTicket} />
                     <Stack.Screen name="ReferAndEarn" component={ReferAndEarn} />
                     <Stack.Screen name="MyGames" component={MyGames} />
                     <Stack.Screen name="Notifications" component={Notifications} />
