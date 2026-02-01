@@ -110,9 +110,9 @@ const UPIDetailsScreen = ({ navigation }) => {
         setWithdrawalLoading(true);
         try {
             const withdrawalData = {
-                type: 'upi',
                 amount: amount,
-                upi_details: selectedUPI,
+                paymentMethod: 'upi',
+                account: selectedUPI.upiId, // upiId for UPI
             };
 
             const response = await walletAPI.withdraw(withdrawalData);

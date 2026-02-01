@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Clipboard, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Clipboard, Alert, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
@@ -16,18 +16,14 @@ export default function ReferAndEarn() {
     const [copied, setCopied] = useState(false);
     const [config, setConfig] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [teamMembers, setTeamMembers] = useState([]);
+    const [totalRecords, setTotalRecords] = useState(0);
 
-    // Dummy data for joined users
-    const joinedUsers = [
-        { id: 1, name: 'Rahul Kumar', joinedDate: '2024-01-15' },
-        { id: 2, name: 'Priya Sharma', joinedDate: '2024-01-18' },
-        { id: 3, name: 'Amit Singh', joinedDate: '2024-01-20' },
-        { id: 4, name: 'Neha Gupta', joinedDate: '2024-01-22' },
-        { id: 5, name: 'Vikas Verma', joinedDate: '2024-01-25' },
-    ];
+
 
     useEffect(() => {
         fetchProjectConfig();
+        fetchTeamMembers();
     }, []);
 
     const fetchProjectConfig = async () => {
@@ -40,6 +36,35 @@ export default function ReferAndEarn() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchTeamMembers = async () => {
+        try {
+            const response = await userAPI.getAllTeam();
+            if (response?.success) {
+                setTeamMembers(response.data || []);
+                setTotalRecords(response.totalRecords || 0);
+            }
+        } catch (error) {
+            console.error('Error fetching team members:', error);
+        }
+    };
+
+    // Mask mobile number: 98********2
+    const maskMobileNumber = (mobile) => {
+        if (!mobile) return '';
+        // Remove country code and spaces
+        const cleaned = mobile.replace(/\+\d+\s*/, '').replace(/\s/g, '');
+        if (cleaned.length < 3) return cleaned;
+        const first = cleaned.substring(0, 2);
+        const last = cleaned.substring(cleaned.length - 1);
+        const masked = '*'.repeat(8);
+        return `${first}${masked}${last}`;
+    };
+
+    // Get first letter of name for avatar
+    const getInitial = (name) => {
+        return name ? name.charAt(0).toUpperCase() : 'U';
     };
 
     const handleCopy = () => {
@@ -75,6 +100,10 @@ export default function ReferAndEarn() {
                                 size={moderateScale(180)}
                                 backgroundColor={colors.surface}
                                 color={colors.textPrimary}
+                                logo={require('@/images/appicon.png')}
+                                logoSize={moderateScale(40)}
+                                logoBackgroundColor='black'
+                                logoBorderRadius={moderateScale(10)}
                             />
                         </View>
                         <CText style={[styles.qrLabel, { color: colors.textSecondary }]}>Or</CText>
@@ -103,22 +132,29 @@ export default function ReferAndEarn() {
                         <View style={styles.usersSectionHeader}>
                             <CText style={[styles.sectionTitle, { color: colors.textPrimary }]} numberOfLines={1}>Joined Users</CText>
                             <View style={[styles.countBadge, { backgroundColor: colors.primary }]}>
-                                <CText style={[styles.countText, { color: colors.black }]}>{joinedUsers.length}</CText>
+                                <CText style={[styles.countText, { color: colors.black }]}>{totalRecords}</CText>
                             </View>
                         </View>
 
-                        {joinedUsers.map((user) => (
-                            <View key={user.id} style={[styles.userCard, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.black }]}>
-                                <View style={[styles.userAvatar, { backgroundColor: colors.inputBackground }]}>
-                                    <MaterialCommunityIcons name="account" size={moderateScale(24)} color={colors.primary} />
-                                </View>
-                                <View style={styles.userInfo}>
-                                    <CText style={[styles.userName, { color: colors.textPrimary }]}>{user.name}</CText>
-                                    <CText style={[styles.userDate, { color: colors.textSecondary }]}>Joined: {user.joinedDate}</CText>
-                                </View>
-                                <MaterialCommunityIcons name="check-circle" size={moderateScale(24)} color={colors.primary} />
+                        {teamMembers.length === 0 ? (
+                            <View style={[styles.emptyState, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                                <MaterialCommunityIcons name="account-group-outline" size={moderateScale(48)} color={colors.textSecondary} />
+                                <CText style={[styles.emptyText, { color: colors.textSecondary }]}>No referrals yet</CText>
                             </View>
-                        ))}
+                        ) : (
+                            teamMembers.map((user) => (
+                                <View key={user._id} style={[styles.userCard, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.primary }]}>
+                                    <View style={[styles.iconBox, { backgroundColor: colors.inputBackground, shadowColor: colors.primary }]}>
+                                        <CText style={[styles.avatarText, { color: colors.primary }]}>{getInitial(user.name)}</CText>
+                                    </View>
+                                    <View style={styles.userInfo}>
+                                        <CText style={[styles.userName, { color: colors.textPrimary }]}>{user.name}</CText>
+                                        <CText style={[styles.userMobile, { color: colors.textSecondary }]}>{maskMobileNumber(user.mobile)}</CText>
+                                    </View>
+                                    <MaterialCommunityIcons name="check-circle" size={moderateScale(24)} color={colors.primary} />
+                                </View>
+                            ))
+                        )}
                     </View>
                 </View>
             </ScrollView>
@@ -274,25 +310,25 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: colors.surface,
-        padding: moderateScale(16),
+        padding: moderateScale(12),
         borderRadius: moderateScale(12),
-        marginBottom: verticalScale(12),
+        marginBottom: verticalScale(8),
         borderWidth: 1,
-        borderColor: colors.border,
-        shadowColor: colors.black,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 2,
+        borderColor: colors.border
     },
-    userAvatar: {
-        width: moderateScale(48),
-        height: moderateScale(48),
-        borderRadius: moderateScale(24),
+    iconBox: {
+        width: moderateScale(50),
+        height: moderateScale(50),
         backgroundColor: colors.inputBackground,
+        borderRadius: moderateScale(8),
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: moderateScale(14),
+        marginRight: moderateScale(12),
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 2,
     },
     userInfo: {
         flex: 1,
@@ -303,8 +339,26 @@ const styles = StyleSheet.create({
         color: colors.textPrimary,
         marginBottom: 4,
     },
-    userDate: {
+    userMobile: {
         fontSize: moderateScale(12),
         color: colors.textSecondary,
+    },
+    avatarText: {
+        fontSize: moderateScale(18),
+        fontWeight: 'bold',
+    },
+    emptyState: {
+        backgroundColor: colors.surface,
+        padding: moderateScale(32),
+        borderRadius: moderateScale(12),
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderStyle: 'dashed',
+    },
+    emptyText: {
+        fontSize: moderateScale(14),
+        color: colors.textSecondary,
+        marginTop: verticalScale(12),
     },
 });

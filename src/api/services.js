@@ -91,13 +91,19 @@ export const userAPI = {
      * Endpoint: /user/get-ticket
      */
     getTickets: () => api.get('/user/get-ticket'),
+
+    /**
+     * Get All Team Members (Referrals)
+     * Endpoint: /user/get_all_team
+     */
+    getAllTeam: () => api.get('/user/get_all_team'),
 };
 
 // Wallet APIs
 export const walletAPI = {
     getBalance: () => api.get('/wallet/balance'),
     addMoney: (amount) => api.post('/wallet/add', { amount }),
-    withdraw: (data) => api.post('/wallet/withdraw', data),
+    withdraw: (data) => api.post('/user/withdraw', data),
     getTransactions: (page = 1, limit = 10) =>
         api.get(`/wallet/transactions?page=${page}&limit=${limit}`),
 

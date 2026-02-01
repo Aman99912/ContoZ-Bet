@@ -138,9 +138,9 @@ const BankDetailsScreen = ({ navigation }) => {
         setWithdrawalLoading(true);
         try {
             const withdrawalData = {
-                type: 'bank',
                 amount: amount,
-                bank_details: selectedBank,
+                paymentMethod: 'bank',
+                account: selectedBank.accountNumber, // accountNumber for bank
             };
 
             const response = await walletAPI.withdraw(withdrawalData);
