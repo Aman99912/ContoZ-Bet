@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Clipboard, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
@@ -7,12 +7,15 @@ import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { userAPI } from '@/api/services';
 
 export default function ReferAndEarn() {
     const { colors } = useTheme();
     const navigation = useNavigation();
     const referralLink = 'https://contoz-bet.com/ref/USER123';
     const [copied, setCopied] = useState(false);
+    const [config, setConfig] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     // Dummy data for joined users
     const joinedUsers = [
@@ -22,6 +25,22 @@ export default function ReferAndEarn() {
         { id: 4, name: 'Neha Gupta', joinedDate: '2024-01-22' },
         { id: 5, name: 'Vikas Verma', joinedDate: '2024-01-25' },
     ];
+
+    useEffect(() => {
+        fetchProjectConfig();
+    }, []);
+
+    const fetchProjectConfig = async () => {
+        try {
+            setLoading(true);
+            const response = await userAPI.getProjectConfig();
+            setConfig(response);
+        } catch (error) {
+            console.error('Error fetching project config:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleCopy = () => {
         Clipboard.setString(referralLink);
@@ -45,7 +64,7 @@ export default function ReferAndEarn() {
                 <View style={styles.content}>
                     <View style={styles.subtitleContainer}>
                         <CText style={[styles.subtitle, { color: colors.textPrimary }]}>Invite Friends & Earn Rewards!</CText>
-                        <CText style={[styles.rewardText, { color: colors.primary }]}>Get ₹30 for Every Referral 🎁</CText>
+                        <CText style={[styles.rewardText, { color: colors.primary }]}>Get ₹{config?.free_reffer_bonus?.income || 30} for Every Referral 🎁</CText>
                     </View>
 
                     {/* QR Code Section */}
