@@ -251,7 +251,7 @@ const EarnToCashModal = ({
                             <View style={[styles.dragHandle, { backgroundColor: colors.border }]} />
 
                             <View style={styles.headerRow}>
-                                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Earnings → Cash</CText>
+                                <CText style={[styles.headerTitle, { color: colors.textPrimary }]}>Main Wallet → Fund Wallet</CText>
                             </View>
 
                             <CText style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(8),
     },
     headerTitle: {
-        fontSize: moderateScale(18),
+        fontSize: moderateScale(19),
         fontWeight: '700',
     },
     headerSubtitle: {
