@@ -34,6 +34,8 @@ const LoginScreen = ({ navigation }) => {
     const [errors, setErrors] = useState({});
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [userName, setUserName] = useState('');
 
     const validateForm = () => {
         const newErrors = {};
@@ -67,6 +69,9 @@ const LoginScreen = ({ navigation }) => {
             // Store token and user data using AppContext
             await login(response.token, response.user);
 
+            // Store user name for success message
+            setUserName(response.user?.name || 'User');
+
             // FCM Token Logic
             try {
                 const permissionGranted = await NotificationService.requestUserPermission();
@@ -83,8 +88,8 @@ const LoginScreen = ({ navigation }) => {
                 // Don't block login if FCM fails
             }
 
-            // Navigate to main app
-            navigation.replace('MainApp');
+            // Show success alert
+            setShowSuccessAlert(true);
 
         } catch (error) {
             console.error('Login error:', error);
@@ -195,10 +200,21 @@ const LoginScreen = ({ navigation }) => {
                     visible={showAlert}
                     title="Login Error"
                     message={alertMessage}
-                    showConfirm={true}
-                    confirmText="OK"
+                    showConfirm={false}
+                    buttonText="OK"
                     onClose={() => setShowAlert(false)}
-                    onConfirm={() => setShowAlert(false)}
+                />
+
+                <CustomAlert
+                    visible={showSuccessAlert}
+                    title="Welcome Back!"
+                    message={`Login successful. Welcome back, ${userName}!`}
+                    showConfirm={false}
+                    buttonText="Continue"
+                    onClose={() => {
+                        setShowSuccessAlert(false);
+                        navigation.replace('MainApp');
+                    }}
                 />
             </SafeAreaView>
         </View>

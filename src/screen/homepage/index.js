@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { GameCard, BannerCard, GameTabSelector } from '@/Games';
 import HomeHeader from './components/header';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useApp } from '@/context/AppContext';
+import WelcomeBonus from './components/welcomeBonus';
 
 export default function HomeScreen() {
     const navigation = useNavigation();
+    const route = useRoute();
     const { colors } = useTheme();
     const { user, isLoggedIn, totalBalance } = useApp();
     const [activeTab, setActiveTab] = useState('All');
+    const [showWelcomeBonus, setShowWelcomeBonus] = useState(false);
+    const [bonusAmount, setBonusAmount] = useState(50);
+
+    // Check for welcome bonus params from registration
+    useEffect(() => {
+        if (route.params?.showWelcomeBonus) {
+            setShowWelcomeBonus(true);
+            setBonusAmount(route.params?.registerBonusAmount || 50);
+            // Clear params after reading
+            navigation.setParams({ showWelcomeBonus: undefined, registerBonusAmount: undefined });
+        }
+    }, [route.params]);
+
 
     const tabs = ['All', 'Popular', 'New', '2 Player'];
 
@@ -57,8 +72,15 @@ export default function HomeScreen() {
                     <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]}>
                         <CText style={[styles.buttonText, { color: colors.black }]} numberOfLines={1}>View All Games</CText>
                     </TouchableOpacity>
+
                 </View>
             </ScrollView>
+
+            <WelcomeBonus
+                visible={showWelcomeBonus}
+                amount={bonusAmount}
+                onClose={() => setShowWelcomeBonus(false)}
+            />
         </View>
     );
 }

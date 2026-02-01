@@ -1,13 +1,10 @@
-import React, { useEffect, useRef, useMemo, useState } from 'react';
-import { View, StyleSheet, Animated, Dimensions, TouchableOpacity, Easing, Modal, ScrollView, Image, Platform, Alert } from 'react-native';
+import React, { useEffect, useRef, useMemo } from 'react';
+import { View, StyleSheet, Animated, Dimensions, TouchableOpacity, Easing, Modal, Platform } from 'react-native';
 import { gamesColor } from '@/core/theme/GamesColor';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import ViewShot, { captureRef } from 'react-native-view-shot';
-import Share from 'react-native-share';
-import RNFS from 'react-native-fs';
 import { Audio } from 'expo-av';
 import { useTheme } from '@/core/theme/colors';
 
@@ -98,21 +95,14 @@ const Confetti = ({ visible }) => {
         </View>
     );
 };
-const WinCelebration = ({ visible, amount, onNewGame, onQuit, isWinner = true, entryFee = 0 }) => {
+
+const WelcomeBonus = ({ visible, amount = 50, onClose }) => {
     const { colors } = useTheme();
 
     // Animations
     const scaleAnim = useRef(new Animated.Value(0)).current;
     const opacityAnim = useRef(new Animated.Value(0)).current;
     const receiptSlide = useRef(new Animated.Value(-50)).current;
-
-    // States
-    const [isCapturing, setIsCapturing] = useState(false);
-    const viewShotRef = useRef(null);
-
-    // Config
-    const totalPot = entryFee * 2;
-    const platformCharge = entryFee > 0 ? (totalPot - amount) : 0;
 
     // Primary Theme Colors
     const primaryGradient = [colors.primary, '#24A56A', '#1E8F5A'];
@@ -121,18 +111,15 @@ const WinCelebration = ({ visible, amount, onNewGame, onQuit, isWinner = true, e
 
     useEffect(() => {
         if (visible) {
-            // Card Entrance
             Animated.parallel([
                 Animated.spring(scaleAnim, { toValue: 1, friction: 8, tension: 40, useNativeDriver: true }),
                 Animated.timing(opacityAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
             ]).start();
 
-            // Receipt Slide Out Animation (after card appears)
             Animated.sequence([
                 Animated.delay(300),
                 Animated.spring(receiptSlide, { toValue: 0, friction: 6, useNativeDriver: true })
             ]).start();
-
         } else {
             scaleAnim.setValue(0);
             opacityAnim.setValue(0);
@@ -144,7 +131,7 @@ const WinCelebration = ({ visible, amount, onNewGame, onQuit, isWinner = true, e
     useEffect(() => {
         let soundObject = null;
         const playSound = async () => {
-            if (visible && isWinner) {
+            if (visible) {
                 try {
                     const { sound } = await Audio.Sound.createAsync(
                         require('@/sound/coin_sound_add.wav')
@@ -152,8 +139,7 @@ const WinCelebration = ({ visible, amount, onNewGame, onQuit, isWinner = true, e
                     soundObject = sound;
                     await sound.playAsync();
                 } catch (error) {
-                    console.log("Error playing win sound:", error);
-                    if (error && error.message) console.log("Error details:", error.message);
+                    console.log("Error playing welcome sound:", error);
                 }
             }
         };
@@ -165,139 +151,60 @@ const WinCelebration = ({ visible, amount, onNewGame, onQuit, isWinner = true, e
                 soundObject.unloadAsync();
             }
         };
-    }, [visible, isWinner]);
-
-    const handleShare = async () => {
-        if (isCapturing) return;
-        try {
-            setIsCapturing(true);
-            setTimeout(async () => {
-                try {
-                    const uri = await captureRef(viewShotRef, { format: 'png', quality: 0.9, result: 'tmpfile' });
-                    await Share.open({
-                        url: uri,
-                        message: isWinner ? "Big Win! Beat my score on ContoZ-Bet!" : "Check out my game result on ContoZ-Bet!"
-                    });
-                } catch (e) { console.log(e); } finally { setIsCapturing(false); }
-            }, 100);
-        } catch (e) { setIsCapturing(false); }
-    };
-
-    const handleSaveImage = async () => {
-        if (isCapturing) return;
-        try {
-            setIsCapturing(true);
-            setTimeout(async () => {
-                try {
-                    const uri = await captureRef(viewShotRef, { format: 'png', quality: 1.0, result: 'tmpfile' });
-                    const destPath = `${RNFS.DownloadDirectoryPath}/Win_${Date.now()}.png`;
-                    if (Platform.OS === 'android') {
-                        await RNFS.copyFile(uri, destPath);
-                        await RNFS.scanFile(destPath);
-                        Alert.alert("Saved!", "Image saved.");
-                    } else { Share.open({ url: uri, saveToFiles: true }); }
-                } catch (e) { Alert.alert("Error", "Failed to save."); } finally { setIsCapturing(false); }
-            }, 100);
-        } catch (e) { setIsCapturing(false); }
-    };
+    }, [visible]);
 
     return (
-        <Modal transparent visible={visible} onRequestClose={onQuit} animationType="none">
+        <Modal transparent visible={visible} onRequestClose={onClose} animationType="none">
             <View style={styles.container}>
                 <View style={styles.backdrop} />
-                {isWinner && <Confetti visible={visible} />}
+                <Confetti visible={visible} />
 
                 <Animated.View style={[
                     styles.cardContainer,
                     { opacity: opacityAnim, transform: [{ scale: scaleAnim }] }
                 ]}>
-                    <ViewShot ref={viewShotRef} style={{ backgroundColor: 'transparent', alignItems: 'center', width: '100%', paddingTop: moderateScale(70) }} options={{ result: 'base64' }}>
-
-                        {/* Header Crest (Wings + Circle) - Partially outside the card */}
+                    <View style={{ backgroundColor: 'transparent', alignItems: 'center', width: '100%', paddingTop: moderateScale(70) }}>
+                        {/* Header Crest */}
                         <View style={styles.crestContainer}>
-                            {/* Wings (Simulated with Shapes) */}
                             <View style={styles.wingLeft} />
                             <View style={styles.wingRight} />
 
-                            {/* Main Seal */}
                             <LinearGradient colors={primaryGradient} style={styles.sealCircle}>
                                 <View style={styles.sealInner}>
-                                    <MaterialCommunityIcons name={isWinner ? "rocket-launch" : "emoticon-sad"} size={moderateScale(40)} color="#2CB67D" />
+                                    <MaterialCommunityIcons name="gift" size={moderateScale(40)} color="#2CB67D" />
                                 </View>
                             </LinearGradient>
-
-                            {/* Ribbon Banner */}
-                            <View style={styles.ribbonContainer}>
-                                <Image
-                                    style={styles.ribbonImage}
-                                    resizeMode="contain"
-                                    source={{ uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Gold_Ribbon.svg/2560px-Gold_Ribbon.svg.png" }} // Fallback or use a View shape if no asset
-                                />
-                                {/* Since we don't have Ribbon Asset, we use a styled text view acting as ribbon */}
-                            </View>
                         </View>
 
                         {/* Main Card Body */}
                         <LinearGradient colors={cardGradient} style={styles.card}>
-
-
                             <View style={styles.cardContent}>
-                                {/* Title */}
-                                <CText style={styles.congratsText}>{isWinner ? "Congratulations" : "Game Over"}</CText>
-
-                                {/* Result Badges */}
-                                <View style={styles.badgeRow}>
-                                    <View style={[styles.badge, { backgroundColor: isWinner ? '#4CAF50' : '#F44336' }]}>
-                                        <CText style={styles.badgeText}>{isWinner ? "Victory" : "Defeat"}</CText>
-                                    </View>
-                                    <View style={[styles.badge, { backgroundColor: '#FF9800' }]}>
-                                        <CText style={styles.badgeText}>Level 1</CText>
-                                    </View>
-                                </View>
+                                <CText style={styles.congratsText}>Welcome to ContoZ-Bet!</CText>
 
                                 {/* Receipt Slot Section */}
                                 <View style={styles.slotContainer}>
-                                    {/* The Receipt Paper (Animated) */}
                                     <Animated.View style={[
                                         styles.receiptPaper,
                                         { transform: [{ translateY: receiptSlide }] },
                                         { zIndex: 1 }
                                     ]}>
-                                        <CText style={styles.bonusLabel}>Total Bonus</CText>
+                                        <CText style={styles.bonusLabel}>Welcome Bonus</CText>
                                         <CText style={styles.bonusValue}>₹{amount.toFixed(2)}</CText>
                                         <CText style={styles.receiptId}>ID: {Date.now().toString().slice(-8)}</CText>
-
-                                        {/* Zigzag bottom visual (simple dots/dashes) */}
                                         <View style={styles.zigzagLine} />
                                     </Animated.View>
 
-                                    {/* The Slot Cover */}
                                     <View style={[styles.slotCover, { backgroundColor: slotColor }]}>
                                         <View style={styles.slotHole} />
                                     </View>
                                 </View>
-
-                                {/* Internal Share Button */}
-                                {!isCapturing && (
-                                    <View style={styles.internalActions}>
-                                        <TouchableOpacity activeOpacity={0.8} onPress={handleShare}>
-                                            <LinearGradient colors={[colors.primary, '#24A56A']} style={styles.shareBtnGold}>
-                                                <MaterialCommunityIcons name="share-variant" size={moderateScale(20)} color="#FFFFFF" />
-                                                <CText style={styles.shareBtnText}>SHARE</CText>
-                                            </LinearGradient>
-                                        </TouchableOpacity>
-                                    </View>
-                                )}
                             </View>
                         </LinearGradient>
-                    </ViewShot>
+                    </View>
 
-                    {/* Close Button (Moved Outside ViewShot) */}
-                    {!isCapturing && (
-                        <TouchableOpacity style={styles.closeBtnCircle} onPress={onQuit}>
-                            <MaterialIcons name="close" size={moderateScale(24)} color="#FFF" />
-                        </TouchableOpacity>
-                    )}
+                    <TouchableOpacity style={styles.closeBtnCircle} onPress={onClose}>
+                        <MaterialIcons name="close" size={moderateScale(24)} color="#FFF" />
+                    </TouchableOpacity>
                 </Animated.View>
             </View>
         </Modal>
@@ -305,6 +212,9 @@ const WinCelebration = ({ visible, amount, onNewGame, onQuit, isWinner = true, e
 };
 
 const styles = StyleSheet.create({
+    confettiPiece: {
+        position: 'absolute',
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
@@ -317,13 +227,11 @@ const styles = StyleSheet.create({
     cardContainer: {
         width: width * 0.75,
         alignItems: 'center',
-        // marginTop removed, spacing handled internally
         overflow: 'visible',
     },
-    // Crest Styles
     crestContainer: {
         position: 'absolute',
-        top: 0, // Reset to 0 (inside ViewShot top area)
+        top: 0,
         zIndex: 20,
         alignItems: 'center',
         justifyContent: 'center',
@@ -380,11 +288,10 @@ const styles = StyleSheet.create({
         borderColor: '#FFF',
         zIndex: 15,
     },
-
     card: {
         width: '100%',
         borderRadius: moderateScale(25),
-        paddingTop: moderateScale(50), // Reduced padding since crest is higher
+        paddingTop: moderateScale(50),
         paddingBottom: moderateScale(20),
         paddingHorizontal: moderateScale(20),
         alignItems: 'center',
@@ -395,7 +302,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.5,
         shadowRadius: moderateScale(20),
         elevation: moderateScale(15),
-        backgroundColor: '#FFF8E1', // Ensure bg color 
+        backgroundColor: '#FFF8E1',
     },
     cardContent: {
         alignItems: 'center',
@@ -408,35 +315,18 @@ const styles = StyleSheet.create({
         marginBottom: moderateScale(8),
         letterSpacing: 0.5,
         fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+        textAlign: 'center',
     },
-    badgeRow: {
-        flexDirection: 'row',
-        gap: moderateScale(8),
-        marginBottom: moderateScale(15),
-    },
-    badge: {
-        paddingHorizontal: moderateScale(10),
-        paddingVertical: moderateScale(3),
-        borderRadius: moderateScale(6),
-    },
-    badgeText: {
-        color: '#FFF',
-        fontSize: moderateScale(10),
-        fontWeight: 'bold',
-        textTransform: 'uppercase',
-    },
-
-    // Receipt Slot
     slotContainer: {
         width: '100%',
         alignItems: 'center',
-        marginBottom: moderateScale(15), // Reduced margin
+        marginBottom: moderateScale(15),
         position: 'relative',
-        height: moderateScale(100), // Reduced height
+        height: moderateScale(100),
     },
     slotCover: {
         width: '95%',
-        height: moderateScale(20), // Slightly smaller
+        height: moderateScale(20),
         borderRadius: moderateScale(10),
         zIndex: 10,
         justifyContent: 'center',
@@ -478,16 +368,19 @@ const styles = StyleSheet.create({
         marginBottom: moderateScale(2),
         fontWeight: 'bold',
         textTransform: 'uppercase',
+        textAlign: 'center',
     },
     bonusValue: {
         fontSize: moderateScale(26),
         color: '#3E2723',
         fontWeight: '900',
+        textAlign: 'center',
     },
     receiptId: {
         marginTop: moderateScale(5),
         fontSize: moderateScale(8),
         color: '#A1887F',
+        textAlign: 'center',
     },
     zigzagLine: {
         position: 'absolute',
@@ -498,35 +391,6 @@ const styles = StyleSheet.create({
         borderWidth: moderateScale(1),
         borderColor: '#D7CCC8',
         borderRadius: moderateScale(1)
-    },
-
-    internalActions: {
-        width: '90%',
-        marginBottom: moderateScale(10),
-    },
-    shareBtnGold: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: moderateScale(10),
-        borderRadius: moderateScale(25),
-        gap: moderateScale(8),
-        borderWidth: moderateScale(1),
-        borderColor: '#FFF',
-        elevation: moderateScale(3),
-    },
-    shareBtnText: {
-        color: '#FFFFFF',
-        fontWeight: '900',
-        fontSize: moderateScale(12),
-        letterSpacing: 1,
-    },
-
-    footerText: {
-        color: '#8D6E63',
-        fontSize: moderateScale(10),
-        fontStyle: 'italic',
-        marginBottom: moderateScale(5),
     },
     closeBtnCircle: {
         position: 'absolute',
@@ -542,4 +406,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default WinCelebration;
+export default WelcomeBonus;

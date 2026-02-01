@@ -23,6 +23,7 @@ import { authAPI } from '@/api/services';
 import { useApp } from '@/context/AppContext';
 import { Modal, FlatList } from 'react-native';
 import countryCodes from './countycode.json';
+import { userAPI } from '@/api/services';
 
 const { width } = Dimensions.get('window');
 
@@ -39,6 +40,9 @@ const RegisterScreen = ({ navigation }) => {
     const [errors, setErrors] = useState({});
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [hasSponsor, setHasSponsor] = useState(false);
+    const [registerBonusAmount, setRegisterBonusAmount] = useState(50);
 
     // Country Code State
     const [selectedCountry, setSelectedCountry] = useState(countryCodes.find(c => c.dial_code === '+91') || countryCodes[0]);
@@ -105,8 +109,22 @@ const RegisterScreen = ({ navigation }) => {
             // Store token and user data using AppContext
             await login(response.token, response.User);
 
-            // Navigate to main app
-            navigation.replace('MainApp');
+            // Fetch project config to get register bonus amount
+            try {
+                const configResponse = await userAPI.getProjectConfig();
+                if (configResponse?.register_bonus?.status === 1) {
+                    setRegisterBonusAmount(configResponse.register_bonus.income || 50);
+                }
+            } catch (configError) {
+                console.log('Error fetching project config:', configError);
+            }
+
+            // Check if sponsor code was used
+            const usedSponsor = sponsor && sponsor.trim() !== '';
+            setHasSponsor(usedSponsor);
+
+            // Show success alert first
+            setShowSuccessAlert(true);
 
         } catch (error) {
             console.error('Registration error:', error);
@@ -195,6 +213,7 @@ const RegisterScreen = ({ navigation }) => {
                                                 onChangeText={setMobile}
                                                 keyboardType="phone-pad"
                                                 leftIcon="phone-outline"
+                                                maxLength={10}
                                             />
                                         </View>
                                         {errors.mobile && <CText style={[styles.errorText, { color: colors.error }]}>{errors.mobile}</CText>}
@@ -256,10 +275,25 @@ const RegisterScreen = ({ navigation }) => {
                     visible={showAlert}
                     title="Registration Error"
                     message={alertMessage}
-                    showConfirm={true}
-                    confirmText="OK"
+                    showConfirm={false}
+                    buttonText="OK"
                     onClose={() => setShowAlert(false)}
-                    onConfirm={() => setShowAlert(false)}
+                />
+
+                <CustomAlert
+                    visible={showSuccessAlert}
+                    title="Registration Successful"
+                    message="Welcome to ContoZ-Bet! Your account has been created successfully."
+                    showConfirm={false}
+                    buttonText="OK"
+                    onClose={() => {
+                        setShowSuccessAlert(false);
+                        // Navigate to MainApp with welcome bonus params
+                        navigation.replace('MainApp', {
+                            showWelcomeBonus: hasSponsor,
+                            registerBonusAmount: registerBonusAmount
+                        });
+                    }}
                 />
 
                 {/* Country Picker Modal */}
