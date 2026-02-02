@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions, PanResponder } from 'react-native';
+
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, Dimensions, PanResponder, Vibration } from 'react-native';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,125 +9,139 @@ const { width } = Dimensions.get('window');
 const BOARD_SIZE = width - moderateScale(24);
 
 const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
-    // Striker control with PanResponder
-    const [strikerX, setStrikerX] = useState(0); // Percentage -50 to 50 relative to track center? 
-    // Actually, let's use a simpler 0-100 range logic or similar.
-    // Let's stick to % for style left property. 
-    // Range: 0% to 100% of the track width? 
-    // Track width is roughly BOARD_SIZE - 2 * 60 (moderateScale).
-    // Let's use a value that represents position.
+    // Striker control - Simple and performant
+    const [strikerX, setStrikerX] = useState(0);
+    const [isPulling, setIsPulling] = useState(false);
+    const [pullVector, setPullVector] = useState({ x: 0, y: 0 });
+    const [isShooting, setIsShooting] = useState(false); // Hide striker during shot
 
-    // Interaction State
-    const [dragState, setDragState] = useState('IDLE'); // IDLE, MOVING, AIMING
-    const [aimVector, setAimVector] = useState({ x: 0, y: 0 });
-    const startXRef = React.useRef(0);
+    const startPosRef = React.useRef({ x: 0, y: 0 });
+    const strikerStartXRef = React.useRef(0);
 
     const panResponder = React.useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
-            onMoveShouldSetSetPanResponder: () => true,
-            onPanResponderGrant: () => {
-                startXRef.current = strikerX;
-                setDragState('IDLE');
-                setAimVector({ x: 0, y: 0 });
+            onMoveShouldSetPanResponder: () => true,
+            onPanResponderGrant: (evt) => {
+                strikerStartXRef.current = strikerX;
+                startPosRef.current = { x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY };
+                setIsPulling(false);
+                setPullVector({ x: 0, y: 0 });
             },
             onPanResponderMove: (evt, gestureState) => {
                 const { dx, dy } = gestureState;
 
-                // Determine Mode if IDLE
-                // Thresholds: small movements ignored
-                if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+                // Determine if user is pulling (vertical dominant) or positioning (horizontal dominant)
+                const pullBackThreshold = 15; // Increased threshold for better detection
+                const isPullBackGesture = currentPlayer === 'white' ? dy > pullBackThreshold : dy < -pullBackThreshold;
 
-                let currentMode = dragState;
-                if (currentMode === 'IDLE') {
-                    // If vertical movement dominates, switch to AIMING (Pull back)
-                    // For P1 (bottom), pull down (dy > 0). For P2 (top), pull up (dy < 0).
-                    const isPullBack = currentPlayer === 'white' ? dy > 0 : dy < 0;
-
-                    if (Math.abs(dy) > Math.abs(dx) && isPullBack) {
-                        currentMode = 'AIMING';
-                        setDragState('AIMING');
-                    } else {
-                        currentMode = 'MOVING';
-                        setDragState('MOVING');
+                if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > pullBackThreshold && isPullBackGesture) {
+                    // Pulling mode - show aim line
+                    if (!isPulling) {
+                        setIsPulling(true);
+                        Vibration.vibrate(10); // Haptic feedback on mode switch
                     }
-                }
-
-                if (currentMode === 'MOVING') {
-                    const sensitivity = 0.4;
-                    const newValue = startXRef.current + (dx * sensitivity);
-                    setStrikerX(Math.max(-42, Math.min(42, newValue)));
-                } else if (currentMode === 'AIMING') {
-                    // Update Aim Vector (Visual only)
-                    // We just track the raw drag vector
-                    setAimVector({ x: dx, y: dy });
+                    setPullVector({ x: dx, y: dy });
+                } else if (Math.abs(dx) > 5) {
+                    // Horizontal positioning mode - 1:1 mapping with screen pixels
+                    // Track width is approx 200-300px, we want 1:1 pixel movement
+                    const trackWidthPx = 250; // Approximate track width
+                    const percentPerPixel = 90 / trackWidthPx; // 90% range = -45 to +45
+                    const newValue = strikerStartXRef.current + (dx * percentPerPixel);
+                    setStrikerX(Math.max(-45, Math.min(45, newValue)));
                 }
             },
             onPanResponderRelease: (evt, gestureState) => {
-                if (dragState === 'AIMING') {
-                    // Calculate and Fire Shot
-                    // Shot vector is opposite to drag vector
-                    const { dx, dy } = gestureState;
+                const { dx, dy } = gestureState;
 
-                    // Scale factor for power
-                    const POWER_FACTOR = 0.15;
-                    const vx = -dx * POWER_FACTOR;
-                    const vy = -dy * POWER_FACTOR;
+                // Check if user pulled back (even if isPulling state wasn't set yet)
+                const pullBackThreshold = 15;
+                const isPullBackGesture = currentPlayer === 'white' ? dy > pullBackThreshold : dy < -pullBackThreshold;
+                const hasSignificantPull = Math.abs(dy) > pullBackThreshold && isPullBackGesture;
 
-                    // Cap max power if needed
-                    // const mag = Math.sqrt(vx*vx + vy*vy);
-                    // if (mag > MAX) ...
+                if (isPulling || hasSignificantPull) {
+                    // Calculate shot velocity based on final pull vector
+                    const finalDx = dx;
+                    const finalDy = dy;
+                    const POWER_FACTOR = 0.2;
 
-                    onStrike({ startX: strikerX, vx, vy });
+                    // Shot is opposite to pull direction
+                    const vx = -finalDx * POWER_FACTOR;
+                    const vy = -finalDy * POWER_FACTOR;
+
+                    // Clamp maximum power
+                    const maxSpeed = 30;
+                    const speed = Math.sqrt(vx * vx + vy * vy);
+                    const finalVx = speed > maxSpeed ? (vx / speed) * maxSpeed : vx;
+                    const finalVy = speed > maxSpeed ? (vy / speed) * maxSpeed : vy;
+
+                    // Only shoot if there's meaningful power
+                    if (speed > 1) {
+                        setIsShooting(true); // Hide striker during shot
+                        Vibration.vibrate(30); // Strong haptic on shot
+                        onStrike({ startX: strikerX, vx: finalVx, vy: finalVy });
+
+                        // Show striker again after shot completes
+                        setTimeout(() => setIsShooting(false), 3000);
+                    }
                 }
-                setDragState('IDLE');
-                setAimVector({ x: 0, y: 0 });
+
+                setIsPulling(false);
+                setPullVector({ x: 0, y: 0 });
             }
         })
     ).current;
 
-    const handleStrike = () => {
-        // This handleStrike is now only for the button, not the pan responder.
-        // The pan responder release handles the actual strike.
-        // This button strike can be a default "straight shot" or removed.
-        // For now, let's keep it as a simple straight shot if the button is pressed.
-        onStrike({ startX: strikerX, vx: 0, vy: -10 }); // Example: straight shot with some force
-    };
-
-    // Helper to render aim line
+    // Render aim line with arrow for better feedback
     const renderAimLine = () => {
-        if (dragState !== 'AIMING') return null;
+        if (!isPulling) return null;
 
-        // Line from Striker Center to Opposite of Drag
-        // Visualization: Show the direction the striker will GO (opposite to pull)
-        // Length proportional to power
-        const { x, y } = aimVector;
-        const lineLen = Math.sqrt(x * x + y * y);
-        const angle = Math.atan2(-y, -x) * (180 / Math.PI); // Angle of shot
+        const { x, y } = pullVector;
+        const pullLength = Math.sqrt(x * x + y * y);
+        if (pullLength < 5) return null;
 
-        // We render a simple stick coming out of the striker
-        // This view is relative to the Striker Container
+        // Shot direction is opposite to pull
+        const shotAngle = Math.atan2(-y, -x) * (180 / Math.PI);
+
+        // Power indicator (longer pull = more power)
+        const powerPercent = Math.min(pullLength / 100, 1);
+        const lineColor = `rgba(255, ${255 - powerPercent * 155}, ${255 - powerPercent * 255}, 0.8)`;
+
         return (
             <View style={{
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                width: lineLen, // Length of drag
-                height: 4,
-                backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                borderRadius: 2,
+                width: Math.min(pullLength * 1.5, 150),
+                height: 6,
+                backgroundColor: lineColor,
+                borderRadius: 3,
                 transform: [
-                    { translateY: -2 }, // Center vertically
-                    { rotate: `${angle}deg` }, // Rotate to shot direction
-                    { translateX: lineLen / 2 } // Offset so it starts from center? 
-                    // Pivot is center. translateX moves it "forward".
-                    // Actually, standard transform origin is center.
-                    // If width is lineLen, we want left edge at center.
-                    // React Native transform origin is center.
-                    // So translateX: lineLen/2 moves it so left edge is at original center.
+                    { translateY: -3 },
+                    { rotate: `${shotAngle} deg` },
                 ],
-                zIndex: -1, // Behind striker
-            }} />
+                zIndex: 100,
+                shadowColor: '#fff',
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.8,
+                shadowRadius: 4,
+                elevation: 10,
+            }}>
+                {/* Arrow tip */}
+                <View style={{
+                    position: 'absolute',
+                    right: -6,
+                    top: -3,
+                    width: 0,
+                    height: 0,
+                    borderLeftWidth: 12,
+                    borderLeftColor: lineColor,
+                    borderTopWidth: 6,
+                    borderTopColor: 'transparent',
+                    borderBottomWidth: 6,
+                    borderBottomColor: 'transparent',
+                }} />
+            </View>
         );
     };
 
@@ -134,7 +149,7 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
     const renderArrow = (rotation, top, left, bottom, right) => (
         <View style={[
             styles.arrowContainer,
-            { top, left, bottom, right, transform: [{ rotate: `${rotation}deg` }] }
+            { top, left, bottom, right, transform: [{ rotate: `${rotation} deg` }] }
         ]}>
             <View style={styles.arrowLine} />
             <View style={styles.arrowCurveLeft} />
@@ -172,8 +187,8 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
         </>
     );
 
-    // 3D Lightweight Coin Component with Texture
-    const RenderCoin = ({ coin }) => {
+    // 3D Lightweight Coin Component - Memoized for performance
+    const RenderCoin = React.memo(({ coin }) => {
         // Special rendering for the Physics Striker (during shot)
         if (coin.isStriker) {
             return (
@@ -183,27 +198,11 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                         {
                             left: coin.x,
                             top: coin.y,
-                            zIndex: 100, // Topmost
-                            width: moderateScale(36), // Match striker size
+                            zIndex: 100,
+                            width: moderateScale(36),
                             height: moderateScale(36),
                             borderRadius: moderateScale(18),
-                            marginLeft: -moderateScale(6), // Offset adjustment if needed? 
-                            // Wait, coin.x/y is top-left. Coin width is 24. Striker is 36.
-                            // Physics engine treats x/y as center? No, x/y is Top-Left in index.js render mapping.
-                            // But my physics engine used center-based logic or top-left?
-                            // "x += vx". "Wall Collisions: x < COIN_RADIUS".
-                            // So physics uses Center or Top-Left?
-                            // In index.js: "x = center + c.x - coinRadius".
-                            // So the state 'x' is Top-Left.
-                            // Physics engine checks: "x < COIN_RADIUS". 
-                            // If x is top-left, x < radius means left edge is past -radius? No.
-                            // Standard practice: Position is Center for physics, but render is Top-Left.
-                            // My index.js physics text logic seems to mix them up.
-                            // "x < COIN_RADIUS" implies x is center.
-                            // "return { ...c, x, y ... }" updates state.
-                            // The RenderCoin uses "left: coin.x".
-
-                            // Let's assume for now, just render it bigger and centered on that point.
+                            marginLeft: -moderateScale(6),
                             marginTop: -moderateScale(6),
                         }
                     ]}
@@ -216,10 +215,9 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
         const isWhite = coin.color === 'white';
         const isQueen = coin.color === 'queen';
 
-        // Colors
         const gradientColors = isQueen
-            ? ['#D32F2F', '#B71C1C', '#D32F2F'] // Red for Queen
-            : (isWhite ? ['#FFF9C4', '#FBC02D', '#FFF9C4'] : ['#424242', '#212121', '#424242']); // White/Black
+            ? ['#D32F2F', '#B71C1C', '#D32F2F']
+            : (isWhite ? ['#FFF9C4', '#FBC02D', '#FFF9C4'] : ['#424242', '#212121', '#424242']);
 
         const borderColor = isQueen ? '#B71C1C' : (isWhite ? '#FBC02D' : '#000');
 
@@ -244,15 +242,14 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                 </LinearGradient>
             </View>
         );
-    };
+    });
 
-    // 3D Striker Component
-    const RenderStriker = ({ color }) => {
+    // 3D Striker Component - Memoized
+    const RenderStriker = React.memo(({ color }) => {
         const isGreen = color === 'green';
-        // Brighter, more visible colors
         const gradientColors = isGreen
-            ? ['#66BB6A', '#43A047', '#2E7D32'] // Lighter Green
-            : ['#42A5F5', '#1E88E5', '#1565C0']; // Lighter Blue
+            ? ['#66BB6A', '#43A047', '#2E7D32']
+            : ['#42A5F5', '#1E88E5', '#1565C0'];
 
         const borderColor = isGreen ? '#1B5E20' : '#0D47A1';
 
@@ -262,85 +259,75 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                     colors={gradientColors}
                     style={[styles.strikerGradient, { borderColor }]}
                 >
-                    {/* Clean look - no inner lines as requested */}
                     <View style={styles.strikerCenter} />
                 </LinearGradient>
             </View>
         );
-    };
+    });
 
     return (
         <View style={styles.boardContainer}>
-            {/* Frame - Jet Black shiny look as per image */}
             <View style={styles.boardFrame}>
                 <View style={styles.boardSurface}>
-                    {/* Corner Pockets with Mesh Pattern */}
                     <View style={[styles.pocket, styles.pocketTL]}><MaterialCommunityIcons name="grid" size={24} color="#DDD" style={{ opacity: 0.5 }} /></View>
                     <View style={[styles.pocket, styles.pocketTR]}><MaterialCommunityIcons name="grid" size={24} color="#DDD" style={{ opacity: 0.5 }} /></View>
                     <View style={[styles.pocket, styles.pocketBL]}><MaterialCommunityIcons name="grid" size={24} color="#DDD" style={{ opacity: 0.5 }} /></View>
                     <View style={[styles.pocket, styles.pocketBR]}><MaterialCommunityIcons name="grid" size={24} color="#DDD" style={{ opacity: 0.5 }} /></View>
 
-                    {/* Logo */}
                     <View style={styles.logoContainer}>
                         <MaterialCommunityIcons name="alpha-s-circle-outline" size={20} color="#D32F2F" />
                         <View style={{ height: 1, width: 40, backgroundColor: '#D32F2F', marginHorizontal: 4 }} />
                         <MaterialCommunityIcons name="crown" size={16} color="#D32F2F" />
                     </View>
 
-                    {/* Diagonal Lines (Arrows) */}
                     {renderArrow(135, moderateScale(60), moderateScale(60), null, null)}
                     {renderArrow(225, moderateScale(60), null, null, moderateScale(60))}
                     {renderArrow(45, null, moderateScale(60), moderateScale(60), null)}
                     {renderArrow(-45, null, null, moderateScale(60), moderateScale(60))}
 
-                    {/* Baselines - Black double lines */}
                     {renderBaselineHorizontal(true)}
                     {renderBaselineHorizontal(false)}
                     {renderBaselineVertical(true)}
                     {renderBaselineVertical(false)}
 
-                    {/* Corner Circles (Independent) */}
                     {renderCornerCircles()}
 
-                    {/* Center Design */}
                     <View style={styles.centerDesign}>
                         <View style={styles.centerOuterLoop} />
                         <View style={styles.centerMiddleFill} />
-                        <View style={styles. centerRedDot} />
+                        <View style={styles.centerRedDot} />
                     </View>
 
-                    {/* Coins */}
                     {coins.map((coin, index) => (
                         !coin.potted && (
                             <RenderCoin key={index} coin={coin} />
                         )
                     ))}
 
-                    {/* Striker Area - Player 1 (Green) */}
-                    {currentPlayer === 'white' && (
+                    {currentPlayer === 'white' && !isShooting && (
                         <View style={styles.strikerTrackBottom}>
                             <View
                                 style={[styles.strikerContainer, { left: `${50 + strikerX}%` }]}
                                 {...panResponder.panHandlers}
                             >
                                 {renderAimLine()}
-                                <TouchableOpacity
-                                    onPress={handleStrike}
-                                    activeOpacity={0.9}
-                                    style={{ width: '100%', height: '100%' }}
-                                >
+                                <View style={{ width: '100%', height: '100%' }}>
                                     <RenderStriker color="green" />
-                                </TouchableOpacity>
+                                </View>
                             </View>
                         </View>
                     )}
 
-                    {/* Striker Area - Player 2 (Blue) */}
-                    {currentPlayer === 'black' && (
+                    {currentPlayer === 'black' && !isShooting && (
                         <View style={styles.strikerTrackTop}>
-                            {/* Simulation view for opponent */}
-                            <View style={[styles.strikerContainer, { left: '50%' }]}>
-                                <RenderStriker color="blue" />
+                            <View
+                                style={[styles.strikerContainer, { left: `${50 + strikerX}%` }]}
+                                {...panResponder.panHandlers}
+                            >
+                                {renderAimLine()}
+                                <View style={{ width: '100%', height: '100%' }}>
+                                    <RenderStriker color="blue" />
+                                </View>
                             </View>
                         </View>
                     )}
@@ -359,20 +346,19 @@ const styles = StyleSheet.create({
     boardFrame: {
         width: BOARD_SIZE,
         height: BOARD_SIZE,
-        padding: moderateScale(20), // Wide black frame
+        padding: moderateScale(20),
         borderRadius: moderateScale(30),
-        backgroundColor: '#050505', // Jet black as per image
+        backgroundColor: '#050505',
         elevation: 8,
     },
     boardSurface: {
         flex: 1,
-        backgroundColor: '#F2D7B4', // Light wood texture color
+        backgroundColor: '#F2D7B4',
         borderRadius: moderateScale(10),
         position: 'relative',
         overflow: 'hidden',
     },
 
-    // Pockets
     pocket: {
         position: 'absolute',
         width: moderateScale(36),
@@ -389,7 +375,6 @@ const styles = StyleSheet.create({
     pocketBL: { bottom: -moderateScale(8), left: -moderateScale(8) },
     pocketBR: { bottom: -moderateScale(8), right: -moderateScale(8) },
 
-    // Logo
     logoContainer: {
         position: 'absolute',
         top: moderateScale(20),
@@ -399,7 +384,6 @@ const styles = StyleSheet.create({
         opacity: 0.8,
     },
 
-    // Center Design
     centerDesign: {
         position: 'absolute',
         top: '50%',
@@ -417,7 +401,7 @@ const styles = StyleSheet.create({
         height: '100%',
         borderRadius: moderateScale(50),
         borderWidth: 1.5,
-        borderColor: '#212121', // Thin outer black ring
+        borderColor: '#212121',
     },
     centerMiddleFill: {
         position: 'absolute',
@@ -431,10 +415,9 @@ const styles = StyleSheet.create({
         width: moderateScale(16),
         height: moderateScale(16),
         borderRadius: moderateScale(8),
-        backgroundColor: '#D32F2F', // Solid red center
+        backgroundColor: '#D32F2F',
     },
 
-    // Baselines
     baselineBoxHorz: {
         position: 'absolute',
         left: moderateScale(48),
@@ -449,13 +432,13 @@ const styles = StyleSheet.create({
         flex: 1,
         height: '100%',
         justifyContent: 'center',
-        gap: moderateScale(14), // Matches image spacing
+        gap: moderateScale(14),
         marginHorizontal: moderateScale(2),
     },
     singleLine: {
         width: '100%',
         height: 1.5,
-        backgroundColor: '#000', // Solid black lines
+        backgroundColor: '#000',
     },
 
     baselineBoxVert: {
@@ -482,20 +465,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
     },
 
-    // Baseline Circles
     baseCircleRed: {
-        width: moderateScale(22), // Slightly larger
+        width: moderateScale(22),
         height: moderateScale(22),
         borderRadius: moderateScale(11),
-        backgroundColor: '#FF0000', // Full Bright Red
+        backgroundColor: '#FF0000',
         borderWidth: 1,
         borderColor: '#000',
         opacity: 1,
-        elevation: 2, // Slight pop
+        elevation: 2,
         zIndex: 5,
     },
 
-    // Arrows
     arrowContainer: {
         position: 'absolute',
         width: moderateScale(80),
@@ -516,7 +497,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderLeftWidth: 1,
         borderColor: '#000',
-        borderRadius: moderateScale(20), // Curve
+        borderRadius: moderateScale(20),
         left: moderateScale(5),
         bottom: '50%',
         transform: [{ rotate: '45deg' }]
@@ -528,7 +509,7 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderRightWidth: 1,
         borderColor: '#000',
-        borderRadius: moderateScale(20), // Curve
+        borderRadius: moderateScale(20),
         right: moderateScale(5),
         top: '50%',
         transform: [{ rotate: '45deg' }]
@@ -542,8 +523,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
     },
 
-
-    // 3D Coins Styles
     coin: {
         position: 'absolute',
         width: moderateScale(24),
@@ -589,7 +568,6 @@ const styles = StyleSheet.create({
         opacity: 0.8,
     },
 
-    // Striker
     strikerTrackBottom: {
         position: 'absolute',
         bottom: moderateScale(42),
@@ -597,7 +575,7 @@ const styles = StyleSheet.create({
         right: moderateScale(60),
         height: moderateScale(30),
         justifyContent: 'center',
-        zIndex: 20, // Ensure on top of coins
+        zIndex: 20,
         elevation: 10,
     },
     strikerTrackTop: {
@@ -635,22 +613,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-    },
-    strikerRingOuter: {
-        position: 'absolute',
-        width: '80%',
-        height: '80%',
-        borderRadius: moderateScale(15),
-        borderWidth: 1.5,
-        borderColor: 'rgba(255,255,255,0.3)',
-    },
-    strikerRingInner: {
-        position: 'absolute',
-        width: '50%',
-        height: '50%',
-        borderRadius: moderateScale(10),
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
     },
     strikerCenter: {
         width: '20%',

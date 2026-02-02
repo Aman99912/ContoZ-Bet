@@ -108,54 +108,57 @@ const CarromGame = ({ navigation, route }) => {
     const SURFACE_SIZE = BOARD_SIZE - PADDING * 2; // ~300-350 depending on screen
     const COIN_RADIUS = moderateScale(12);
 
-    // Update Physics State
+    // Update Physics State with 90fps optimization
     const animate = (time) => {
         if (!lastTimeRef.current) lastTimeRef.current = time;
-        // const deltaTime = time - lastTimeRef.current; // Use for frame-independent if needed
+        const deltaTime = (time - lastTimeRef.current) / 16.67; // Normalize to 60fps baseline
         lastTimeRef.current = time;
 
         setCoins(prevCoins => {
             let nextCoins = [...prevCoins];
             let moving = false;
+            let anySignificantMovement = false;
 
             // 1. Move & Wall Collisions
             nextCoins = nextCoins.map(c => {
                 if (c.potted) return c;
-                if (Math.abs(c.vx) < STOP_THRESHOLD && Math.abs(c.vy) < STOP_THRESHOLD) {
+
+                const speed = Math.sqrt(c.vx * c.vx + c.vy * c.vy);
+                if (speed < STOP_THRESHOLD) {
                     return { ...c, vx: 0, vy: 0 };
                 }
 
                 moving = true;
+                if (speed > 0.5) anySignificantMovement = true;
+
                 let { x, y, vx, vy } = c;
 
-                // Apply Velocity
-                x += vx;
-                y += vy;
+                // Apply Velocity (with delta time for frame-independent physics)
+                x += vx * deltaTime;
+                y += vy * deltaTime;
 
                 // Apply Friction
-                vx *= FRICTION;
-                vy *= FRICTION;
+                const frictionFactor = Math.pow(FRICTION, deltaTime);
+                vx *= frictionFactor;
+                vy *= frictionFactor;
 
-                // Wall Collisions
-                // Left
-                if (x < COIN_RADIUS) {
-                    x = COIN_RADIUS;
-                    vx = -vx * WALL_DAMPING;
+                // Wall Collisions with improved bounce
+                const margin = COIN_RADIUS;
+                if (x < margin) {
+                    x = margin;
+                    vx = Math.abs(vx) * WALL_DAMPING;
                 }
-                // Right
-                if (x > SURFACE_SIZE - COIN_RADIUS) {
-                    x = SURFACE_SIZE - COIN_RADIUS;
-                    vx = -vx * WALL_DAMPING;
+                if (x > SURFACE_SIZE - margin) {
+                    x = SURFACE_SIZE - margin;
+                    vx = -Math.abs(vx) * WALL_DAMPING;
                 }
-                // Top
-                if (y < COIN_RADIUS) {
-                    y = COIN_RADIUS;
-                    vy = -vy * WALL_DAMPING;
+                if (y < margin) {
+                    y = margin;
+                    vy = Math.abs(vy) * WALL_DAMPING;
                 }
-                // Bottom
-                if (y > SURFACE_SIZE - COIN_RADIUS) {
-                    y = SURFACE_SIZE - COIN_RADIUS;
-                    vy = -vy * WALL_DAMPING;
+                if (y > SURFACE_SIZE - margin) {
+                    y = SURFACE_SIZE - margin;
+                    vy = -Math.abs(vy) * WALL_DAMPING;
                 }
 
                 return { ...c, x, y, vx, vy };
