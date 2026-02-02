@@ -33,6 +33,7 @@ export default function HomeScreen() {
 
     const games = [
         { title: 'Tic Tac Toe', entryFee: 50, image: require('@/images/Cardimage/tic-tac-toe.png') },
+        { title: 'Carrom Board', entryFee: 50, image: require('@/images/Cardimage/carm.png') },
     ];
 
     // Get wallet balance from AppContext
