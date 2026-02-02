@@ -12,11 +12,12 @@ export default function HelpAndSupport() {
     const { colors } = useTheme();
 
     const handleEmailPress = () => {
-        Linking.openURL('mailto:support@contoz-bet.com');
+        Linking.openURL(`mailto:${process.env.EXPO_PUBLIC_SUPPORT_EMAIL}`);
     };
 
     const handleWhatsAppPress = () => {
-        Linking.openURL('https://wa.me/1234567890');
+        const phoneNumber = process.env.EXPO_PUBLIC_SUPPORT_WHATSAPP?.replace(/[^\d]/g, '') || '';
+        Linking.openURL(`https://wa.me/${phoneNumber}`);
     };
 
     const handleCreateTicket = () => {
@@ -76,7 +77,7 @@ export default function HelpAndSupport() {
                             <MaterialCommunityIcons name="email-outline" size={moderateScale(32)} color={colors.primary} />
                             <View style={styles.contactInfo}>
                                 <CText style={[styles.contactTitle, { color: colors.textPrimary }]}>Email Support</CText>
-                                <CText style={[styles.contactText, { color: colors.textSecondary }]}>support@contoz-bet.com</CText>
+                                <CText style={[styles.contactText, { color: colors.textSecondary }]}>{process.env.EXPO_PUBLIC_SUPPORT_EMAIL}</CText>
                             </View>
                             <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
                         </TouchableOpacity>
@@ -85,7 +86,7 @@ export default function HelpAndSupport() {
                             <MaterialCommunityIcons name="whatsapp" size={moderateScale(32)} color={colors.primary} />
                             <View style={styles.contactInfo}>
                                 <CText style={[styles.contactTitle, { color: colors.textPrimary }]}>WhatsApp Support</CText>
-                                <CText style={[styles.contactText, { color: colors.textSecondary }]}>+91 1234567890</CText>
+                                <CText style={[styles.contactText, { color: colors.textSecondary }]}>{process.env.EXPO_PUBLIC_SUPPORT_WHATSAPP}</CText>
                             </View>
                             <MaterialCommunityIcons name="chevron-right" size={moderateScale(24)} color={colors.textSecondary} />
                         </TouchableOpacity>

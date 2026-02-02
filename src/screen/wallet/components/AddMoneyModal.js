@@ -16,6 +16,8 @@ import { useTheme, colors } from '@/core/theme/colors';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import CText from '@/components/common/CText';
 
+import { useApp } from '@/context/AppContext';
+
 
 const AddMoneyModal = ({
     visible,
@@ -28,10 +30,13 @@ const AddMoneyModal = ({
     calculateGST,
     gstPercentage = 18,
     onAddMoney,
-    isAddDisabled,
     buttonLoading,
 }) => {
     const { colors } = useTheme();
+    const { config } = useApp();
+
+    const minInvestment = config?.investment?.minimum_investment || 50;
+    const isAddDisabled = !amount || Number(amount) < minInvestment;
 
     if (!visible) return null;
 
@@ -61,7 +66,10 @@ const AddMoneyModal = ({
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}
                         >
-                            <CText style={[styles.modalInputLabel, { color: colors.textPrimary }]}>Enter Amount</CText>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: verticalScale(12) }}>
+                                <CText style={[styles.modalInputLabel, { color: colors.textPrimary, marginBottom: 0 }]}>Enter Amount</CText>
+                                <CText style={{ fontSize: moderateScale(12), color: colors.textSecondary }}>Min: ₹{minInvestment}</CText>
+                            </View>
                             <TextInput
                                 style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.textPrimary, borderColor: colors.border }]}
                                 placeholder="₹0.00"
