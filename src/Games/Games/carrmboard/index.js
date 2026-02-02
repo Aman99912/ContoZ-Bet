@@ -4,6 +4,7 @@ import {
     StyleSheet,
     BackHandler,
     Vibration,
+    Dimensions,
 } from 'react-native';
 import { gamesColor } from '@/core/theme/GamesColor';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
@@ -26,16 +27,57 @@ const CarromGame = ({ navigation, route }) => {
     const [whiteScore, setWhiteScore] = useState(0);
     const [blackScore, setBlackScore] = useState(0);
 
-    // Initial dummy coin positions
-    const [coins, setCoins] = useState(
-        Array(9).fill(null).map((_, i) => ({
-            id: i,
-            color: i === 4 ? 'queen' : (i % 2 === 0 ? 'white' : 'black'),
-            x: 140 + (Math.random() * 40 - 20), // rough center cluster
-            y: 140 + (Math.random() * 40 - 20),
+    // Initial Coin positions (Center formation)
+    const [coins, setCoins] = useState(() => {
+        const { width } = Dimensions.get('window');
+        // Matches CarromBoard.js layout logic
+        const BOARD_SIZE = width - moderateScale(24);
+        const PADDING = moderateScale(20);
+        const SURFACE_SIZE = BOARD_SIZE - PADDING * 2;
+        const center = SURFACE_SIZE / 2;
+
+        // Adjust for Board component internal padding/margins if needed.
+        // CarromBoard Surface is relative to Frame. Coins are rendered absolute in Surface.
+        // Frame padding is 20. Surface is inside Frame. 
+        // So (0,0) of Surface is Top-Left of playable area. Center is Surface/2.
+
+        const coinRadius = moderateScale(12); // Half of width (24)
+
+        const hexRadius = moderateScale(26); // Distance for first ring
+        const hexRadius2 = moderateScale(52); // Distance for second ring
+
+        // Exact coin definitions
+        const fixedCoins = [
+            { id: 0, color: 'queen', x: 0, y: 0 },
+            // Inner Circle (6)
+            { id: 1, color: 'white', x: hexRadius, y: 0 },
+            { id: 2, color: 'black', x: hexRadius * 0.5, y: hexRadius * 0.866 },
+            { id: 3, color: 'white', x: -hexRadius * 0.5, y: hexRadius * 0.866 },
+            { id: 4, color: 'black', x: -hexRadius, y: 0 },
+            { id: 5, color: 'white', x: -hexRadius * 0.5, y: -hexRadius * 0.866 },
+            { id: 6, color: 'black', x: hexRadius * 0.5, y: -hexRadius * 0.866 },
+            // Outer Circle (12)
+            { id: 7, color: 'white', x: hexRadius * 2, y: 0 },
+            { id: 8, color: 'black', x: hexRadius * 1.5, y: hexRadius * 0.866 },
+            { id: 9, color: 'white', x: hexRadius * 1, y: hexRadius * 1.732 },
+            { id: 10, color: 'black', x: 0, y: hexRadius * 2 },
+            { id: 11, color: 'white', x: -hexRadius * 1, y: hexRadius * 1.732 },
+            { id: 12, color: 'black', x: -hexRadius * 1.5, y: hexRadius * 0.866 },
+            { id: 13, color: 'white', x: -hexRadius * 2, y: 0 },
+            { id: 14, color: 'black', x: -hexRadius * 1.5, y: -hexRadius * 0.866 },
+            { id: 15, color: 'white', x: -hexRadius * 1, y: -hexRadius * 1.732 },
+            { id: 16, color: 'black', x: 0, y: -hexRadius * 2 },
+            { id: 17, color: 'white', x: hexRadius * 1, y: -hexRadius * 1.732 },
+            { id: 18, color: 'black', x: hexRadius * 1.5, y: -hexRadius * 0.866 },
+        ];
+
+        return fixedCoins.map(c => ({
+            ...c,
+            x: center + c.x - coinRadius,
+            y: center + c.y - coinRadius,
             potted: false
-        }))
-    );
+        }));
+    });
 
     // Alert states
     const [showAlert, setShowAlert] = useState(false);

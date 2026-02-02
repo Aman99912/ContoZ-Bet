@@ -52,6 +52,65 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
         </View>
     );
 
+    // 3D Lightweight Coin Component with Texture
+    const RenderCoin = ({ coin }) => {
+        const isWhite = coin.color === 'white';
+        const isQueen = coin.color === 'queen';
+
+        // Colors
+        const gradientColors = isQueen
+            ? ['#D32F2F', '#B71C1C', '#D32F2F'] // Red for Queen
+            : (isWhite ? ['#FFF9C4', '#FBC02D', '#FFF9C4'] : ['#424242', '#212121', '#424242']); // White/Black
+
+        const borderColor = isQueen ? '#B71C1C' : (isWhite ? '#FBC02D' : '#000');
+
+        return (
+            <View
+                style={[
+                    styles.coin,
+                    {
+                        left: coin.x,
+                        top: coin.y,
+                        zIndex: 10,
+                    }
+                ]}
+            >
+                <LinearGradient
+                    colors={gradientColors}
+                    style={[styles.coinGradient, { borderColor }]}
+                >
+                    <View style={styles.coinRingOuter} />
+                    <View style={styles.coinRingMid} />
+                    <View style={styles.coinCenterDesign} />
+                </LinearGradient>
+            </View>
+        );
+    };
+
+    // 3D Striker Component
+    const RenderStriker = ({ color }) => {
+        const isGreen = color === 'green';
+        // Green for Player 1 (Bottom), Blue for Player 2 (Top)
+        const gradientColors = isGreen
+            ? ['#4CAF50', '#2E7D32', '#1B5E20']
+            : ['#2196F3', '#1565C0', '#0D47A1'];
+        const borderColor = isGreen ? '#1B5E20' : '#0D47A1';
+
+        return (
+            <View style={styles.strikerContainerInner}>
+                <LinearGradient
+                    colors={gradientColors}
+                    style={[styles.strikerGradient, { borderColor }]}
+                >
+                    {/* Inner design for grip/texture */}
+                    <View style={styles.strikerRingOuter} />
+                    <View style={styles.strikerRingInner} />
+                    <View style={styles.strikerCenter} />
+                </LinearGradient>
+            </View>
+        );
+    };
+
     return (
         <View style={styles.boardContainer}>
             {/* Frame - Jet Black shiny look as per image */}
@@ -71,16 +130,12 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                     </View>
 
                     {/* Diagonal Lines (Arrows) */}
-                    {/* Top-Left */}
                     {renderArrow(135, moderateScale(60), moderateScale(60), null, null)}
-                    {/* Top-Right */}
                     {renderArrow(225, moderateScale(60), null, null, moderateScale(60))}
-                    {/* Bottom-Left */}
                     {renderArrow(45, null, moderateScale(60), moderateScale(60), null)}
-                    {/* Bottom-Right */}
                     {renderArrow(-45, null, null, moderateScale(60), moderateScale(60))}
 
-                    {/* Baselines - Black double lines with Red Circles */}
+                    {/* Baselines */}
                     {renderBaselineHorizontal(true)}
                     {renderBaselineHorizontal(false)}
                     {renderBaselineVertical(true)}
@@ -88,7 +143,6 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
 
                     {/* Center Design */}
                     <View style={styles.centerDesign}>
-                        {/* Outer Red/Black ring pattern simulation */}
                         <View style={styles.centerOuterLoop} />
                         <View style={styles.centerMiddleFill} />
                         <View style={styles.centerRedDot} />
@@ -97,29 +151,11 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                     {/* Coins */}
                     {coins.map((coin, index) => (
                         !coin.potted && (
-                            <View
-                                key={index}
-                                style={[
-                                    styles.coin,
-                                    {
-                                        backgroundColor: coin.color === 'white' ? '#F3E5AB' : '#212121', // Beige/Black
-                                        borderColor: coin.color === 'white' ? '#D4C4A8' : '#000',
-                                        left: coin.x,
-                                        top: coin.y,
-                                        borderWidth: coin.color === 'queen' ? 0 : 1,
-                                        backgroundColor: coin.color === 'queen' ? '#E53935' : (coin.color === 'white' ? '#F3E5AB' : '#212121'),
-                                    }
-                                ]}
-                            >
-                                <View style={[
-                                    styles.coinRing,
-                                    { borderColor: coin.color === 'white' ? '#D7CCC8' : '#424242' }
-                                ]} />
-                            </View>
+                            <RenderCoin key={index} coin={coin} />
                         )
                     ))}
 
-                    {/* Striker Area */}
+                    {/* Striker Area - Player 1 (Green) */}
                     {currentPlayer === 'white' && (
                         <View style={styles.strikerTrackBottom}>
                             <TouchableOpacity
@@ -127,16 +163,16 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                                 onPress={handleStrike}
                                 activeOpacity={0.9}
                             >
-                                <View style={styles.strikerBody} />
+                                <RenderStriker color="green" />
                             </TouchableOpacity>
                         </View>
                     )}
 
-                    {/* Opponent View */}
+                    {/* Striker Area - Player 2 (Blue) */}
                     {currentPlayer === 'black' && (
                         <View style={styles.strikerTrackTop}>
                             <View style={[styles.strikerContainer, { left: '50%' }]}>
-                                <View style={[styles.strikerBody, { backgroundColor: '#FFEE58' }]} />
+                                <RenderStriker color="blue" />
                             </View>
                         </View>
                     )}
@@ -168,7 +204,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
 
-    // Pockets with Mesh look
+    // Pockets
     pocket: {
         position: 'absolute',
         width: moderateScale(36),
@@ -195,7 +231,7 @@ const styles = StyleSheet.create({
         opacity: 0.8,
     },
 
-    // Center Design - Matches Image
+    // Center Design
     centerDesign: {
         position: 'absolute',
         top: '50%',
@@ -230,7 +266,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#D32F2F', // Solid red center
     },
 
-    // Baselines - Double Lines
+    // Baselines
     baselineBoxHorz: {
         position: 'absolute',
         left: moderateScale(48),
@@ -278,7 +314,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
     },
 
-    // Baseline Circles - Solid Red
+    // Baseline Circles
     baseCircleRed: {
         width: moderateScale(20),
         height: moderateScale(20),
@@ -295,7 +331,6 @@ const styles = StyleSheet.create({
         height: moderateScale(80),
         justifyContent: 'center',
         alignItems: 'center',
-        // backgroundColor: 'rgba(0,0,0,0.05)', // Debug
     },
     arrowLine: {
         position: 'absolute',
@@ -337,23 +372,50 @@ const styles = StyleSheet.create({
     },
 
 
-    // Coins
+    // 3D Coins Styles
     coin: {
         position: 'absolute',
-        width: moderateScale(22),
-        height: moderateScale(22),
-        borderRadius: moderateScale(11),
+        width: moderateScale(24),
+        height: moderateScale(24),
+        borderRadius: moderateScale(12),
         justifyContent: 'center',
         alignItems: 'center',
-        elevation: 2,
-        zIndex: 10,
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 1, height: 2 },
+        shadowOpacity: 0.5,
+        shadowRadius: 2.5,
     },
-    coinRing: {
-        width: '70%',
-        height: '70%',
-        borderRadius: moderateScale(8),
+    coinGradient: {
+        width: '100%',
+        height: '100%',
+        borderRadius: moderateScale(12),
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 0.5,
+    },
+    coinRingOuter: {
+        position: 'absolute',
+        width: '85%',
+        height: '85%',
+        borderRadius: moderateScale(10),
         borderWidth: 1,
-        opacity: 0.5,
+        opacity: 0.2,
+    },
+    coinRingMid: {
+        position: 'absolute',
+        width: '60%',
+        height: '60%',
+        borderRadius: moderateScale(8),
+        borderWidth: 0.5,
+        opacity: 0.2,
+    },
+    coinCenterDesign: {
+        width: '40%',
+        height: '40%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        opacity: 0.8,
     },
 
     // Striker
@@ -362,7 +424,7 @@ const styles = StyleSheet.create({
         bottom: moderateScale(42),
         left: moderateScale(60),
         right: moderateScale(60),
-        height: moderateScale(22),
+        height: moderateScale(30),
         justifyContent: 'center',
     },
     strikerTrackTop: {
@@ -370,25 +432,56 @@ const styles = StyleSheet.create({
         top: moderateScale(42),
         left: moderateScale(60),
         right: moderateScale(60),
-        height: moderateScale(22),
+        height: moderateScale(30),
         justifyContent: 'center',
     },
     strikerContainer: {
         position: 'absolute',
-        width: moderateScale(32),
-        height: moderateScale(32),
-        marginLeft: -moderateScale(16),
+        width: moderateScale(36),
+        height: moderateScale(36),
+        marginLeft: -moderateScale(18),
         alignItems: 'center',
         justifyContent: 'center',
     },
-    strikerBody: {
+    strikerContainerInner: {
         width: '100%',
         height: '100%',
-        borderRadius: moderateScale(16),
-        backgroundColor: '#FFF', // White striker
-        borderWidth: 4,
-        borderColor: '#E0E0E0', // slight rim
-        elevation: 4,
+        borderRadius: moderateScale(18),
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.5,
+        shadowRadius: 3,
+    },
+    strikerGradient: {
+        width: '100%',
+        height: '100%',
+        borderRadius: moderateScale(18),
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+    },
+    strikerRingOuter: {
+        position: 'absolute',
+        width: '80%',
+        height: '80%',
+        borderRadius: moderateScale(15),
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.3)',
+    },
+    strikerRingInner: {
+        position: 'absolute',
+        width: '50%',
+        height: '50%',
+        borderRadius: moderateScale(10),
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    strikerCenter: {
+        width: '20%',
+        height: '20%',
+        borderRadius: moderateScale(4),
+        backgroundColor: 'rgba(255,255,255,0.4)',
     },
 });
 
