@@ -95,11 +95,11 @@ const CarromGame = ({ navigation, route }) => {
     const startTimeRef = React.useRef();
     const lastTimeRef = React.useRef();
 
-    // Physics Constants
-    const FRICTION = 0.985; // Deceleration per frame
-    const WALL_DAMPING = 0.7; // Energy lost when hitting wall
-    const COIN_DAMPING = 0.8; // Energy lost hitting other coins
-    const STOP_THRESHOLD = 0.05;
+    // Realistic Physics Constants - Tuned for authentic carrom feel
+    const FRICTION = 0.97; // Realistic wood surface friction - coins glide smoothly
+    const WALL_DAMPING = 0.55; // Softer wall bounce - more realistic energy loss  
+    const COIN_DAMPING = 0.85; // Realistic coin-to-coin collision
+    const STOP_THRESHOLD = 0.08; // Slower threshold for natural stop
 
     // Board Dimensions (must match CarromBoard.js)
     const { width } = Dimensions.get('window');
@@ -193,25 +193,23 @@ const CarromGame = ({ navigation, route }) => {
                         // Do not resolve if moving apart
                         if (velAlongNormal > 0) continue;
 
-                        // Elastic collision impulse
-                        const restitution = 0.9; // Bounciness
+                        // Elastic collision impulse with realistic restitution
+                        const restitution = 0.85; // Slightly less bouncy
                         const jVal = -(1 + restitution) * velAlongNormal;
-                        // Assuming equal mass, jVal /= 2 (1/m1 + 1/m2)
                         const impulse = jVal / 2;
 
-                        // Apply impulse
+                        // Apply impulse with damping
                         const impX = impulse * nx;
                         const impY = impulse * ny;
 
-                        // Update velocities (Dumping factor)
                         nextCoins[i].vx -= impX * COIN_DAMPING;
                         nextCoins[i].vy -= impY * COIN_DAMPING;
                         nextCoins[j].vx += impX * COIN_DAMPING;
                         nextCoins[j].vy += impY * COIN_DAMPING;
 
-                        // Seperate circles to prevent sticking (Projection)
+                        // Smooth separation to prevent sticking
                         const overlap = COIN_RADIUS * 2 - dist;
-                        const correction = overlap / 2;
+                        const correction = (overlap / 2) * 0.6; // Gentler separation
                         nextCoins[i].x -= nx * correction;
                         nextCoins[i].y -= ny * correction;
                         nextCoins[j].x += nx * correction;
@@ -318,9 +316,13 @@ const CarromGame = ({ navigation, route }) => {
         // Cleanup Striker after delay (simulating it returns)
         setTimeout(() => {
             setCoins(prev => prev.filter(c => c.id !== 'striker'));
-            // Switch turn logic can go here if we track 'pottedAny'
+            // Call onComplete callback if provided
+            if (strikeData.onComplete) {
+                strikeData.onComplete();
+            }
+            // Switch turn logic
             setCurrentPlayer(prev => prev === 'white' ? 'black' : 'white');
-        }, 5000);
+        }, 3500); // Reduced from 5s to 3.5s for faster gameplay
     };
 
     // Check Winner

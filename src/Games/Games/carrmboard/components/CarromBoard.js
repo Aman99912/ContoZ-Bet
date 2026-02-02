@@ -63,14 +63,14 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                     // Calculate shot velocity based on final pull vector
                     const finalDx = dx;
                     const finalDy = dy;
-                    const POWER_FACTOR = 0.2;
+                    const POWER_FACTOR = 0.12; // Reduced power for realistic slower shots
 
                     // Shot is opposite to pull direction
                     const vx = -finalDx * POWER_FACTOR;
                     const vy = -finalDy * POWER_FACTOR;
 
-                    // Clamp maximum power
-                    const maxSpeed = 30;
+                    // Clamp maximum power for realistic gameplay
+                    const maxSpeed = 18; // Reduced max speed for smoother feel
                     const speed = Math.sqrt(vx * vx + vy * vy);
                     const finalVx = speed > maxSpeed ? (vx / speed) * maxSpeed : vx;
                     const finalVy = speed > maxSpeed ? (vy / speed) * maxSpeed : vy;
@@ -78,11 +78,17 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                     // Only shoot if there's meaningful power
                     if (speed > 1) {
                         setIsShooting(true); // Hide striker during shot
-                        Vibration.vibrate(30); // Strong haptic on shot
-                        onStrike({ startX: strikerX, vx: finalVx, vy: finalVy });
-
-                        // Show striker again after shot completes
-                        setTimeout(() => setIsShooting(false), 3000);
+                        Vibration.vibrate(30);
+                        onStrike({
+                            startX: strikerX,
+                            vx: finalVx,
+                            vy: finalVy,
+                            onComplete: () => {
+                                // Reset striker when shot completes
+                                setIsShooting(false);
+                                setStrikerX(0); // Reset to center
+                            }
+                        });
                     }
                 }
 
