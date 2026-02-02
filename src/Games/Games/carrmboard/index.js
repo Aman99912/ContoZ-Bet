@@ -75,6 +75,8 @@ const CarromGame = ({ navigation, route }) => {
             ...c,
             x: center + c.x - coinRadius,
             y: center + c.y - coinRadius,
+            vx: 0,
+            vy: 0,
             potted: false
         }));
     });
@@ -86,46 +88,239 @@ const CarromGame = ({ navigation, route }) => {
     // Celebration state
     const [showCelebration, setShowCelebration] = useState(false);
 
+    // --- PHYSICS ENGINE ---
+
+    // Game Loop Reference
+    const requestRef = React.useRef();
+    const startTimeRef = React.useRef();
+    const lastTimeRef = React.useRef();
+
+    // Physics Constants
+    const FRICTION = 0.985; // Deceleration per frame
+    const WALL_DAMPING = 0.7; // Energy lost when hitting wall
+    const COIN_DAMPING = 0.8; // Energy lost hitting other coins
+    const STOP_THRESHOLD = 0.05;
+
+    // Board Dimensions (must match CarromBoard.js)
+    const { width } = Dimensions.get('window');
+    const BOARD_SIZE = width - moderateScale(24);
+    const PADDING = moderateScale(20);
+    const SURFACE_SIZE = BOARD_SIZE - PADDING * 2; // ~300-350 depending on screen
+    const COIN_RADIUS = moderateScale(12);
+
+    // Update Physics State
+    const animate = (time) => {
+        if (!lastTimeRef.current) lastTimeRef.current = time;
+        // const deltaTime = time - lastTimeRef.current; // Use for frame-independent if needed
+        lastTimeRef.current = time;
+
+        setCoins(prevCoins => {
+            let nextCoins = [...prevCoins];
+            let moving = false;
+
+            // 1. Move & Wall Collisions
+            nextCoins = nextCoins.map(c => {
+                if (c.potted) return c;
+                if (Math.abs(c.vx) < STOP_THRESHOLD && Math.abs(c.vy) < STOP_THRESHOLD) {
+                    return { ...c, vx: 0, vy: 0 };
+                }
+
+                moving = true;
+                let { x, y, vx, vy } = c;
+
+                // Apply Velocity
+                x += vx;
+                y += vy;
+
+                // Apply Friction
+                vx *= FRICTION;
+                vy *= FRICTION;
+
+                // Wall Collisions
+                // Left
+                if (x < COIN_RADIUS) {
+                    x = COIN_RADIUS;
+                    vx = -vx * WALL_DAMPING;
+                }
+                // Right
+                if (x > SURFACE_SIZE - COIN_RADIUS) {
+                    x = SURFACE_SIZE - COIN_RADIUS;
+                    vx = -vx * WALL_DAMPING;
+                }
+                // Top
+                if (y < COIN_RADIUS) {
+                    y = COIN_RADIUS;
+                    vy = -vy * WALL_DAMPING;
+                }
+                // Bottom
+                if (y > SURFACE_SIZE - COIN_RADIUS) {
+                    y = SURFACE_SIZE - COIN_RADIUS;
+                    vy = -vy * WALL_DAMPING;
+                }
+
+                return { ...c, x, y, vx, vy };
+            });
+
+            // 2. Coin-Coin Collisions (Naive O(N^2))
+            for (let i = 0; i < nextCoins.length; i++) {
+                if (nextCoins[i].potted) continue;
+                for (let j = i + 1; j < nextCoins.length; j++) {
+                    if (nextCoins[j].potted) continue;
+
+                    const c1 = nextCoins[i];
+                    const c2 = nextCoins[j];
+
+                    const dx = c2.x - c1.x;
+                    const dy = c2.y - c1.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < COIN_RADIUS * 2) {
+                        // Collision Detected
+                        // Normalize normal vector
+                        const nx = dx / dist;
+                        const ny = dy / dist;
+
+                        // Relative velocity
+                        const dvx = c2.vx - c1.vx;
+                        const dvy = c2.vy - c1.vy;
+
+                        // Velocity along normal
+                        const velAlongNormal = dvx * nx + dvy * ny;
+
+                        // Do not resolve if moving apart
+                        if (velAlongNormal > 0) continue;
+
+                        // Elastic collision impulse
+                        const restitution = 0.9; // Bounciness
+                        const jVal = -(1 + restitution) * velAlongNormal;
+                        // Assuming equal mass, jVal /= 2 (1/m1 + 1/m2)
+                        const impulse = jVal / 2;
+
+                        // Apply impulse
+                        const impX = impulse * nx;
+                        const impY = impulse * ny;
+
+                        // Update velocities (Dumping factor)
+                        nextCoins[i].vx -= impX * COIN_DAMPING;
+                        nextCoins[i].vy -= impY * COIN_DAMPING;
+                        nextCoins[j].vx += impX * COIN_DAMPING;
+                        nextCoins[j].vy += impY * COIN_DAMPING;
+
+                        // Seperate circles to prevent sticking (Projection)
+                        const overlap = COIN_RADIUS * 2 - dist;
+                        const correction = overlap / 2;
+                        nextCoins[i].x -= nx * correction;
+                        nextCoins[i].y -= ny * correction;
+                        nextCoins[j].x += nx * correction;
+                        nextCoins[j].y += ny * correction;
+
+                        moving = true; // Still active interactions
+
+                        // Haptic feedback for collision (throttle this in real app)
+                        // Vibration.vibrate(5); 
+                    }
+                }
+            }
+
+            // 3. Potting
+            // Pocket coords (approximate centers based on logic)
+            const POCKET_RADIUS = moderateScale(18); // Slightly larger than coin
+            const pockets = [
+                { x: 0, y: 0 },
+                { x: SURFACE_SIZE, y: 0 },
+                { x: 0, y: SURFACE_SIZE },
+                { x: SURFACE_SIZE, y: SURFACE_SIZE }
+            ];
+
+            let pottedAny = false;
+            nextCoins = nextCoins.map(c => {
+                if (c.potted) return c;
+                for (let p of pockets) {
+                    const pdx = c.x - p.x;
+                    const pdy = c.y - p.y;
+                    const pDist = Math.sqrt(pdx * pdx + pdy * pdy);
+                    if (pDist < POCKET_RADIUS) {
+                        // Potted!
+                        pottedAny = true;
+                        handlePot(c);
+                        return { ...c, potted: true, vx: 0, vy: 0 };
+                    }
+                }
+                return c;
+            });
+
+            if (moving) {
+                requestRef.current = requestAnimationFrame(animate);
+            } else {
+                // Turn Over Logic if purely stopped? 
+                // We handle turn switch in handleStrike generally, but here we wait for stability.
+                // For now, let's keep it simple. Only switch turn if nothing potted after shot.
+            }
+            return nextCoins;
+        });
+    };
+
+    const handlePot = (coin) => {
+        Vibration.vibrate(50);
+        if (coin.color === 'white') setWhiteScore(s => s + 10);
+        else if (coin.color === 'black') setBlackScore(s => s + 10);
+        else if (coin.color === 'queen') {
+            if (currentPlayer === 'white') setWhiteScore(s => s + 50);
+            else setBlackScore(s => s + 50);
+        }
+    };
+
+
     const handleStrike = (strikeData) => {
         if (winner) return;
 
-        // Simulate game logic
-        // 1. Move striker
-        // 2. Hit coins (random simulation for now)
-        // 3. Pot detection
+        // Convert Striker Position to Surface Coords
+        // strikerX is -42% to 42%. 
+        // Surface center is SURFACE_SIZE/2. 
+        // track width is basically SURFACE_SIZE. 
+        // strikex=0 -> x=center.
+        const center = SURFACE_SIZE / 2;
+        const strikerRealX = center + (strikeData.x / 100 * SURFACE_SIZE);
 
-        // Randomly pot a coin for demo purposes
-        const chance = Math.random();
+        // Y position: 
+        // Bottom track: near SURFACE_SIZE. Top track: near 0.
+        // Let's assume we spawn a "Striker Coin" and shoot it.
+        // But for simplicity, let's just apply force to the coins directly if they are close?
+        // NO, we need a Striker physics object.
 
-        if (chance > 0.7) {
-            // Pot a coin
-            const unpotted = coins.filter(c => !c.potted);
-            if (unpotted.length > 0) {
-                const target = unpotted[Math.floor(Math.random() * unpotted.length)];
+        // Simulating the Striker as a temporary physics object or just launching a Raycast?
+        // "Game sketer se playable bnao". Striker must physically hit coins.
 
-                // Update coins
-                const newCoins = coins.map(c =>
-                    c.id === target.id ? { ...c, potted: true } : c
-                );
-                setCoins(newCoins);
+        // Let's Add a "Striker" coin to the coins array temporarily!
 
-                // Update Score
-                if (target.color === 'white') setWhiteScore(s => s + 10);
-                else if (target.color === 'black') setBlackScore(s => s + 10);
-                else if (target.color === 'queen') {
-                    if (currentPlayer === 'white') setWhiteScore(s => s + 50);
-                    else setBlackScore(s => s + 50);
-                }
+        const strikerY = currentPlayer === 'white' ? SURFACE_SIZE - moderateScale(42) : moderateScale(42);
+        const shootDir = currentPlayer === 'white' ? -1 : 1;
 
-                Vibration.vibrate(50);
+        const power = 25; // Base power
 
-                // Don't switch turn if potted (Carrom rule)
-                return;
-            }
-        }
+        // Create Striker Object
+        const strikerObj = {
+            id: 'striker',
+            color: 'striker', // specialized
+            x: strikerRealX,
+            y: strikerY,
+            vx: 0, // Impulse X (maybe based on gesture later)
+            vy: power * shootDir, // Shoot straight forward
+            potted: false,
+            isStriker: true // Flag to remove later
+        };
 
-        // Switch turn if nothing potted
-        setCurrentPlayer(prev => prev === 'white' ? 'black' : 'white');
+        setCoins(prev => [...prev, strikerObj]);
+
+        // Start Loop
+        requestRef.current = requestAnimationFrame(animate);
+
+        // Cleanup Striker after delay (simulating it returns)
+        setTimeout(() => {
+            setCoins(prev => prev.filter(c => c.id !== 'striker'));
+            // Switch turn logic can go here if we track 'pottedAny'
+            setCurrentPlayer(prev => prev === 'white' ? 'black' : 'white');
+        }, 5000);
     };
 
     // Check Winner

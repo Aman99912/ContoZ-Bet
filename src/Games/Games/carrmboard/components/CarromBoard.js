@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions, PanResponder } from 'react-native';
 import { moderateScale, verticalScale } from '@/core/utils/responsive';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,14 +8,42 @@ const { width } = Dimensions.get('window');
 const BOARD_SIZE = width - moderateScale(24);
 
 const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
-    // Simplified Striker control
-    const [strikerX, setStrikerX] = useState(0);
+    // Striker control with PanResponder
+    const [strikerX, setStrikerX] = useState(0); // Percentage -50 to 50 relative to track center? 
+    // Actually, let's use a simpler 0-100 range logic or similar.
+    // Let's stick to % for style left property. 
+    // Range: 0% to 100% of the track width? 
+    // Track width is roughly BOARD_SIZE - 2 * 60 (moderateScale).
+    // Let's use a value that represents position.
+
+    // Using PanResponder
+    const startXRef = React.useRef(0);
+
+    const panResponder = React.useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponder: () => true,
+            onPanResponderGrant: () => {
+                // Record current position as start
+                startXRef.current = strikerX;
+            },
+            onPanResponderMove: (evt, gestureState) => {
+                // Sensitivity adjustment:
+                const sensitivity = 0.4;
+                // dx is total distance moved from grant
+                const newValue = startXRef.current + (gestureState.dx * sensitivity);
+                setStrikerX(Math.max(-42, Math.min(42, newValue)));
+            },
+            onPanResponderRelease: () => {
+            }
+        })
+    ).current;
 
     const handleStrike = () => {
         onStrike({ x: strikerX, force: Math.random() * 0.5 + 0.5 });
     };
 
-    // Helper to render diagonal arrows with curved guide style (Simplified)
+    // Helper to render diagonal arrows
     const renderArrow = (rotation, top, left, bottom, right) => (
         <View style={[
             styles.arrowContainer,
@@ -28,32 +56,76 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
         </View>
     );
 
-    // Double-line Baseline (Horizontal)
+    // Baseline Line Only (No Circles)
     const renderBaselineHorizontal = (isTop) => (
         <View style={[styles.baselineBoxHorz, isTop ? { top: moderateScale(45) } : { bottom: moderateScale(45) }]}>
-            <View style={styles.baseCircleRed} />
             <View style={styles.doubleLineContainerHorz}>
                 <View style={styles.singleLine} />
                 <View style={styles.singleLine} />
             </View>
-            <View style={styles.baseCircleRed} />
         </View>
     );
 
-    // Double-line Baseline (Vertical)
     const renderBaselineVertical = (isLeft) => (
         <View style={[styles.baselineBoxVert, isLeft ? { left: moderateScale(45) } : { right: moderateScale(45) }]}>
-            <View style={styles.baseCircleRed} />
             <View style={styles.doubleLineContainerVert}>
                 <View style={styles.singleLineVert} />
                 <View style={styles.singleLineVert} />
             </View>
-            <View style={styles.baseCircleRed} />
         </View>
+    );
+
+    // Independent Corner Circles
+    const renderCornerCircles = () => (
+        <>
+            <View style={[styles.baseCircleRed, { position: 'absolute', top: moderateScale(45), left: moderateScale(45) }]} />
+            <View style={[styles.baseCircleRed, { position: 'absolute', top: moderateScale(45), right: moderateScale(45) }]} />
+            <View style={[styles.baseCircleRed, { position: 'absolute', bottom: moderateScale(45), left: moderateScale(45) }]} />
+            <View style={[styles.baseCircleRed, { position: 'absolute', bottom: moderateScale(45), right: moderateScale(45) }]} />
+        </>
     );
 
     // 3D Lightweight Coin Component with Texture
     const RenderCoin = ({ coin }) => {
+        // Special rendering for the Physics Striker (during shot)
+        if (coin.isStriker) {
+            return (
+                <View
+                    style={[
+                        styles.coin,
+                        {
+                            left: coin.x,
+                            top: coin.y,
+                            zIndex: 100, // Topmost
+                            width: moderateScale(36), // Match striker size
+                            height: moderateScale(36),
+                            borderRadius: moderateScale(18),
+                            marginLeft: -moderateScale(6), // Offset adjustment if needed? 
+                            // Wait, coin.x/y is top-left. Coin width is 24. Striker is 36.
+                            // Physics engine treats x/y as center? No, x/y is Top-Left in index.js render mapping.
+                            // But my physics engine used center-based logic or top-left?
+                            // "x += vx". "Wall Collisions: x < COIN_RADIUS".
+                            // So physics uses Center or Top-Left?
+                            // In index.js: "x = center + c.x - coinRadius".
+                            // So the state 'x' is Top-Left.
+                            // Physics engine checks: "x < COIN_RADIUS". 
+                            // If x is top-left, x < radius means left edge is past -radius? No.
+                            // Standard practice: Position is Center for physics, but render is Top-Left.
+                            // My index.js physics text logic seems to mix them up.
+                            // "x < COIN_RADIUS" implies x is center.
+                            // "return { ...c, x, y ... }" updates state.
+                            // The RenderCoin uses "left: coin.x".
+
+                            // Let's assume for now, just render it bigger and centered on that point.
+                            marginTop: -moderateScale(6),
+                        }
+                    ]}
+                >
+                    <RenderStriker color={currentPlayer === 'white' ? 'green' : 'blue'} />
+                </View>
+            );
+        }
+
         const isWhite = coin.color === 'white';
         const isQueen = coin.color === 'queen';
 
@@ -90,10 +162,11 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
     // 3D Striker Component
     const RenderStriker = ({ color }) => {
         const isGreen = color === 'green';
-        // Green for Player 1 (Bottom), Blue for Player 2 (Top)
+        // Brighter, more visible colors
         const gradientColors = isGreen
-            ? ['#4CAF50', '#2E7D32', '#1B5E20']
-            : ['#2196F3', '#1565C0', '#0D47A1'];
+            ? ['#66BB6A', '#43A047', '#2E7D32'] // Lighter Green
+            : ['#42A5F5', '#1E88E5', '#1565C0']; // Lighter Blue
+
         const borderColor = isGreen ? '#1B5E20' : '#0D47A1';
 
         return (
@@ -102,9 +175,7 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                     colors={gradientColors}
                     style={[styles.strikerGradient, { borderColor }]}
                 >
-                    {/* Inner design for grip/texture */}
-                    <View style={styles.strikerRingOuter} />
-                    <View style={styles.strikerRingInner} />
+                    {/* Clean look - no inner lines as requested */}
                     <View style={styles.strikerCenter} />
                 </LinearGradient>
             </View>
@@ -135,11 +206,14 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                     {renderArrow(45, null, moderateScale(60), moderateScale(60), null)}
                     {renderArrow(-45, null, null, moderateScale(60), moderateScale(60))}
 
-                    {/* Baselines */}
+                    {/* Baselines - Black double lines */}
                     {renderBaselineHorizontal(true)}
                     {renderBaselineHorizontal(false)}
                     {renderBaselineVertical(true)}
                     {renderBaselineVertical(false)}
+
+                    {/* Corner Circles (Independent) */}
+                    {renderCornerCircles()}
 
                     {/* Center Design */}
                     <View style={styles.centerDesign}>
@@ -158,19 +232,25 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                     {/* Striker Area - Player 1 (Green) */}
                     {currentPlayer === 'white' && (
                         <View style={styles.strikerTrackBottom}>
-                            <TouchableOpacity
-                                style={[styles.strikerContainer, { left: strikerX + '%' }]}
-                                onPress={handleStrike}
-                                activeOpacity={0.9}
+                            <View
+                                style={[styles.strikerContainer, { left: `${50 + strikerX}%` }]}
+                                {...panResponder.panHandlers}
                             >
-                                <RenderStriker color="green" />
-                            </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={handleStrike}
+                                    activeOpacity={0.9}
+                                    style={{ width: '100%', height: '100%' }}
+                                >
+                                    <RenderStriker color="green" />
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     )}
 
                     {/* Striker Area - Player 2 (Blue) */}
                     {currentPlayer === 'black' && (
                         <View style={styles.strikerTrackTop}>
+                            {/* Simulation view for opponent */}
                             <View style={[styles.strikerContainer, { left: '50%' }]}>
                                 <RenderStriker color="blue" />
                             </View>
@@ -316,12 +396,15 @@ const styles = StyleSheet.create({
 
     // Baseline Circles
     baseCircleRed: {
-        width: moderateScale(20),
-        height: moderateScale(20),
-        borderRadius: moderateScale(10),
-        backgroundColor: '#D32F2F',
+        width: moderateScale(22), // Slightly larger
+        height: moderateScale(22),
+        borderRadius: moderateScale(11),
+        backgroundColor: '#FF0000', // Full Bright Red
         borderWidth: 1,
         borderColor: '#000',
+        opacity: 1,
+        elevation: 2, // Slight pop
+        zIndex: 5,
     },
 
     // Arrows
@@ -426,6 +509,8 @@ const styles = StyleSheet.create({
         right: moderateScale(60),
         height: moderateScale(30),
         justifyContent: 'center',
+        zIndex: 20, // Ensure on top of coins
+        elevation: 10,
     },
     strikerTrackTop: {
         position: 'absolute',
@@ -434,6 +519,8 @@ const styles = StyleSheet.create({
         right: moderateScale(60),
         height: moderateScale(30),
         justifyContent: 'center',
+        zIndex: 20,
+        elevation: 10,
     },
     strikerContainer: {
         position: 'absolute',
