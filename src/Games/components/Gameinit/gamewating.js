@@ -57,6 +57,12 @@ const GameWaiting = () => {
                     entryFee,
                     prizePool
                 });
+            } else if (gameTitle === 'Carrom Board') {
+                navigation.replace('CarromGame', {
+                    gameTitle,
+                    entryFee,
+                    prizePool
+                });
             }
             // Add other games here as they become real
         }, 3000);
@@ -145,6 +151,8 @@ const GameWaiting = () => {
                         onPress={() => {
                             if (gameTitle === 'Tic Tac Toe') {
                                 navigation.replace('TicTacToe', { gameTitle, entryFee, prizePool });
+                            } else if (gameTitle === 'Carrom Board') {
+                                navigation.replace('CarromGame', { gameTitle, entryFee, prizePool });
                             }
                         }}
                         activeOpacity={0.7}

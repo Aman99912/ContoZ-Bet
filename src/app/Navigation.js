@@ -26,6 +26,7 @@ import EmailVerify from '@/screen/profile/components/emailVerfiy';
 import GameInit from '@/Games/components/Gameinit/gameinit';
 import GameWaiting from '@/Games/components/Gameinit/gamewating';
 import TicTacToe from '@/Games/Games/tic-tac';
+import CarromGame from '@/Games/Games/carrmboard';
 import SplashScreen from '@/screen/splash/SplashScreen';
 
 const Stack = createNativeStackNavigator();
@@ -150,6 +151,7 @@ const Navigation = () => {
                     <Stack.Screen name="GameInit" component={GameInit} />
                     <Stack.Screen name="GameWaiting" component={GameWaiting} />
                     <Stack.Screen name="TicTacToe" component={TicTacToe} />
+                    <Stack.Screen name="CarromGame" component={CarromGame} />
                 </Stack.Navigator>
             </NavigationContainer>
         </ThemeProvider>
