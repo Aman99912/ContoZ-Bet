@@ -280,7 +280,7 @@ const CarromGame = ({ navigation, route }) => {
         // track width is basically SURFACE_SIZE. 
         // strikex=0 -> x=center.
         const center = SURFACE_SIZE / 2;
-        const strikerRealX = center + (strikeData.x / 100 * SURFACE_SIZE);
+        const strikerRealX = center + (strikeData.startX / 100 * SURFACE_SIZE);
 
         // Y position: 
         // Bottom track: near SURFACE_SIZE. Top track: near 0.
@@ -294,9 +294,6 @@ const CarromGame = ({ navigation, route }) => {
         // Let's Add a "Striker" coin to the coins array temporarily!
 
         const strikerY = currentPlayer === 'white' ? SURFACE_SIZE - moderateScale(42) : moderateScale(42);
-        const shootDir = currentPlayer === 'white' ? -1 : 1;
-
-        const power = 25; // Base power
 
         // Create Striker Object
         const strikerObj = {
@@ -304,8 +301,8 @@ const CarromGame = ({ navigation, route }) => {
             color: 'striker', // specialized
             x: strikerRealX,
             y: strikerY,
-            vx: 0, // Impulse X (maybe based on gesture later)
-            vy: power * shootDir, // Shoot straight forward
+            vx: strikeData.vx || 0,
+            vy: strikeData.vy || 0,
             potted: false,
             isStriker: true // Flag to remove later
         };

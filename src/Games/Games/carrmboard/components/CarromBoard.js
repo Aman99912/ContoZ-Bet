@@ -16,31 +16,118 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
     // Track width is roughly BOARD_SIZE - 2 * 60 (moderateScale).
     // Let's use a value that represents position.
 
-    // Using PanResponder
+    // Interaction State
+    const [dragState, setDragState] = useState('IDLE'); // IDLE, MOVING, AIMING
+    const [aimVector, setAimVector] = useState({ x: 0, y: 0 });
     const startXRef = React.useRef(0);
 
     const panResponder = React.useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
-            onMoveShouldSetPanResponder: () => true,
+            onMoveShouldSetSetPanResponder: () => true,
             onPanResponderGrant: () => {
-                // Record current position as start
                 startXRef.current = strikerX;
+                setDragState('IDLE');
+                setAimVector({ x: 0, y: 0 });
             },
             onPanResponderMove: (evt, gestureState) => {
-                // Sensitivity adjustment:
-                const sensitivity = 0.4;
-                // dx is total distance moved from grant
-                const newValue = startXRef.current + (gestureState.dx * sensitivity);
-                setStrikerX(Math.max(-42, Math.min(42, newValue)));
+                const { dx, dy } = gestureState;
+
+                // Determine Mode if IDLE
+                // Thresholds: small movements ignored
+                if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+
+                let currentMode = dragState;
+                if (currentMode === 'IDLE') {
+                    // If vertical movement dominates, switch to AIMING (Pull back)
+                    // For P1 (bottom), pull down (dy > 0). For P2 (top), pull up (dy < 0).
+                    const isPullBack = currentPlayer === 'white' ? dy > 0 : dy < 0;
+
+                    if (Math.abs(dy) > Math.abs(dx) && isPullBack) {
+                        currentMode = 'AIMING';
+                        setDragState('AIMING');
+                    } else {
+                        currentMode = 'MOVING';
+                        setDragState('MOVING');
+                    }
+                }
+
+                if (currentMode === 'MOVING') {
+                    const sensitivity = 0.4;
+                    const newValue = startXRef.current + (dx * sensitivity);
+                    setStrikerX(Math.max(-42, Math.min(42, newValue)));
+                } else if (currentMode === 'AIMING') {
+                    // Update Aim Vector (Visual only)
+                    // We just track the raw drag vector
+                    setAimVector({ x: dx, y: dy });
+                }
             },
-            onPanResponderRelease: () => {
+            onPanResponderRelease: (evt, gestureState) => {
+                if (dragState === 'AIMING') {
+                    // Calculate and Fire Shot
+                    // Shot vector is opposite to drag vector
+                    const { dx, dy } = gestureState;
+
+                    // Scale factor for power
+                    const POWER_FACTOR = 0.15;
+                    const vx = -dx * POWER_FACTOR;
+                    const vy = -dy * POWER_FACTOR;
+
+                    // Cap max power if needed
+                    // const mag = Math.sqrt(vx*vx + vy*vy);
+                    // if (mag > MAX) ...
+
+                    onStrike({ startX: strikerX, vx, vy });
+                }
+                setDragState('IDLE');
+                setAimVector({ x: 0, y: 0 });
             }
         })
     ).current;
 
     const handleStrike = () => {
-        onStrike({ x: strikerX, force: Math.random() * 0.5 + 0.5 });
+        // This handleStrike is now only for the button, not the pan responder.
+        // The pan responder release handles the actual strike.
+        // This button strike can be a default "straight shot" or removed.
+        // For now, let's keep it as a simple straight shot if the button is pressed.
+        onStrike({ startX: strikerX, vx: 0, vy: -10 }); // Example: straight shot with some force
+    };
+
+    // Helper to render aim line
+    const renderAimLine = () => {
+        if (dragState !== 'AIMING') return null;
+
+        // Line from Striker Center to Opposite of Drag
+        // Visualization: Show the direction the striker will GO (opposite to pull)
+        // Length proportional to power
+        const { x, y } = aimVector;
+        const lineLen = Math.sqrt(x * x + y * y);
+        const angle = Math.atan2(-y, -x) * (180 / Math.PI); // Angle of shot
+
+        // We render a simple stick coming out of the striker
+        // This view is relative to the Striker Container
+        return (
+            <View style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: lineLen, // Length of drag
+                height: 4,
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: 2,
+                transform: [
+                    { translateY: -2 }, // Center vertically
+                    { rotate: `${angle}deg` }, // Rotate to shot direction
+                    { translateX: lineLen / 2 } // Offset so it starts from center? 
+                    // Pivot is center. translateX moves it "forward".
+                    // Actually, standard transform origin is center.
+                    // If width is lineLen, we want left edge at center.
+                    // React Native transform origin is center.
+                    // So translateX: lineLen/2 moves it so left edge is at original center.
+                ],
+                zIndex: -1, // Behind striker
+            }} />
+        );
     };
 
     // Helper to render diagonal arrows
@@ -219,7 +306,7 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                     <View style={styles.centerDesign}>
                         <View style={styles.centerOuterLoop} />
                         <View style={styles.centerMiddleFill} />
-                        <View style={styles.centerRedDot} />
+                        <View style={styles. centerRedDot} />
                     </View>
 
                     {/* Coins */}
@@ -236,6 +323,7 @@ const CarromBoard = ({ coins, striker, onStrike, currentPlayer }) => {
                                 style={[styles.strikerContainer, { left: `${50 + strikerX}%` }]}
                                 {...panResponder.panHandlers}
                             >
+                                {renderAimLine()}
                                 <TouchableOpacity
                                     onPress={handleStrike}
                                     activeOpacity={0.9}
