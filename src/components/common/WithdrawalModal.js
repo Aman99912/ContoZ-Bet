@@ -197,9 +197,18 @@ const WithdrawalModal = ({
                                             textStyle={styles.amountText}
                                         />
                                         {error ? <CText style={[styles.errorText, { color: colors.error }]}>{error}</CText> : null}
-                                        <CText style={[styles.hintText, { color: colors.textPrimary, opacity: 0.7 }]}>
-                                            Min: ₹{dynamicMin} {txCharge > 0 ? `| Charge: ${txCharge}%` : ''}
-                                        </CText>
+
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: verticalScale(8) }}>
+                                            <CText style={[styles.hintText, { color: colors.textSecondary, marginTop: 0 }]}>
+                                                Min: ₹{dynamicMin} {txCharge > 0 ? `| Tax: ${txCharge}%` : ''}
+                                            </CText>
+
+                                            {amount && !isNaN(amount) && Number(amount) > 0 ? (
+                                                <CText style={[styles.hintText, { color: colors.primary, fontWeight: 'bold', marginTop: 0 }]}>
+                                                    Receivable: ₹{(Number(amount) - (Number(amount) * txCharge / 100)).toFixed(2)}
+                                                </CText>
+                                            ) : null}
+                                        </View>
                                     </View>
 
                                     {/* Terms Checkbox */}
